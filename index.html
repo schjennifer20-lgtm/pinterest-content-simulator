@@ -1,0 +1,3565 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pinterest Content Simulator</title>
+
+<!-- SEO & Beschreibung -->
+<meta name="description" content="Plant, bewertet und optimiert Pinterest-Pins inkl. Score-System, Referenz-Pin-Analyse, Bild-Upload und Backup. Läuft vollständig lokal im Browser.">
+<meta name="robots" content="noindex, nofollow">
+
+<!-- Theme-Farbe für mobile Browser (Chrome, Safari) -->
+<meta name="theme-color" content="#E60023">
+
+<!-- Apple Mobile Web App -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Pin Simulator">
+
+<!-- Inline SVG-Favicon – keine externe Datei benötigt -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📌</text></svg>">
+
+<!-- Open Graph (für Social Sharing falls öffentlich) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pinterest Content Simulator">
+<meta property="og:description" content="Plant, bewertet und optimiert Pinterest-Pins – läuft vollständig lokal im Browser.">
+
+<style>
+  :root{
+    --ink:#1B1B1F;
+    --muted:#6B6660;
+    --paper:#FBF8F6;
+    --card:#FFFFFF;
+    --sand:#E6DFD9;
+    --pin:#E60023;
+    --pin-dark:#AD001B;
+    --sage:#2F6F4E;
+    --sage-tint:#E4EFE8;
+    --amber:#C97A1A;
+    --amber-tint:#F8EAD8;
+    --danger:#B3412B;
+    --danger-tint:#F5E3DD;
+    --idee:#8A8378;
+    --idee-tint:#EFEBE6;
+    --radius-lg:16px;
+    --radius-md:10px;
+    --shadow-card:0 1px 2px rgba(27,27,31,0.06), 0 6px 16px rgba(27,27,31,0.06);
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  body.modal-open{ overflow:hidden; }
+
+  h1,h2,h3{ font-family:var(--font-display); margin:0; }
+
+  button{ font-family:var(--font-body); }
+  input,select,textarea{ font-family:var(--font-body); }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible{
+    outline:2px solid var(--pin);
+    outline-offset:2px;
+  }
+
+  .hidden{ display:none !important; }
+
+  /* Header */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:30;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    padding:.9rem 1rem;
+    background:var(--paper);
+    border-bottom:1px solid var(--sand);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    font-family:var(--font-display);
+    font-size:1.15rem;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .brand .pin-icon{ font-size:1.3rem; }
+
+  .view-toggle{
+    display:flex;
+    gap:.25rem;
+    background:var(--sand);
+    padding:.25rem;
+    border-radius:999px;
+  }
+  .pin-db-mode-toggle{
+    margin-bottom:1rem;
+  }
+  .nav-btn{
+    background:transparent;
+    border:none;
+    padding:.5rem 1rem;
+    border-radius:999px;
+    font-weight:600;
+    font-size:.85rem;
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .nav-btn.active{
+    background:var(--pin);
+    color:#fff;
+  }
+
+  main{
+    padding:1rem;
+    padding-bottom:6rem;
+  }
+
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .storage-banner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    background:var(--danger-tint);
+    color:var(--danger);
+    border:1px solid var(--danger);
+    border-radius:var(--radius-md);
+    padding:.75rem 1rem;
+    margin-bottom:1.25rem;
+    font-size:.82rem;
+    line-height:1.4;
+  }
+  .storage-banner button{
+    background:transparent;
+    border:none;
+    color:var(--danger);
+    font-size:1rem;
+    cursor:pointer;
+    flex-shrink:0;
+    padding:.1rem .3rem;
+  }
+  .storage-banner.banner-success{
+    background:var(--sage-tint);
+    color:var(--sage);
+    border-color:var(--sage);
+  }
+  .storage-banner.banner-success button{
+    color:var(--sage);
+  }
+
+  /* Dashboard */
+  .dash-stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+    gap:.75rem;
+    margin-bottom:1.5rem;
+  }
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:1rem;
+    display:flex;
+    flex-direction:column;
+    gap:.25rem;
+    box-shadow:var(--shadow-card);
+  }
+  .stat-number{
+    font-family:var(--font-mono);
+    font-size:1.8rem;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .stat-label{
+    font-size:.78rem;
+    color:var(--muted);
+  }
+
+  .dash-block{ margin-bottom:1.5rem; }
+  .dash-block h2{
+    font-size:1.05rem;
+    margin-bottom:.7rem;
+    color:var(--ink);
+  }
+
+  .status-overview{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.6rem;
+  }
+  .status-stat{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    background:var(--card);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.5rem .8rem;
+    flex:1 1 150px;
+    justify-content:space-between;
+  }
+  .status-count{
+    font-family:var(--font-mono);
+    font-weight:700;
+  }
+
+  .low-score-list{
+    display:flex;
+    flex-direction:column;
+    gap:.5rem;
+  }
+  .low-score-item{
+    display:flex;
+    align-items:center;
+    gap:.7rem;
+    width:100%;
+    text-align:left;
+    background:var(--card);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.6rem .8rem;
+    cursor:pointer;
+  }
+  .low-score-item:hover{ background:var(--paper); }
+  .low-score-title{
+    font-size:.88rem;
+    color:var(--ink);
+  }
+  .empty-hint{
+    color:var(--muted);
+    font-size:.85rem;
+  }
+
+  .backup-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.6rem;
+    margin-bottom:.6rem;
+  }
+  #export-btn, #import-btn, #paste-import-btn{
+    background:transparent;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.55rem .9rem;
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    flex:1 1 160px;
+  }
+  #export-btn:hover, #import-btn:hover, #paste-import-btn:hover{ background:var(--card); }
+  .backup-hint{
+    font-size:.76rem;
+    color:var(--muted);
+    margin:0;
+  }
+
+  /* Badges */
+  .badge{
+    display:inline-block;
+    padding:.25rem .6rem;
+    border-radius:999px;
+    font-size:.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.02em;
+    white-space:nowrap;
+  }
+  .status-idee{ background:var(--idee-tint); color:var(--idee); }
+  .status-entwurf{ background:var(--amber-tint); color:var(--amber); }
+  .status-optimiert{ background:var(--sage-tint); color:var(--sage); }
+  .status-bereit{ background:#FCE4E8; color:var(--pin-dark); }
+
+  /* Kompakte Status-Badges mit Icon (nur Pin-Karten in der Pin-Datenbank) */
+  .badge-compact{
+    text-transform:none;
+    letter-spacing:normal;
+    padding:.3rem .6rem;
+    font-size:.74rem;
+    display:inline-flex;
+    align-items:center;
+    gap:.3rem;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:75%;
+    flex-shrink:1;
+    min-width:0;
+  }
+
+  .score-chip{
+    font-family:var(--font-mono);
+    font-weight:700;
+    min-width:2.1rem;
+    height:2.1rem;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.82rem;
+    flex-shrink:0;
+  }
+  .tier-high{ background:var(--sage-tint); color:var(--sage); }
+  .tier-mid{ background:var(--amber-tint); color:var(--amber); }
+  .tier-low{ background:var(--danger-tint); color:var(--danger); }
+
+  /* Toolbar / Filters */
+  .toolbar{
+    display:flex;
+    flex-direction:column;
+    gap:.7rem;
+    margin-bottom:.5rem;
+  }
+  #search-input{
+    width:100%;
+    padding:.65rem .9rem;
+    border:1px solid var(--sand);
+    border-radius:999px;
+    background:var(--card);
+    font-size:.9rem;
+    color:var(--ink);
+  }
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+  }
+  .filters select{
+    padding:.5rem .6rem;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    background:var(--card);
+    font-size:.82rem;
+    color:var(--ink);
+    flex:1 1 140px;
+  }
+  #reset-filters{
+    background:transparent;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.5rem .8rem;
+    font-size:.8rem;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    flex:1 1 140px;
+  }
+  #reset-filters:hover{ background:var(--card); }
+
+  #load-demo-btn{
+    background:transparent;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.5rem .8rem;
+    font-size:.8rem;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    flex:1 1 140px;
+  }
+  #load-demo-btn:hover{ background:var(--card); }
+
+  .result-count{
+    font-family:var(--font-mono);
+    font-size:.76rem;
+    color:var(--muted);
+    margin:.5rem 0;
+  }
+
+  /* Pin grid */
+  .pin-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:1rem;
+  }
+  .pin-card{
+    background:var(--card);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-lg);
+    padding:1rem;
+    display:flex;
+    flex-direction:column;
+    gap:.6rem;
+    box-shadow:var(--shadow-card);
+    transition:transform .15s ease, box-shadow .15s ease;
+    cursor:pointer;
+  }
+  .pin-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 10px rgba(27,27,31,.1), 0 10px 24px rgba(27,27,31,.08);
+  }
+  .pin-card-image{
+    width:calc(100% + 2rem);
+    margin:-1rem -1rem 0;
+    aspect-ratio:4 / 3;
+    overflow:hidden;
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+    background:var(--paper);
+  }
+  .pin-card-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .pin-card-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.5rem;
+    flex-wrap:nowrap;
+  }
+  .pin-title{
+    font-size:1.02rem;
+    line-height:1.3;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .pin-desc{
+    font-size:.83rem;
+    color:var(--muted);
+    line-height:1.4;
+    margin:0;
+  }
+  .pin-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    font-size:.74rem;
+    color:var(--muted);
+  }
+  .meta-item{
+    display:inline-flex;
+    align-items:center;
+    gap:.25rem;
+  }
+  .evergreen-tag{
+    color:var(--sage);
+    font-weight:600;
+  }
+  .pin-keywords{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.35rem;
+  }
+  .kw-tag{
+    background:var(--paper);
+    border:1px solid var(--sand);
+    border-radius:999px;
+    padding:.15rem .55rem;
+    font-size:.7rem;
+    color:var(--ink);
+  }
+  .kw-extra{ color:var(--muted); }
+
+  .pin-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    border-top:1px solid var(--sand);
+    padding-top:.6rem;
+    margin-top:.1rem;
+  }
+  .icon-btn{
+    background:transparent;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.4rem .6rem;
+    font-size:.76rem;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .icon-btn:hover{ background:var(--paper); }
+  .icon-btn.danger{ color:var(--danger); border-color:var(--danger-tint); }
+  .icon-btn.danger:hover{ background:var(--danger-tint); }
+
+  .empty-state{
+    text-align:center;
+    color:var(--muted);
+    padding:3rem 1rem;
+    font-size:.9rem;
+  }
+
+  /* FAB */
+  #fab{
+    position:fixed;
+    right:1.25rem;
+    bottom:1.25rem;
+    width:3.5rem;
+    height:3.5rem;
+    border-radius:50%;
+    background:var(--pin);
+    color:#fff;
+    border:none;
+    font-size:1.9rem;
+    line-height:1;
+    box-shadow:0 6px 16px rgba(230,0,35,.35);
+    cursor:pointer;
+    z-index:40;
+  }
+  #fab:hover{ background:var(--pin-dark); }
+  #fab:active{ transform:scale(.95); }
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(27,27,31,.5);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+    padding:0;
+  }
+  .modal{
+    background:var(--card);
+    width:100%;
+    max-width:560px;
+    max-height:92vh;
+    overflow-y:auto;
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+    padding:1.25rem;
+  }
+  .modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:.5rem;
+  }
+  .modal-header h2{ font-size:1.2rem; }
+  #modal-close{
+    background:transparent;
+    border:none;
+    font-size:1.2rem;
+    cursor:pointer;
+    color:var(--muted);
+    padding:.25rem .5rem;
+  }
+
+  #pin-form label{
+    display:block;
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--ink);
+    margin:.9rem 0 .3rem;
+  }
+  #pin-form input[type="text"],
+  #pin-form textarea,
+  #pin-form select{
+    width:100%;
+    padding:.6rem .7rem;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    font-size:.88rem;
+    color:var(--ink);
+    background:var(--paper);
+  }
+  #pin-form textarea{ resize:vertical; min-height:80px; }
+
+  #reference-form label{
+    display:block;
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--ink);
+    margin:.9rem 0 .3rem;
+  }
+  #reference-form input[type="text"],
+  #reference-form textarea,
+  #reference-form select{
+    width:100%;
+    padding:.6rem .7rem;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    font-size:.88rem;
+    color:var(--ink);
+    background:var(--paper);
+  }
+  #reference-form textarea{ resize:vertical; min-height:70px; }
+  #reference-image{
+    padding:.5rem;
+    background:var(--paper);
+  }
+
+  .form-section-title{
+    font-family:var(--font-display);
+    font-size:1rem;
+    margin:1.3rem 0 .3rem;
+    padding-top:1rem;
+    border-top:1px solid var(--sand);
+    color:var(--ink);
+  }
+
+  .checkbox-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:.4rem;
+    margin:.4rem 0 1rem;
+  }
+  #reference-form .checkbox-grid label{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    font-size:.8rem;
+    font-weight:500;
+    color:var(--ink);
+    margin:0;
+    padding:.45rem .55rem;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    cursor:pointer;
+    background:var(--card);
+  }
+  .checkbox-grid label input{
+    flex-shrink:0;
+    width:auto;
+  }
+  .checkbox-grid label.auto-detected{
+    border-color:var(--sage);
+  }
+
+  .privacy-hint{
+    font-size:.76rem;
+    color:var(--muted);
+    background:var(--paper);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.6rem .8rem;
+    margin:0 0 1rem;
+    line-height:1.4;
+  }
+
+  #pin-image{
+    padding:.5rem;
+    background:var(--paper);
+  }
+  .image-preview-wrap{
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    margin-top:.6rem;
+  }
+  .image-preview-wrap img{
+    width:72px;
+    height:72px;
+    object-fit:cover;
+    border-radius:var(--radius-md);
+    border:1px solid var(--sand);
+    flex-shrink:0;
+  }
+  .image-info{
+    font-size:.74rem;
+    color:var(--muted);
+    margin:.4rem 0 0;
+  }
+  .image-error{
+    font-size:.78rem;
+    color:var(--danger);
+    margin:.4rem 0 0;
+  }
+
+  .form-row{
+    display:flex;
+    gap:.75rem;
+    flex-wrap:wrap;
+  }
+  .form-col{ flex:1 1 140px; }
+
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    margin-top:1.1rem;
+    font-size:.85rem;
+    font-weight:500;
+  }
+  .checkbox-row input{ width:auto; }
+
+  .score-preview{
+    margin-top:1.1rem;
+    padding:.85rem;
+    background:var(--paper);
+    border:1px dashed var(--sand);
+    border-radius:var(--radius-md);
+  }
+  .score-preview-title{
+    font-size:.74rem;
+    font-weight:700;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    margin-bottom:.55rem;
+  }
+  .score-preview-row{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    margin-bottom:.55rem;
+    font-weight:700;
+  }
+  .score-preview-bars{
+    display:flex;
+    flex-direction:column;
+    gap:.2rem;
+    font-size:.78rem;
+    color:var(--muted);
+    font-family:var(--font-mono);
+  }
+
+  .form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:.6rem;
+    margin-top:1.3rem;
+  }
+  .btn-primary{
+    background:var(--pin);
+    color:#fff;
+    border:none;
+    padding:.65rem 1.3rem;
+    border-radius:999px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:.88rem;
+  }
+  .btn-primary:hover{ background:var(--pin-dark); }
+  .btn-primary:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+  .btn-primary:disabled:hover{ background:var(--pin); }
+  .btn-secondary{
+    background:transparent;
+    border:1px solid var(--sand);
+    color:var(--ink);
+    padding:.65rem 1.3rem;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:.88rem;
+  }
+  .btn-secondary:hover{ background:var(--paper); }
+
+  /* Import-Vorschau (Version 1.3) */
+  .import-summary{
+    font-size:.88rem;
+    color:var(--ink);
+    margin:0 0 1rem;
+    line-height:1.4;
+  }
+  .import-warning{
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--danger);
+    margin:-.4rem 0 1rem;
+    line-height:1.4;
+  }
+  .import-mode-options{
+    display:flex;
+    flex-direction:column;
+    gap:.6rem;
+    margin-bottom:1rem;
+  }
+  .import-mode-option{
+    display:flex;
+    align-items:flex-start;
+    gap:.6rem;
+    padding:.75rem;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    cursor:pointer;
+    font-size:.85rem;
+    color:var(--ink);
+    line-height:1.4;
+  }
+  .import-mode-option input{
+    margin-top:.2rem;
+    flex-shrink:0;
+  }
+  .import-confirm-checkbox{
+    display:flex;
+    align-items:flex-start;
+    gap:.5rem;
+    padding:.75rem;
+    background:var(--danger-tint);
+    border:1px solid var(--danger);
+    border-radius:var(--radius-md);
+    font-size:.82rem;
+    color:var(--danger);
+    margin-bottom:1rem;
+    line-height:1.4;
+  }
+  .import-confirm-checkbox input{
+    margin-top:.2rem;
+    flex-shrink:0;
+  }
+
+  /* Export-Text-Fallback (navigator.share nicht verfügbar) */
+  .export-text-hint{
+    font-size:.85rem;
+    color:var(--ink);
+    line-height:1.4;
+    margin:0;
+  }
+  #export-text-area{
+    width:100%;
+    height:220px;
+    padding:.7rem;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    line-height:1.4;
+    color:var(--ink);
+    background:var(--paper);
+    resize:vertical;
+    margin:.9rem 0;
+  }
+  .export-text-status{
+    font-size:.78rem;
+    color:var(--sage);
+    margin:.7rem 0 0;
+  }
+
+  /* Text-/Zwischenablage-Import (Version 1.3.1) */
+  .paste-import-hint{
+    font-size:.85rem;
+    color:var(--ink);
+    line-height:1.4;
+    margin:0;
+  }
+  #paste-import-area{
+    width:100%;
+    height:200px;
+    padding:.7rem;
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    line-height:1.4;
+    color:var(--ink);
+    background:var(--paper);
+    resize:vertical;
+    margin:.9rem 0;
+  }
+
+  /* Pin-Detailanalyse (Version 1.1) */
+  .detail-pin-title{
+    font-size:1.1rem;
+    margin:0 0 .25rem;
+  }
+  .detail-pin-meta{
+    font-size:.78rem;
+    color:var(--muted);
+    margin:0 0 .5rem;
+  }
+  .detail-image{
+    width:100%;
+    max-height:280px;
+    overflow:hidden;
+    border-radius:var(--radius-md);
+    background:var(--paper);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:1rem;
+  }
+  .detail-image img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    max-height:280px;
+  }
+  .detail-score-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(88px,1fr));
+    gap:.75rem;
+    margin:1rem 0 1.3rem;
+  }
+  .detail-score-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.4rem;
+    text-align:center;
+  }
+  .detail-score-label{
+    font-size:.68rem;
+    color:var(--muted);
+    font-weight:600;
+    line-height:1.2;
+  }
+  .detail-section{ margin-top:1.2rem; }
+  .detail-section h3{
+    font-size:.95rem;
+    margin:0 0 .5rem;
+    color:var(--ink);
+  }
+  .detail-list{
+    margin:0;
+    padding-left:1.1rem;
+    display:flex;
+    flex-direction:column;
+    gap:.4rem;
+    font-size:.85rem;
+    color:var(--ink);
+    line-height:1.4;
+  }
+  .detail-list.strengths li::marker{ color:var(--sage); }
+  .detail-list.improvements li::marker{ color:var(--amber); }
+
+  @media (min-width:640px){
+    main{ padding:1.5rem 2rem 6rem; }
+    .modal-overlay{ align-items:center; padding:1rem; }
+    .modal{ border-radius:var(--radius-lg); }
+    .pin-grid{ grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); }
+  }
+
+  @media (min-width:1024px){
+    main{ max-width:1200px; margin:0 auto; padding:2rem 2rem 6rem; }
+    .topbar{ padding:1rem 2rem; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="pin-icon">📌</span><span>Pinterest Content Simulator</span></div>
+  <nav class="view-toggle">
+    <button type="button" class="nav-btn active" data-view="dashboard">Dashboard</button>
+    <button type="button" class="nav-btn" data-view="pins">Pin-Datenbank</button>
+  </nav>
+</header>
+
+<main>
+
+  <div class="storage-banner hidden" id="storage-banner" role="status"></div>
+
+  <section id="view-dashboard" class="view active">
+    <div class="dash-stats" id="dash-stats"></div>
+
+    <div class="dash-block">
+      <h2>Status-Übersicht</h2>
+      <div class="status-overview" id="status-overview"></div>
+    </div>
+
+    <div class="dash-block">
+      <h2>Pins mit niedrigstem Score</h2>
+      <div class="low-score-list" id="low-score-list"></div>
+    </div>
+
+    <div class="dash-block">
+      <h2>Backup &amp; Daten</h2>
+      <div class="backup-actions">
+        <button type="button" id="export-btn">⬇️ Pins exportieren</button>
+        <button type="button" id="import-btn">⬆️ Pins importieren</button>
+        <button type="button" id="paste-import-btn">📋 JSON-Text einfügen</button>
+        <input type="file" id="import-file-input" accept="application/json,.json" class="hidden">
+      </div>
+      <p class="backup-hint">Exportiert alle Pins inklusive Bilder als JSON-Datei. Beim Import wird standardmäßig zum bestehenden Bestand hinzugefügt. „JSON-Text einfügen" eignet sich, wenn keine Datei ausgewählt werden kann (z. B. Text aus Notizen kopiert).</p>
+    </div>
+  </section>
+
+  <section id="view-pins" class="view">
+    <div class="view-toggle pin-db-mode-toggle">
+      <button type="button" class="nav-btn pin-db-mode-btn active" data-mode="own">Eigene Pins</button>
+      <button type="button" class="nav-btn pin-db-mode-btn" data-mode="reference">Referenz-Pins</button>
+    </div>
+
+    <div id="own-pins-section">
+      <div class="toolbar">
+        <input type="search" id="search-input" placeholder="Pins durchsuchen…" aria-label="Pins durchsuchen">
+        <div class="filters">
+          <select id="filter-category" aria-label="Nach Kategorie filtern">
+            <option value="">Alle Kategorien</option>
+          </select>
+          <select id="filter-status" aria-label="Nach Status filtern">
+            <option value="">Alle Status</option>
+            <option value="idee">Idee</option>
+            <option value="entwurf">Entwurf</option>
+            <option value="optimiert">Optimiert</option>
+            <option value="bereit">Bereit zum Posten</option>
+          </select>
+          <select id="filter-evergreen" aria-label="Nach Evergreen filtern">
+            <option value="">Evergreen: Alle</option>
+            <option value="yes">Nur Evergreen</option>
+            <option value="no">Nur Saisonal</option>
+          </select>
+          <select id="filter-score" aria-label="Nach Score filtern">
+            <option value="">Score: Alle</option>
+            <option value="high">Hoch (70–100)</option>
+            <option value="mid">Mittel (40–69)</option>
+            <option value="low">Niedrig (0–39)</option>
+          </select>
+          <button type="button" id="reset-filters">Filter zurücksetzen</button>
+          <button type="button" id="load-demo-btn">Demo-Pins laden</button>
+        </div>
+      </div>
+
+      <p class="result-count" id="result-count"></p>
+
+      <div class="pin-grid" id="pin-grid"></div>
+      <p class="empty-state hidden" id="empty-state"></p>
+    </div>
+
+    <div id="reference-pins-section" class="hidden">
+      <p class="privacy-hint">Referenz-Pins nur zur privaten Inspiration speichern. Fremde Inhalte nicht ungeprüft veröffentlichen oder kopieren.</p>
+
+      <div class="toolbar">
+        <input type="search" id="ref-search-input" placeholder="Referenz-Pins durchsuchen…" aria-label="Referenz-Pins durchsuchen">
+        <div class="filters">
+          <select id="ref-filter-category" aria-label="Nach Kategorie filtern">
+            <option value="">Alle Kategorien</option>
+          </select>
+          <select id="ref-filter-rebuild" aria-label="Nach Nachbauen filtern">
+            <option value="">Nachbauen: Alle</option>
+            <option value="yes">Nur „würde ich nachbauen"</option>
+            <option value="no">Nur „würde ich nicht nachbauen"</option>
+          </select>
+          <select id="ref-filter-score" aria-label="Nach Score filtern">
+            <option value="">Score: Alle</option>
+            <option value="high">Hoch (70–100)</option>
+            <option value="mid">Mittel (40–69)</option>
+            <option value="low">Niedrig (0–39)</option>
+          </select>
+          <button type="button" id="ref-reset-filters">Filter zurücksetzen</button>
+        </div>
+      </div>
+
+      <p class="result-count" id="ref-result-count"></p>
+
+      <div class="pin-grid" id="reference-pin-grid"></div>
+      <p class="empty-state hidden" id="reference-empty-state"></p>
+    </div>
+  </section>
+
+</main>
+
+<button id="fab" type="button" aria-label="Neuen Pin erstellen">+</button>
+
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <h2 id="modal-title">Neuen Pin erstellen</h2>
+      <button type="button" id="modal-close" aria-label="Schließen">✕</button>
+    </div>
+
+    <form id="pin-form" novalidate>
+      <input type="hidden" id="pin-id">
+
+      <label for="pin-title">Titel *</label>
+      <input type="text" id="pin-title" maxlength="100" required>
+
+      <label for="pin-image">Bild</label>
+      <input type="file" id="pin-image" accept="image/*">
+      <div class="image-preview-wrap hidden" id="image-preview-wrap">
+        <img id="image-preview" src="" alt="Bildvorschau">
+        <button type="button" class="icon-btn danger" id="image-remove-btn">🗑️ Bild entfernen</button>
+      </div>
+      <p class="image-info" id="image-info"></p>
+      <p class="image-error hidden" id="image-error"></p>
+
+      <label for="pin-description">Beschreibung</label>
+      <textarea id="pin-description" rows="4" maxlength="800"></textarea>
+
+      <div class="form-row">
+        <div class="form-col">
+          <label for="pin-board">Board</label>
+          <input type="text" id="pin-board" list="board-suggestions" maxlength="60">
+          <datalist id="board-suggestions"></datalist>
+        </div>
+        <div class="form-col">
+          <label for="pin-category">Kategorie</label>
+          <input type="text" id="pin-category" list="category-suggestions" maxlength="60">
+          <datalist id="category-suggestions"></datalist>
+        </div>
+      </div>
+
+      <label for="pin-keywords">Keywords (durch Komma getrennt)</label>
+      <input type="text" id="pin-keywords" placeholder="z. B. rezept, vegan, schnell">
+
+      <div class="form-row">
+        <div class="form-col">
+          <label for="pin-format">Format</label>
+          <select id="pin-format">
+            <option value="standard">Standard Pin</option>
+            <option value="idea">Idea Pin</option>
+            <option value="video">Video Pin</option>
+          </select>
+        </div>
+        <div class="form-col">
+          <label for="pin-status">Status</label>
+          <select id="pin-status">
+            <option value="idee">Idee</option>
+            <option value="entwurf">Entwurf</option>
+            <option value="optimiert">Optimiert</option>
+            <option value="bereit">Bereit zum Posten</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="checkbox-row" for="pin-evergreen">
+        <input type="checkbox" id="pin-evergreen">
+        <span>Evergreen-Content (zeitlos, nicht saisongebunden)</span>
+      </label>
+
+      <div class="score-preview" id="score-preview"></div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" id="cancel-btn">Abbrechen</button>
+        <button type="submit" class="btn-primary">Pin speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="reference-modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reference-modal-title">
+    <div class="modal-header">
+      <h2 id="reference-modal-title">Neuen Referenz-Pin speichern</h2>
+      <button type="button" id="reference-modal-close" aria-label="Schließen">✕</button>
+    </div>
+    <p class="privacy-hint">Referenz-Pins nur zur privaten Inspiration speichern. Fremde Inhalte nicht ungeprüft veröffentlichen oder kopieren.</p>
+
+    <form id="reference-form" novalidate>
+      <input type="hidden" id="reference-id">
+
+      <label for="reference-title">Titel *</label>
+      <input type="text" id="reference-title" maxlength="100" required>
+
+      <label for="reference-image">Bild / Screenshot</label>
+      <input type="file" id="reference-image" accept="image/*">
+      <div class="image-preview-wrap hidden" id="reference-image-preview-wrap">
+        <img id="reference-image-preview" src="" alt="Bildvorschau">
+        <button type="button" class="icon-btn danger" id="reference-image-remove-btn">🗑️ Bild entfernen</button>
+      </div>
+      <p class="image-info" id="reference-image-info"></p>
+      <p class="image-error hidden" id="reference-image-error"></p>
+
+      <label for="reference-description">Beschreibung</label>
+      <textarea id="reference-description" rows="3" maxlength="800"></textarea>
+
+      <label for="reference-source-url">Pinterest-Link</label>
+      <input type="text" id="reference-source-url" maxlength="500" placeholder="https://pinterest.com/pin/...">
+
+      <div class="form-row">
+        <div class="form-col">
+          <label for="reference-category">Kategorie</label>
+          <input type="text" id="reference-category" list="reference-category-suggestions">
+          <datalist id="reference-category-suggestions"></datalist>
+        </div>
+        <div class="form-col">
+          <label for="reference-format">Format</label>
+          <select id="reference-format">
+            <option value="standard">Standard Pin</option>
+            <option value="idea">Idea Pin</option>
+            <option value="video">Video Pin</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="reference-keywords">Keywords (durch Komma getrennt)</label>
+      <input type="text" id="reference-keywords" placeholder="z. B. rezept, vegan, schnell">
+
+      <h3 class="form-section-title">Meine Einschätzung</h3>
+
+      <label for="reference-notes">Notizen</label>
+      <textarea id="reference-notes" rows="3" maxlength="800"></textarea>
+
+      <label for="reference-why">Warum gefällt mir dieser Pin?</label>
+      <textarea id="reference-why" rows="3" maxlength="800"></textarea>
+
+      <label class="checkbox-row" for="reference-would-rebuild">
+        <input type="checkbox" id="reference-would-rebuild">
+        <span>Würde ich diesen Stil nachbauen?</span>
+      </label>
+
+      <label>Erfolgsmerkmale</label>
+      <div class="checkbox-grid" id="success-factors-grid"></div>
+
+      <label>Bildstil</label>
+      <div class="checkbox-grid" id="image-style-grid"></div>
+
+      <label>Farbwelt</label>
+      <div class="checkbox-grid" id="color-scheme-grid"></div>
+
+      <div class="score-preview" id="reference-score-preview"></div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" id="reference-cancel-btn">Abbrechen</button>
+        <button type="submit" class="btn-primary">Referenz-Pin speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="detail-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+    <div class="modal-header">
+      <h2 id="detail-modal-title">Pin-Analyse</h2>
+      <button type="button" id="detail-close" aria-label="Schließen">✕</button>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="import-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+    <div class="modal-header">
+      <h2 id="import-modal-title">Import-Vorschau</h2>
+      <button type="button" id="import-close" aria-label="Schließen">✕</button>
+    </div>
+    <div id="import-content"></div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="export-text-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="export-text-title">
+    <div class="modal-header">
+      <h2 id="export-text-title">Backup als Text</h2>
+      <button type="button" id="export-text-close" aria-label="Schließen">✕</button>
+    </div>
+    <p class="export-text-hint">Teilen war auf diesem Gerät nicht möglich. Kopiere den Text unten manuell und sichere ihn z. B. in einer Notiz-App als Backup.</p>
+    <textarea id="export-text-area" readonly></textarea>
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" id="export-text-select-btn">Text auswählen</button>
+      <button type="button" class="btn-primary" id="export-text-copy-btn">In Zwischenablage kopieren</button>
+    </div>
+    <p class="export-text-status hidden" id="export-text-status"></p>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="paste-import-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="paste-import-title">
+    <div class="modal-header">
+      <h2 id="paste-import-title">JSON-Text einfügen</h2>
+      <button type="button" id="paste-import-close" aria-label="Schließen">✕</button>
+    </div>
+    <p class="paste-import-hint">Füge hier den kompletten Backup-JSON-Text ein (z. B. aus Apple Notizen kopiert) und klicke danach auf „JSON importieren".</p>
+    <textarea id="paste-import-area" placeholder='{ "pins": [ ... ] }'></textarea>
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" id="paste-import-cancel-btn">Abbrechen</button>
+      <button type="button" class="btn-primary" id="paste-import-confirm-btn">JSON importieren</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Pinterest Content Simulator – Version 1.4
+ * Läuft vollständig clientseitig, keine externen Abhängigkeiten.
+ * Speicherung über localStorage. Kompatibel mit allen modernen Browsern.
+ */
+document.addEventListener('DOMContentLoaded', function(){
+  "use strict";
+
+  /* ---------- Konstanten ---------- */
+
+  var STORAGE_KEY = 'pinSimulatorPinsV1';
+  var APP_VERSION = '1.4';
+  var EXPORT_FORMAT_VERSION = 1;
+  var REPLACE_BACKUP_KEY = 'pinSimulatorLastReplaceBackupV1';
+  var REFERENCE_STORAGE_KEY = 'pinSimulatorReferencePinsV1';
+
+  var STATUS_LABELS = { idee:'Idee', entwurf:'Entwurf', optimiert:'Optimiert', bereit:'Bereit zum Posten' };
+  var STATUS_CARD_LABELS = { idee:'💡 Idee', entwurf:'📝 Entwurf', optimiert:'✅ Optimiert', bereit:'🚀 Bereit' };
+  var STATUS_ORDER = ['idee','entwurf','optimiert','bereit'];
+  var FORMAT_LABELS = { standard:'Standard Pin', idea:'Idea Pin', video:'Video Pin' };
+  var FORMAT_ICONS = { standard:'📌', idea:'💡', video:'🎬' };
+
+  var SEASONAL_WORDS = [
+    'weihnacht','weihnachten','xmas','silvester','ostern','oster','halloween',
+    'valentinstag','sommer','winter','frühling','fruehling','herbst',
+    'black friday','neujahr','advent','karneval','fasching',
+    'muttertag','vatertag','schulanfang'
+  ];
+
+  var CTA_WORDS = [
+    'jetzt','entdecke','entdecken','klick','klicke','hol dir','hole dir',
+    'spare','sparen','kostenlos','download','mehr erfahren','sichere dir',
+    'starte','probier','probiere','schau dir','lerne','finde'
+  ];
+
+  /* ---------- Referenz-Pins (Version 1.4) ---------- */
+
+  var SUCCESS_FACTOR_DEFS = [
+    { key:'numberInTitle', label:'Zahl im Titel' },
+    { key:'howTo', label:'How-To' },
+    { key:'list', label:'Liste' },
+    { key:'checklist', label:'Checkliste' },
+    { key:'beforeAfter', label:'Vorher/Nachher' },
+    { key:'strongHook', label:'Starker Hook' },
+    { key:'clearBenefit', label:'Klarer Nutzen' },
+    { key:'evergreenPotential', label:'Evergreen-Potenzial' },
+    { key:'cta', label:'Call-to-Action' },
+    { key:'textOnImage', label:'Text auf Bild' },
+    { key:'personVisible', label:'Person sichtbar' },
+    { key:'productVisible', label:'Produkt sichtbar' }
+  ];
+
+  var AUTO_DETECTABLE_KEYS = ['numberInTitle','howTo','list','checklist','beforeAfter','evergreenPotential','cta'];
+
+  var IMAGE_STYLE_OPTIONS = ['Minimalistisch','Cozy','Clean','Modern','Natürlich','Hell','Dunkel'];
+  var COLOR_SCHEME_OPTIONS = ['Beige','Weiß','Pastell','Grün','Rosa','Neutral','Bunt'];
+
+  var HOWTO_WORDS = ['how-to','howto','anleitung','schritt für schritt','tutorial',"so geht's",'so geht','in schritten','wie du','wie man'];
+  var LIST_NOUN_WORDS = ['tipps','ideen','wege','dinge','gründe','schritte','hacks','regeln','tricks'];
+  var CHECKLIST_WORDS = ['checkliste','checklist','to-do','todo'];
+  var BEFORE_AFTER_WORDS = ['vorher','nachher','transformation','before','after'];
+
+  /* ---------- Zustand ---------- */
+
+  var pins = [];
+  var referencePins = [];
+  var pinDbMode = 'own';
+
+  var editingId = null;
+  var pendingDeleteId = null;
+  var pendingDeleteTimeout = null;
+  var currentImageData = null;
+  var imageProcessing = false;
+  var pendingImportPins = null;
+  var pendingImportMeta = null;
+
+  var editingReferenceId = null;
+  var pendingReferenceDeleteId = null;
+  var pendingReferenceDeleteTimeout = null;
+  var currentReferenceImageData = null;
+  var referenceImageProcessing = false;
+  var pendingImportReferencePins = null;
+
+  /* ---------- DOM-Referenzen ---------- */
+
+  var navButtons = document.querySelectorAll('.nav-btn');
+  var viewDashboard = document.getElementById('view-dashboard');
+  var viewPins = document.getElementById('view-pins');
+
+  var dashStats = document.getElementById('dash-stats');
+  var statusOverview = document.getElementById('status-overview');
+  var lowScoreList = document.getElementById('low-score-list');
+
+  var searchInput = document.getElementById('search-input');
+  var filterCategory = document.getElementById('filter-category');
+  var filterStatus = document.getElementById('filter-status');
+  var filterEvergreen = document.getElementById('filter-evergreen');
+  var filterScore = document.getElementById('filter-score');
+  var resetFiltersBtn = document.getElementById('reset-filters');
+  var loadDemoBtn = document.getElementById('load-demo-btn');
+  var resultCount = document.getElementById('result-count');
+
+  var pinGrid = document.getElementById('pin-grid');
+  var emptyState = document.getElementById('empty-state');
+
+  var pinDbModeButtons = document.querySelectorAll('.pin-db-mode-btn');
+  var ownPinsSection = document.getElementById('own-pins-section');
+  var referencePinsSection = document.getElementById('reference-pins-section');
+
+  var refSearchInput = document.getElementById('ref-search-input');
+  var refFilterCategory = document.getElementById('ref-filter-category');
+  var refFilterRebuild = document.getElementById('ref-filter-rebuild');
+  var refFilterScore = document.getElementById('ref-filter-score');
+  var refResetFiltersBtn = document.getElementById('ref-reset-filters');
+  var refResultCount = document.getElementById('ref-result-count');
+  var referencePinGrid = document.getElementById('reference-pin-grid');
+  var referenceEmptyState = document.getElementById('reference-empty-state');
+
+  var fab = document.getElementById('fab');
+  var modalOverlay = document.getElementById('modal-overlay');
+  var modalTitleEl = document.getElementById('modal-title');
+  var modalCloseBtn = document.getElementById('modal-close');
+  var cancelBtn = document.getElementById('cancel-btn');
+  var pinForm = document.getElementById('pin-form');
+
+  var pinIdField = document.getElementById('pin-id');
+  var titleInput = document.getElementById('pin-title');
+  var descInput = document.getElementById('pin-description');
+  var boardInput = document.getElementById('pin-board');
+  var categoryInput = document.getElementById('pin-category');
+  var keywordsInput = document.getElementById('pin-keywords');
+  var formatSelect = document.getElementById('pin-format');
+  var statusSelect = document.getElementById('pin-status');
+  var evergreenCheckbox = document.getElementById('pin-evergreen');
+  var scorePreview = document.getElementById('score-preview');
+  var boardDatalist = document.getElementById('board-suggestions');
+  var categoryDatalist = document.getElementById('category-suggestions');
+  var pinImageInput = document.getElementById('pin-image');
+  var imagePreviewWrap = document.getElementById('image-preview-wrap');
+  var imagePreviewImg = document.getElementById('image-preview');
+  var imageRemoveBtn = document.getElementById('image-remove-btn');
+  var imageInfoText = document.getElementById('image-info');
+  var imageErrorText = document.getElementById('image-error');
+
+  var detailOverlay = document.getElementById('detail-overlay');
+  var detailCloseBtn = document.getElementById('detail-close');
+  var detailContent = document.getElementById('detail-content');
+  var storageBanner = document.getElementById('storage-banner');
+
+  var exportBtn = document.getElementById('export-btn');
+  var importBtn = document.getElementById('import-btn');
+  var importFileInput = document.getElementById('import-file-input');
+  var importOverlay = document.getElementById('import-overlay');
+  var importCloseBtn = document.getElementById('import-close');
+  var importContent = document.getElementById('import-content');
+
+  var exportTextOverlay = document.getElementById('export-text-overlay');
+  var exportTextCloseBtn = document.getElementById('export-text-close');
+  var exportTextArea = document.getElementById('export-text-area');
+  var exportTextSelectBtn = document.getElementById('export-text-select-btn');
+  var exportTextCopyBtn = document.getElementById('export-text-copy-btn');
+  var exportTextStatus = document.getElementById('export-text-status');
+
+  var pasteImportBtn = document.getElementById('paste-import-btn');
+  var pasteImportOverlay = document.getElementById('paste-import-overlay');
+  var pasteImportCloseBtn = document.getElementById('paste-import-close');
+  var pasteImportArea = document.getElementById('paste-import-area');
+  var pasteImportCancelBtn = document.getElementById('paste-import-cancel-btn');
+  var pasteImportConfirmBtn = document.getElementById('paste-import-confirm-btn');
+  var storageIssueShown = false;
+
+  var referenceModalOverlay = document.getElementById('reference-modal-overlay');
+  var referenceModalTitleEl = document.getElementById('reference-modal-title');
+  var referenceModalCloseBtn = document.getElementById('reference-modal-close');
+  var referenceCancelBtn = document.getElementById('reference-cancel-btn');
+  var referenceForm = document.getElementById('reference-form');
+
+  var referenceIdField = document.getElementById('reference-id');
+  var referenceTitleInput = document.getElementById('reference-title');
+  var referenceDescInput = document.getElementById('reference-description');
+  var referenceSourceUrlInput = document.getElementById('reference-source-url');
+  var referenceCategoryInput = document.getElementById('reference-category');
+  var referenceKeywordsInput = document.getElementById('reference-keywords');
+  var referenceFormatSelect = document.getElementById('reference-format');
+  var referenceNotesInput = document.getElementById('reference-notes');
+  var referenceWhyInput = document.getElementById('reference-why');
+  var referenceWouldRebuildCheckbox = document.getElementById('reference-would-rebuild');
+  var referenceCategoryDatalist = document.getElementById('reference-category-suggestions');
+  var referenceScorePreview = document.getElementById('reference-score-preview');
+
+  var successFactorsGrid = document.getElementById('success-factors-grid');
+  var imageStyleGrid = document.getElementById('image-style-grid');
+  var colorSchemeGrid = document.getElementById('color-scheme-grid');
+
+  var referenceImageInput = document.getElementById('reference-image');
+  var referenceImagePreviewWrap = document.getElementById('reference-image-preview-wrap');
+  var referenceImagePreviewImg = document.getElementById('reference-image-preview');
+  var referenceImageRemoveBtn = document.getElementById('reference-image-remove-btn');
+  var referenceImageInfoText = document.getElementById('reference-image-info');
+  var referenceImageErrorText = document.getElementById('reference-image-error');
+
+  /* ---------- Hilfsfunktionen ---------- */
+
+  function escapeHtml(str){
+    var div = document.createElement('div');
+    div.textContent = (str === null || str === undefined) ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function truncate(str, len){
+    if(!str) return '';
+    return str.length > len ? str.slice(0, len).trim() + '…' : str;
+  }
+
+  function clamp(n, min, max){
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function genId(){
+    return 'p_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function scoreTier(total){
+    if(total >= 70) return 'high';
+    if(total >= 40) return 'mid';
+    return 'low';
+  }
+
+  /* ---------- Score-Berechnung ---------- */
+
+  function scoreFromRange(len, idealMin, idealMax, maxPoints){
+    if(len <= 0) return 0;
+    if(len >= idealMin && len <= idealMax) return maxPoints;
+    if(len < idealMin) return Math.round((len / idealMin) * maxPoints);
+    var over = len - idealMax;
+    var penalty = Math.round(over / 15);
+    return clamp(maxPoints - penalty, Math.round(maxPoints * 0.4), maxPoints);
+  }
+
+  function calculateSeoScore(pin){
+    var titleLen = (pin.title || '').trim().length;
+    var descLen = (pin.description || '').trim().length;
+    var kwCount = (pin.keywords || []).length;
+
+    var titleScore = scoreFromRange(titleLen, 40, 70, 40);
+    var descScore = scoreFromRange(descLen, 150, 500, 40);
+    var kwScore = kwCount <= 0 ? 0 : Math.round((Math.min(kwCount, 5) / 5) * 20);
+
+    return clamp(titleScore + descScore + kwScore, 0, 100);
+  }
+
+  function calculateEvergreenScore(pin){
+    var text = ((pin.title || '') + ' ' + (pin.description || '')).toLowerCase();
+    var hasSeasonal = SEASONAL_WORDS.some(function(w){ return text.indexOf(w) !== -1; });
+
+    if(pin.evergreen && !hasSeasonal) return 100;
+    if(pin.evergreen && hasSeasonal) return 55;
+    if(!pin.evergreen && hasSeasonal) return 35;
+    return 50;
+  }
+
+  function calculateCompletenessScore(pin){
+    var score = 0;
+    if((pin.board || '').trim().length > 0) score += 20;
+    if((pin.category || '').trim().length > 0) score += 20;
+    if((pin.keywords || []).length > 0) score += 20;
+
+    var descLower = (pin.description || '').toLowerCase();
+    if(CTA_WORDS.some(function(w){ return descLower.indexOf(w) !== -1; })) score += 20;
+    if((pin.description || '').trim().length >= 50) score += 20;
+
+    return clamp(score, 0, 100);
+  }
+
+  function calculateScore(pin){
+    var seo = calculateSeoScore(pin);
+    var evergreen = calculateEvergreenScore(pin);
+    var completeness = calculateCompletenessScore(pin);
+    var total = Math.round(seo * 0.4 + evergreen * 0.3 + completeness * 0.3);
+    return { seo: seo, evergreen: evergreen, completeness: completeness, total: total };
+  }
+
+  /* ---------- Referenz-Pin-Erkennung & Score (Version 1.4) ---------- */
+
+  function detectSuccessFactors(title, description){
+    var text = ((title || '') + ' ' + (description || '')).toLowerCase();
+    var hasNumber = /\d/.test(title || '');
+    var hasSeasonal = SEASONAL_WORDS.some(function(w){ return text.indexOf(w) !== -1; });
+    var hasCta = CTA_WORDS.some(function(w){ return text.indexOf(w) !== -1; });
+
+    return {
+      numberInTitle: hasNumber,
+      howTo: HOWTO_WORDS.some(function(w){ return text.indexOf(w) !== -1; }),
+      list: hasNumber && LIST_NOUN_WORDS.some(function(w){ return text.indexOf(w) !== -1; }),
+      checklist: CHECKLIST_WORDS.some(function(w){ return text.indexOf(w) !== -1; }),
+      beforeAfter: BEFORE_AFTER_WORDS.some(function(w){ return text.indexOf(w) !== -1; }),
+      strongHook: false,
+      clearBenefit: false,
+      evergreenPotential: !hasSeasonal,
+      cta: hasCta,
+      textOnImage: false,
+      personVisible: false,
+      productVisible: false
+    };
+  }
+
+  function calculateReferenceScore(successFactors){
+    var keys = SUCCESS_FACTOR_DEFS.map(function(d){ return d.key; });
+    var checkedCount = keys.filter(function(k){ return !!(successFactors && successFactors[k]); }).length;
+    return Math.round((checkedCount / keys.length) * 100);
+  }
+
+  /* ---------- Bild-Upload & Komprimierung (Version 1.2) ----------
+     Bilder werden client-seitig per Canvas verkleinert/komprimiert und als
+     Base64-Data-URL im Pin-Objekt gespeichert. Es wird bewusst nur EIN
+     Bild pro Pin gespeichert (kein separates Vorschaubild), Zielgröße
+     ca. 300 KB. Nichts davon verändert die bestehende Score-Berechnung. */
+
+  var MAX_IMAGE_DIMENSION = 700;
+  var MAX_IMAGE_KB = 300;
+
+  function estimateBase64Kb(dataUrl){
+    var commaIdx = dataUrl.indexOf(',');
+    var base64Part = commaIdx !== -1 ? dataUrl.slice(commaIdx + 1) : dataUrl;
+    return Math.round((base64Part.length * 0.75) / 1024);
+  }
+
+  function compressImage(img, fileName){
+    var width = img.naturalWidth || img.width;
+    var height = img.naturalHeight || img.height;
+
+    if(!width || !height){
+      throw new Error('Ungültige Bildabmessungen.');
+    }
+
+    var scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(width, height));
+    var targetWidth = Math.max(1, Math.round(width * scale));
+    var targetHeight = Math.max(1, Math.round(height * scale));
+
+    var canvas = document.createElement('canvas');
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+    var qualities = [0.72, 0.55, 0.4, 0.3];
+    var dataUrl = '';
+    var sizeKb = 0;
+    var i;
+
+    for(i = 0; i < qualities.length; i++){
+      dataUrl = canvas.toDataURL('image/jpeg', qualities[i]);
+      sizeKb = estimateBase64Kb(dataUrl);
+      if(sizeKb <= MAX_IMAGE_KB) break;
+    }
+
+    if(sizeKb > MAX_IMAGE_KB){
+      var smallerScale = Math.min(1, (MAX_IMAGE_DIMENSION * 0.6) / Math.max(width, height));
+      var w2 = Math.max(1, Math.round(width * smallerScale));
+      var h2 = Math.max(1, Math.round(height * smallerScale));
+      canvas.width = w2;
+      canvas.height = h2;
+      ctx.drawImage(img, 0, 0, w2, h2);
+      dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+      sizeKb = estimateBase64Kb(dataUrl);
+    }
+
+    if(sizeKb > MAX_IMAGE_KB){
+      throw new Error('Bild ist auch nach Komprimierung zu groß (' + sizeKb + ' KB).');
+    }
+
+    return {
+      dataUrl: dataUrl,
+      name: fileName || 'bild.jpg',
+      type: 'image/jpeg',
+      sizeKb: sizeKb
+    };
+  }
+
+  function processImageFile(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onerror = function(){ reject(new Error('Datei konnte nicht gelesen werden.')); };
+      reader.onload = function(){
+        var img = new Image();
+        img.onerror = function(){ reject(new Error('Bild konnte nicht geladen werden.')); };
+        img.onload = function(){
+          try{
+            resolve(compressImage(img, file.name));
+          }catch(err){
+            reject(err);
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function showImageError(msg){
+    imageErrorText.textContent = msg;
+    imageErrorText.classList.remove('hidden');
+  }
+
+  function hideImageError(){
+    imageErrorText.textContent = '';
+    imageErrorText.classList.add('hidden');
+  }
+
+  function updateImagePreview(){
+    if(currentImageData && currentImageData.dataUrl){
+      imagePreviewImg.src = currentImageData.dataUrl;
+      imagePreviewWrap.classList.remove('hidden');
+      imageInfoText.textContent = (currentImageData.name || 'Bild') + ' · ' + currentImageData.sizeKb + ' KB';
+    } else {
+      imagePreviewWrap.classList.add('hidden');
+      imagePreviewImg.src = '';
+      imageInfoText.textContent = '';
+    }
+  }
+
+  function showReferenceImageError(msg){
+    referenceImageErrorText.textContent = msg;
+    referenceImageErrorText.classList.remove('hidden');
+  }
+
+  function hideReferenceImageError(){
+    referenceImageErrorText.textContent = '';
+    referenceImageErrorText.classList.add('hidden');
+  }
+
+  function updateReferenceImagePreview(){
+    if(currentReferenceImageData && currentReferenceImageData.dataUrl){
+      referenceImagePreviewImg.src = currentReferenceImageData.dataUrl;
+      referenceImagePreviewWrap.classList.remove('hidden');
+      referenceImageInfoText.textContent = (currentReferenceImageData.name || 'Bild') + ' · ' + currentReferenceImageData.sizeKb + ' KB';
+    } else {
+      referenceImagePreviewWrap.classList.add('hidden');
+      referenceImagePreviewImg.src = '';
+      referenceImageInfoText.textContent = '';
+    }
+  }
+
+  /* ---------- Pin-Detailanalyse (Version 1.1) ----------
+     Diese Funktionen verändern NICHT die bestehende Score-Berechnung oder
+     gespeicherte Werte. Sie machen lediglich zwei Teilkomponenten, die schon
+     heute innerhalb von SEO- bzw. Vollständigkeits-Score stecken, separat
+     sichtbar und erzeugen rein lesend Stärken/Verbesserungsvorschläge. */
+
+  function getKeywordScore(pin){
+    var kwCount = (pin.keywords || []).length;
+    if(kwCount <= 0) return 0;
+    return Math.round((Math.min(kwCount, 5) / 5) * 100);
+  }
+
+  function getCtaScore(pin){
+    var descLower = (pin.description || '').toLowerCase();
+    var found = CTA_WORDS.some(function(w){ return descLower.indexOf(w) !== -1; });
+    return found ? 100 : 0;
+  }
+
+  function getPinInsights(pin){
+    var titleLen = (pin.title || '').trim().length;
+    var descLen = (pin.description || '').trim().length;
+    var kwCount = (pin.keywords || []).length;
+    var ctaFound = getCtaScore(pin) === 100;
+    var text = ((pin.title || '') + ' ' + (pin.description || '')).toLowerCase();
+    var hasSeasonal = SEASONAL_WORDS.some(function(w){ return text.indexOf(w) !== -1; });
+    var hasNumber = /\d/.test(pin.title || '');
+
+    var strengthCandidates = [];
+    if(titleLen >= 40 && titleLen <= 70) strengthCandidates.push('Die Titellänge liegt im optimalen Bereich für gute Lesbarkeit und SEO.');
+    if(descLen >= 150 && descLen <= 500) strengthCandidates.push('Die Beschreibung hat eine ideale Länge für Pinterest-SEO.');
+    if(kwCount >= 5) strengthCandidates.push('Mit ' + kwCount + ' Keywords ist der Pin gut für die Suche optimiert.');
+    else if(kwCount >= 3) strengthCandidates.push('Ausreichend Keywords für eine gute Auffindbarkeit.');
+    if(pin.evergreen && !hasSeasonal) strengthCandidates.push('Der Pin ist klar als Evergreen-Content gekennzeichnet und zeitlos einsetzbar.');
+    if(ctaFound) strengthCandidates.push('Die Beschreibung enthält einen klaren Call-to-Action.');
+    if(pin.board && pin.category) strengthCandidates.push('Board und Kategorie sind vollständig ausgefüllt.');
+    if(pin.score.total >= 70) strengthCandidates.push('Insgesamt ein starker Pin mit hohem Gesamtscore.');
+    if(hasNumber) strengthCandidates.push('Der Titel enthält eine Zahl – das erhöht bei Pinterest häufig die Klickrate.');
+    strengthCandidates.push('Der Pin ist grundsätzlich solide aufgebaut.');
+    strengthCandidates.push('Die Pin-Daten sind vollständig genug für eine Bewertung.');
+    strengthCandidates.push('Es gibt eine klare Basis, auf der sich der Pin weiter ausbauen lässt.');
+
+    var improvementCandidates = [];
+    if(titleLen > 0 && titleLen < 40) improvementCandidates.push('Titel ist eher kurz – ergänze relevante Keywords für bessere Sichtbarkeit.');
+    if(titleLen > 70) improvementCandidates.push('Titel ist eher lang – kürze ihn für bessere Lesbarkeit.');
+    if(descLen === 0) improvementCandidates.push('Es fehlt eine Beschreibung – ergänze mindestens 1–2 Sätze.');
+    else if(descLen < 150) improvementCandidates.push('Beschreibung ist kurz – ergänze mehr Kontext und Keywords.');
+    if(kwCount < 3) improvementCandidates.push('Füge weitere Keywords hinzu (empfohlen: 3–5).');
+    if(!ctaFound) improvementCandidates.push('Ergänze einen klaren Call-to-Action in der Beschreibung (z. B. "Jetzt entdecken").');
+    if(pin.evergreen && hasSeasonal) improvementCandidates.push('Titel/Beschreibung enthalten saisonale Begriffe trotz Evergreen-Markierung – das senkt den Evergreen-Score.');
+    if(!pin.evergreen && !hasSeasonal) improvementCandidates.push('Prüfe, ob dieser Pin als Evergreen markiert werden kann.');
+    if(!pin.board) improvementCandidates.push('Ergänze ein Board für eine vollständigere Pin-Übersicht.');
+    if(!pin.category) improvementCandidates.push('Ergänze eine Kategorie für bessere Filterbarkeit.');
+    improvementCandidates.push('Prüfe regelmäßig, ob Titel und Keywords noch aktuell sind.');
+    improvementCandidates.push('Vergleiche den Pin mit ähnlichen erfolgreichen Pins zur weiteren Optimierung.');
+    improvementCandidates.push('Teste eine alternative Formulierung des Titels, um die Wirkung zu vergleichen.');
+
+    return {
+      strengths: strengthCandidates.slice(0, 3),
+      improvements: improvementCandidates.slice(0, 3)
+    };
+  }
+
+  /* ---------- localStorage ---------- */
+
+  function showStorageBanner(message, tone){
+    storageIssueShown = true;
+    var icon = (tone === 'success') ? '✅ ' : '⚠️ ';
+    storageBanner.className = 'storage-banner' + (tone === 'success' ? ' banner-success' : '');
+    storageBanner.innerHTML =
+      '<span>' + icon + message + '</span>' +
+      '<button type="button" id="storage-banner-close" aria-label="Hinweis schließen">✕</button>';
+    var closeBtn = document.getElementById('storage-banner-close');
+    if(closeBtn){
+      closeBtn.addEventListener('click', function(){
+        storageBanner.classList.add('hidden');
+      });
+    }
+  }
+
+  function isLocalStorageAvailable(){
+    try{
+      var testKey = '__pinSimulatorStorageTest__';
+      localStorage.setItem(testKey, '1');
+      var ok = localStorage.getItem(testKey) === '1';
+      localStorage.removeItem(testKey);
+      return ok;
+    }catch(e){
+      return false;
+    }
+  }
+
+  function loadPins(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      var parsed = raw ? JSON.parse(raw) : [];
+      pins = Array.isArray(parsed) ? parsed : [];
+    }catch(e){
+      console.error('Fehler beim Laden der Pins aus localStorage:', e);
+      pins = [];
+      showStorageBanner('Gespeicherte Pins konnten nicht geladen werden. Der lokale Speicher ist in dieser Ansicht eingeschränkt (z. B. privater/Inkognito-Modus). Bitte im normalen Browser-Tab öffnen.');
+    }
+  }
+
+  function savePins(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
+    }catch(e){
+      console.error('Fehler beim Speichern der Pins in localStorage:', e);
+      showStorageBanner('Speichern fehlgeschlagen. Mögliche Ursachen: privater/Inkognito-Modus, oder der Browser-Speicher ist voll. Bitte den Inkognito-Modus deaktivieren.');
+    }
+  }
+
+  function loadReferencePins(){
+    try{
+      var raw = localStorage.getItem(REFERENCE_STORAGE_KEY);
+      var parsed = raw ? JSON.parse(raw) : [];
+      referencePins = Array.isArray(parsed) ? parsed : [];
+    }catch(e){
+      console.error('Fehler beim Laden der Referenz-Pins aus localStorage:', e);
+      referencePins = [];
+      showStorageBanner('Gespeicherte Referenz-Pins konnten nicht geladen werden. Der lokale Speicher ist in dieser Ansicht eingeschränkt (z. B. privater/Inkognito-Modus).');
+    }
+  }
+
+  function saveReferencePins(){
+    try{
+      localStorage.setItem(REFERENCE_STORAGE_KEY, JSON.stringify(referencePins));
+    }catch(e){
+      console.error('Fehler beim Speichern der Referenz-Pins in localStorage:', e);
+      showStorageBanner('Speichern der Referenz-Pins fehlgeschlagen. Der Speicher ist eventuell eingeschränkt oder voll.');
+    }
+  }
+
+  /* ---------- Import / Export / Backup (Version 1.3) ---------- */
+
+  function pad2(n){
+    return n < 10 ? '0' + n : '' + n;
+  }
+
+  function getDateStringForFilename(){
+    var d = new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function formatImportDate(isoString){
+    try{
+      var d = new Date(isoString);
+      if(isNaN(d.getTime())) return isoString;
+      return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    }catch(e){
+      return isoString;
+    }
+  }
+
+  function buildExportEnvelope(){
+    return {
+      exportFormatVersion: EXPORT_FORMAT_VERSION,
+      appVersion: APP_VERSION,
+      exportedAt: new Date().toISOString(),
+      pinCount: pins.length,
+      referencePinCount: referencePins.length,
+      pins: pins,
+      referencePins: referencePins
+    };
+  }
+
+  function triggerBlobDownload(json, filename){
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function buildExportFile(json, filename){
+    try{
+      var blob = new Blob([json], { type: 'application/json' });
+      return new File([blob], filename, { type: 'application/json' });
+    }catch(e){
+      console.error('Datei für Teilen-Funktion konnte nicht erstellt werden:', e);
+      return null;
+    }
+  }
+
+  function tryShareExportFile(json, filename){
+    if(typeof navigator === 'undefined' || typeof navigator.share !== 'function'){
+      return Promise.resolve(false);
+    }
+
+    var file = buildExportFile(json, filename);
+    if(!file){
+      return Promise.resolve(false);
+    }
+
+    var shareData = {
+      files: [file],
+      title: 'Pinterest Content Simulator Backup',
+      text: filename
+    };
+
+    if(typeof navigator.canShare === 'function' && !navigator.canShare(shareData)){
+      return Promise.resolve(false);
+    }
+
+    return navigator.share(shareData).then(function(){
+      return true;
+    }).catch(function(err){
+      if(err && err.name === 'AbortError'){
+        return true;
+      }
+      console.error('navigator.share fehlgeschlagen:', err);
+      return false;
+    });
+  }
+
+  function exportPins(){
+    var envelope = buildExportEnvelope();
+    var json = JSON.stringify(envelope, null, 2);
+    var filename = 'pinterest-simulator-backup-' + getDateStringForFilename() + '.json';
+
+    triggerBlobDownload(json, filename);
+
+    tryShareExportFile(json, filename).then(function(handled){
+      if(!handled){
+        showExportTextFallback(json);
+      }
+      showStorageBanner(pins.length + ' Pin(s) exportiert.', 'success');
+    });
+  }
+
+  function isValidImageDataUrl(value){
+    if(typeof value !== 'string' || value.indexOf('data:image/') !== 0){
+      return false;
+    }
+    var commaIdx = value.indexOf(',');
+    if(commaIdx === -1){
+      return false;
+    }
+    var base64Part = value.slice(commaIdx + 1);
+    if(base64Part.length < 100){
+      return false;
+    }
+    try{
+      atob(base64Part);
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  function validateImportData(parsed){
+    if(!parsed || typeof parsed !== 'object' || Array.isArray(parsed)){
+      return { valid: false, error: 'Die Datei enthält kein gültiges Backup-Format.' };
+    }
+    if(!Array.isArray(parsed.pins)){
+      return { valid: false, error: 'Die Datei enthält keine Pin-Liste.' };
+    }
+    for(var i = 0; i < parsed.pins.length; i++){
+      var p = parsed.pins[i];
+      if(!p || typeof p !== 'object' || typeof p.title !== 'string' || !p.title.trim()){
+        return { valid: false, error: 'Mindestens ein Pin in der Datei hat keinen gültigen Titel.' };
+      }
+    }
+
+    if(parsed.referencePins !== undefined){
+      if(!Array.isArray(parsed.referencePins)){
+        return { valid: false, error: 'Die Datei enthält ein ungültiges Referenz-Pin-Format.' };
+      }
+      for(var j = 0; j < parsed.referencePins.length; j++){
+        var rp = parsed.referencePins[j];
+        if(!rp || typeof rp !== 'object' || typeof rp.title !== 'string' || !rp.title.trim()){
+          return { valid: false, error: 'Mindestens ein Referenz-Pin in der Datei hat keinen gültigen Titel.' };
+        }
+      }
+    }
+
+    return { valid: true };
+  }
+
+  function normalizeImportedPin(raw){
+    var keywords = Array.isArray(raw.keywords)
+      ? raw.keywords.filter(function(k){ return typeof k === 'string' && k.trim().length > 0; }).map(function(k){ return k.trim(); })
+      : [];
+
+    var pin = {
+      id: genId(),
+      title: raw.title.trim(),
+      description: typeof raw.description === 'string' ? raw.description.trim() : '',
+      board: typeof raw.board === 'string' ? raw.board.trim() : '',
+      category: typeof raw.category === 'string' ? raw.category.trim() : '',
+      keywords: keywords,
+      format: (raw.format === 'idea' || raw.format === 'video') ? raw.format : 'standard',
+      status: STATUS_ORDER.indexOf(raw.status) !== -1 ? raw.status : 'idee',
+      evergreen: !!raw.evergreen,
+      image: isValidImageDataUrl(raw.image) ? raw.image : null,
+      imageName: typeof raw.imageName === 'string' ? raw.imageName : '',
+      imageType: typeof raw.imageType === 'string' ? raw.imageType : '',
+      imageSizeKb: typeof raw.imageSizeKb === 'number' ? raw.imageSizeKb : 0,
+      createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : Date.now(),
+      updatedAt: Date.now()
+    };
+    pin.score = calculateScore(pin);
+    return pin;
+  }
+
+  function normalizeImportedReferencePin(raw){
+    var keywords = Array.isArray(raw.keywords)
+      ? raw.keywords.filter(function(k){ return typeof k === 'string' && k.trim().length > 0; }).map(function(k){ return k.trim(); })
+      : [];
+
+    var imageStyle = Array.isArray(raw.imageStyle)
+      ? raw.imageStyle.filter(function(s){ return IMAGE_STYLE_OPTIONS.indexOf(s) !== -1; })
+      : [];
+
+    var colorScheme = Array.isArray(raw.colorScheme)
+      ? raw.colorScheme.filter(function(s){ return COLOR_SCHEME_OPTIONS.indexOf(s) !== -1; })
+      : [];
+
+    var successFactors = {};
+    SUCCESS_FACTOR_DEFS.forEach(function(def){
+      successFactors[def.key] = !!(raw.successFactors && raw.successFactors[def.key]);
+    });
+
+    var pin = {
+      id: genId(),
+      title: raw.title.trim(),
+      description: typeof raw.description === 'string' ? raw.description.trim() : '',
+      sourceUrl: typeof raw.sourceUrl === 'string' ? raw.sourceUrl.trim() : '',
+      category: typeof raw.category === 'string' ? raw.category.trim() : '',
+      keywords: keywords,
+      format: (raw.format === 'idea' || raw.format === 'video') ? raw.format : 'standard',
+      notes: typeof raw.notes === 'string' ? raw.notes.trim() : '',
+      whyILikeIt: typeof raw.whyILikeIt === 'string' ? raw.whyILikeIt.trim() : '',
+      wouldRebuild: !!raw.wouldRebuild,
+      successFactors: successFactors,
+      imageStyle: imageStyle,
+      colorScheme: colorScheme,
+      image: isValidImageDataUrl(raw.image) ? raw.image : null,
+      imageName: typeof raw.imageName === 'string' ? raw.imageName : '',
+      imageType: typeof raw.imageType === 'string' ? raw.imageType : '',
+      imageSizeKb: typeof raw.imageSizeKb === 'number' ? raw.imageSizeKb : 0,
+      createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : Date.now(),
+      updatedAt: Date.now()
+    };
+    pin.score = { total: calculateReferenceScore(pin.successFactors) };
+    return pin;
+  }
+
+  function renderImportModalContent(){
+    var count = pendingImportPins.length;
+    var refCount = (pendingImportReferencePins || []).length;
+    var meta = pendingImportMeta;
+
+    var summaryParts = ['Diese Datei enthält <strong>' + count + ' Pin(s)</strong> und <strong>' + refCount + ' Referenz-Pin(s)</strong>.'];
+    if(meta && meta.exportedAt){
+      summaryParts.push('Exportiert am ' + escapeHtml(formatImportDate(meta.exportedAt)) + '.');
+    }
+
+    var warningHtml = '';
+    if(meta && meta.discardedImageCount > 0){
+      warningHtml = '<p class="import-warning">⚠️ Achtung: ' + meta.discardedImageCount + ' Bild(er) konnten nicht wiederhergestellt werden.</p>';
+    }
+
+    importContent.innerHTML =
+      '<p class="import-summary">' + summaryParts.join(' ') + '</p>' +
+      warningHtml +
+      '<div class="import-mode-options">' +
+        '<label class="import-mode-option">' +
+          '<input type="radio" name="import-mode" value="add" id="import-mode-add" checked>' +
+          '<span><strong>Zum Bestand hinzufügen</strong><br>Importierte Pins/Referenz-Pins werden zu deinen vorhandenen ' + pins.length + ' Pin(s) und ' + referencePins.length + ' Referenz-Pin(s) ergänzt.</span>' +
+        '</label>' +
+        '<label class="import-mode-option">' +
+          '<input type="radio" name="import-mode" value="replace" id="import-mode-replace">' +
+          '<span><strong>Bestehende Pins ersetzen</strong><br>Alle ' + pins.length + ' vorhandenen Pin(s) und ' + referencePins.length + ' Referenz-Pin(s) werden durch die importierten Daten ersetzt.</span>' +
+        '</label>' +
+      '</div>' +
+      '<label class="import-confirm-checkbox hidden" id="import-confirm-checkbox-wrap">' +
+        '<input type="checkbox" id="import-confirm-checkbox">' +
+        '<span>Ich bin mir sicher, dass die bestehenden Pins und Referenz-Pins ersetzt werden sollen.</span>' +
+      '</label>' +
+      '<div class="form-actions">' +
+        '<button type="button" class="btn-secondary" id="import-cancel-btn">Abbrechen</button>' +
+        '<button type="button" class="btn-primary" id="import-confirm-btn">' + count + ' Pin(s) + ' + refCount + ' Referenz-Pin(s) hinzufügen</button>' +
+      '</div>';
+
+    attachImportModalListeners();
+  }
+
+  function attachImportModalListeners(){
+    var radios = importContent.querySelectorAll('input[name="import-mode"]');
+    var checkboxWrap = document.getElementById('import-confirm-checkbox-wrap');
+    var checkbox = document.getElementById('import-confirm-checkbox');
+    var confirmBtn = document.getElementById('import-confirm-btn');
+    var cancelBtn = document.getElementById('import-cancel-btn');
+    var count = pendingImportPins.length;
+    var refCount = (pendingImportReferencePins || []).length;
+
+    function updateConfirmButtonState(){
+      var checked = importContent.querySelector('input[name="import-mode"]:checked');
+      var mode = checked ? checked.value : 'add';
+      if(mode === 'replace'){
+        checkboxWrap.classList.remove('hidden');
+        confirmBtn.textContent = 'Bestehende Pins/Referenz-Pins ersetzen';
+        confirmBtn.disabled = !checkbox.checked;
+      } else {
+        checkboxWrap.classList.add('hidden');
+        confirmBtn.textContent = count + ' Pin(s) + ' + refCount + ' Referenz-Pin(s) hinzufügen';
+        confirmBtn.disabled = false;
+      }
+    }
+
+    radios.forEach(function(r){
+      r.addEventListener('change', updateConfirmButtonState);
+    });
+    checkbox.addEventListener('change', updateConfirmButtonState);
+
+    cancelBtn.addEventListener('click', closeImportModal);
+    confirmBtn.addEventListener('click', function(){
+      var checked = importContent.querySelector('input[name="import-mode"]:checked');
+      var mode = checked ? checked.value : 'add';
+      performImport(mode);
+    });
+
+    updateConfirmButtonState();
+  }
+
+  function openImportModal(){
+    renderImportModalContent();
+    importOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeImportModal(){
+    importOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    pendingImportPins = null;
+    pendingImportReferencePins = null;
+    pendingImportMeta = null;
+    importFileInput.value = '';
+  }
+
+  function performImport(mode){
+    var importedPins = pendingImportPins;
+    if(!importedPins) return;
+    var importedReferencePins = pendingImportReferencePins || [];
+
+    if(mode === 'replace'){
+      try{
+        localStorage.setItem(REPLACE_BACKUP_KEY, JSON.stringify({ pins: pins, referencePins: referencePins }));
+      }catch(e){
+        console.error('Sicherheitskopie vor dem Ersetzen fehlgeschlagen:', e);
+      }
+      pins = importedPins;
+      referencePins = importedReferencePins;
+    } else {
+      pins = importedPins.concat(pins);
+      referencePins = importedReferencePins.concat(referencePins);
+    }
+
+    savePins();
+    saveReferencePins();
+    closeImportModal();
+    renderAll();
+    renderReferenceAll();
+    showStorageBanner(importedPins.length + ' Pin(s) und ' + importedReferencePins.length + ' Referenz-Pin(s) erfolgreich importiert.', 'success');
+  }
+
+  function prepareImportFromJsonText(rawText, invalidJsonMessage){
+    var parsed;
+    try{
+      parsed = JSON.parse(rawText);
+    }catch(e){
+      return { ok: false, error: invalidJsonMessage || 'Der Text enthält kein gültiges JSON-Format.' };
+    }
+
+    var validation = validateImportData(parsed);
+    if(!validation.valid){
+      return { ok: false, error: validation.error };
+    }
+
+    var rawReferencePins = Array.isArray(parsed.referencePins) ? parsed.referencePins : [];
+
+    var discardedImageCount = 0;
+    parsed.pins.forEach(function(p){
+      if(typeof p.image === 'string' && p.image && !isValidImageDataUrl(p.image)){
+        discardedImageCount++;
+      }
+    });
+    rawReferencePins.forEach(function(p){
+      if(typeof p.image === 'string' && p.image && !isValidImageDataUrl(p.image)){
+        discardedImageCount++;
+      }
+    });
+
+    pendingImportPins = parsed.pins.map(normalizeImportedPin);
+    pendingImportReferencePins = rawReferencePins.map(normalizeImportedReferencePin);
+    pendingImportMeta = {
+      pinCount: parsed.pins.length,
+      referencePinCount: rawReferencePins.length,
+      exportedAt: typeof parsed.exportedAt === 'string' ? parsed.exportedAt : null,
+      exportFormatVersion: parsed.exportFormatVersion,
+      appVersion: parsed.appVersion,
+      discardedImageCount: discardedImageCount
+    };
+
+    return { ok: true };
+  }
+
+  function handleImportFile(file){
+    var reader = new FileReader();
+
+    reader.onerror = function(){
+      showStorageBanner('Datei konnte nicht gelesen werden.');
+      importFileInput.value = '';
+    };
+
+    reader.onload = function(){
+      var result = prepareImportFromJsonText(reader.result, 'Die Datei enthält kein gültiges JSON-Format.');
+      if(!result.ok){
+        showStorageBanner(result.error);
+        importFileInput.value = '';
+        return;
+      }
+      openImportModal();
+    };
+
+    reader.readAsText(file);
+  }
+
+  function openPasteImportModal(){
+    pasteImportArea.value = '';
+    pasteImportOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    pasteImportArea.focus();
+  }
+
+  function closePasteImportModal(){
+    pasteImportOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+
+  function handlePasteImportConfirm(){
+    var text = pasteImportArea.value.trim();
+    if(!text){
+      showStorageBanner('Bitte zuerst JSON-Text einfügen.');
+      return;
+    }
+
+    var result = prepareImportFromJsonText(text, 'Der eingefügte Text enthält kein gültiges JSON-Format.');
+    if(!result.ok){
+      showStorageBanner(result.error);
+      return;
+    }
+
+    closePasteImportModal();
+    openImportModal();
+  }
+
+  function showExportTextFallback(json){
+    exportTextArea.value = json;
+    exportTextStatus.classList.add('hidden');
+    exportTextStatus.textContent = '';
+    exportTextOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeExportTextModal(){
+    exportTextOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+
+  /* ---------- CRUD ---------- */
+
+  function getFormData(){
+    return {
+      title: titleInput.value,
+      description: descInput.value,
+      board: boardInput.value,
+      category: categoryInput.value,
+      keywords: keywordsInput.value,
+      format: formatSelect.value,
+      status: statusSelect.value,
+      evergreen: evergreenCheckbox.checked,
+      image: currentImageData ? currentImageData.dataUrl : null,
+      imageName: currentImageData ? currentImageData.name : '',
+      imageType: currentImageData ? currentImageData.type : '',
+      imageSizeKb: currentImageData ? currentImageData.sizeKb : 0
+    };
+  }
+
+  function parseKeywords(str){
+    return (str || '').split(',').map(function(k){ return k.trim(); }).filter(function(k){ return k.length > 0; });
+  }
+
+  function addOrUpdatePin(formData, currentEditingId){
+    var base = {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      board: formData.board.trim(),
+      category: formData.category.trim(),
+      keywords: parseKeywords(formData.keywords),
+      format: formData.format,
+      status: formData.status,
+      evergreen: !!formData.evergreen,
+      image: formData.image || null,
+      imageName: formData.imageName || '',
+      imageType: formData.imageType || '',
+      imageSizeKb: formData.imageSizeKb || 0
+    };
+
+    var scored = calculateScore(base);
+
+    if(currentEditingId){
+      var idx = -1;
+      for(var i = 0; i < pins.length; i++){
+        if(pins[i].id === currentEditingId){ idx = i; break; }
+      }
+      if(idx > -1){
+        var existing = pins[idx];
+        pins[idx] = {
+          id: existing.id,
+          title: base.title,
+          description: base.description,
+          board: base.board,
+          category: base.category,
+          keywords: base.keywords,
+          format: base.format,
+          status: base.status,
+          evergreen: base.evergreen,
+          image: base.image,
+          imageName: base.imageName,
+          imageType: base.imageType,
+          imageSizeKb: base.imageSizeKb,
+          score: scored,
+          createdAt: existing.createdAt,
+          updatedAt: Date.now()
+        };
+      }
+    } else {
+      pins.unshift({
+        id: genId(),
+        title: base.title,
+        description: base.description,
+        board: base.board,
+        category: base.category,
+        keywords: base.keywords,
+        format: base.format,
+        status: base.status,
+        evergreen: base.evergreen,
+        image: base.image,
+        imageName: base.imageName,
+        imageType: base.imageType,
+        imageSizeKb: base.imageSizeKb,
+        score: scored,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+    }
+
+    savePins();
+  }
+
+  function findPinById(id){
+    for(var i = 0; i < pins.length; i++){
+      if(pins[i].id === id) return pins[i];
+    }
+    return null;
+  }
+
+  function deletePinById(id){
+    pins = pins.filter(function(p){ return p.id !== id; });
+    savePins();
+  }
+
+  function duplicatePinById(id){
+    var original = findPinById(id);
+    if(!original) return;
+    var copy = {
+      id: genId(),
+      title: original.title + ' (Kopie)',
+      description: original.description,
+      board: original.board,
+      category: original.category,
+      keywords: original.keywords.slice(),
+      format: original.format,
+      status: 'idee',
+      evergreen: original.evergreen,
+      image: original.image || null,
+      imageName: original.imageName || '',
+      imageType: original.imageType || '',
+      imageSizeKb: original.imageSizeKb || 0,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    copy.score = calculateScore(copy);
+    pins.unshift(copy);
+    savePins();
+  }
+
+  /* ---------- CRUD Referenz-Pins (Version 1.4) ---------- */
+
+  function findReferencePinById(id){
+    for(var i = 0; i < referencePins.length; i++){
+      if(referencePins[i].id === id) return referencePins[i];
+    }
+    return null;
+  }
+
+  function getReferenceFormData(){
+    var factors = {};
+    SUCCESS_FACTOR_DEFS.forEach(function(def){
+      var box = document.getElementById('success-factor-' + def.key);
+      factors[def.key] = box ? box.checked : false;
+    });
+
+    var imageStyle = IMAGE_STYLE_OPTIONS.filter(function(opt){
+      var box = document.getElementById('image-style-' + opt);
+      return box ? box.checked : false;
+    });
+
+    var colorScheme = COLOR_SCHEME_OPTIONS.filter(function(opt){
+      var box = document.getElementById('color-scheme-' + opt);
+      return box ? box.checked : false;
+    });
+
+    return {
+      title: referenceTitleInput.value,
+      description: referenceDescInput.value,
+      sourceUrl: referenceSourceUrlInput.value,
+      category: referenceCategoryInput.value,
+      keywords: referenceKeywordsInput.value,
+      format: referenceFormatSelect.value,
+      notes: referenceNotesInput.value,
+      whyILikeIt: referenceWhyInput.value,
+      wouldRebuild: referenceWouldRebuildCheckbox.checked,
+      successFactors: factors,
+      imageStyle: imageStyle,
+      colorScheme: colorScheme,
+      image: currentReferenceImageData ? currentReferenceImageData.dataUrl : null,
+      imageName: currentReferenceImageData ? currentReferenceImageData.name : '',
+      imageType: currentReferenceImageData ? currentReferenceImageData.type : '',
+      imageSizeKb: currentReferenceImageData ? currentReferenceImageData.sizeKb : 0
+    };
+  }
+
+  function addOrUpdateReferencePin(formData, currentEditingId){
+    var base = {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      sourceUrl: formData.sourceUrl.trim(),
+      category: formData.category.trim(),
+      keywords: parseKeywords(formData.keywords),
+      format: formData.format,
+      notes: formData.notes.trim(),
+      whyILikeIt: formData.whyILikeIt.trim(),
+      wouldRebuild: !!formData.wouldRebuild,
+      successFactors: formData.successFactors,
+      imageStyle: formData.imageStyle.slice(),
+      colorScheme: formData.colorScheme.slice(),
+      image: formData.image || null,
+      imageName: formData.imageName || '',
+      imageType: formData.imageType || '',
+      imageSizeKb: formData.imageSizeKb || 0
+    };
+
+    var scored = { total: calculateReferenceScore(base.successFactors) };
+
+    if(currentEditingId){
+      var idx = -1;
+      for(var i = 0; i < referencePins.length; i++){
+        if(referencePins[i].id === currentEditingId){ idx = i; break; }
+      }
+      if(idx > -1){
+        var existing = referencePins[idx];
+        referencePins[idx] = {
+          id: existing.id,
+          title: base.title,
+          description: base.description,
+          sourceUrl: base.sourceUrl,
+          category: base.category,
+          keywords: base.keywords,
+          format: base.format,
+          notes: base.notes,
+          whyILikeIt: base.whyILikeIt,
+          wouldRebuild: base.wouldRebuild,
+          successFactors: base.successFactors,
+          imageStyle: base.imageStyle,
+          colorScheme: base.colorScheme,
+          image: base.image,
+          imageName: base.imageName,
+          imageType: base.imageType,
+          imageSizeKb: base.imageSizeKb,
+          score: scored,
+          createdAt: existing.createdAt,
+          updatedAt: Date.now()
+        };
+      }
+    } else {
+      referencePins.unshift({
+        id: genId(),
+        title: base.title,
+        description: base.description,
+        sourceUrl: base.sourceUrl,
+        category: base.category,
+        keywords: base.keywords,
+        format: base.format,
+        notes: base.notes,
+        whyILikeIt: base.whyILikeIt,
+        wouldRebuild: base.wouldRebuild,
+        successFactors: base.successFactors,
+        imageStyle: base.imageStyle,
+        colorScheme: base.colorScheme,
+        image: base.image,
+        imageName: base.imageName,
+        imageType: base.imageType,
+        imageSizeKb: base.imageSizeKb,
+        score: scored,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+    }
+
+    saveReferencePins();
+  }
+
+  function deleteReferencePinById(id){
+    referencePins = referencePins.filter(function(p){ return p.id !== id; });
+    saveReferencePins();
+  }
+
+  function duplicateReferencePinById(id){
+    var original = findReferencePinById(id);
+    if(!original) return;
+    var copy = {
+      id: genId(),
+      title: original.title + ' (Kopie)',
+      description: original.description,
+      sourceUrl: original.sourceUrl,
+      category: original.category,
+      keywords: original.keywords.slice(),
+      format: original.format,
+      notes: original.notes,
+      whyILikeIt: original.whyILikeIt,
+      wouldRebuild: original.wouldRebuild,
+      successFactors: Object.assign({}, original.successFactors),
+      imageStyle: original.imageStyle.slice(),
+      colorScheme: original.colorScheme.slice(),
+      image: original.image || null,
+      imageName: original.imageName || '',
+      imageType: original.imageType || '',
+      imageSizeKb: original.imageSizeKb || 0,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    copy.score = { total: calculateReferenceScore(copy.successFactors) };
+    referencePins.unshift(copy);
+    saveReferencePins();
+  }
+
+  /* ---------- Demo-Daten ---------- */
+
+  function getDemoPinDefinitions(){
+    return [
+      {
+        title:'10 Minuten Selfcare Routine für stressige Tage',
+        description:'Entdecke eine schnelle 10-Minuten Selfcare Routine, die du jeden Tag einbauen kannst – perfekt für stressige Phasen. Inklusive Atemübung, Journaling-Frage und kurzer Dehnroutine. Sichere dir die Routine jetzt und gönn dir täglich eine kleine Auszeit.',
+        board:'Selfcare Ideen', category:'Selfcare',
+        keywords:['selfcare routine','stressabbau','achtsamkeit','me time','mentale gesundheit'],
+        format:'idea', status:'optimiert', evergreen:true
+      },
+      {
+        title:'Abend Selfcare Ritual für besseren Schlaf',
+        description:'Ein einfaches Abendritual mit 5 Schritten, das dir hilft abzuschalten und besser einzuschlafen. Jetzt entdecken und noch heute Abend ausprobieren.',
+        board:'Selfcare Ideen', category:'Selfcare',
+        keywords:['abendroutine','schlaf','entspannung'],
+        format:'standard', status:'entwurf', evergreen:true
+      },
+      {
+        title:'5 Schritte Hautpflege Routine für Anfänger',
+        description:'Du weißt nicht, wo du bei deiner Hautpflege anfangen sollst? Diese einfache 5-Schritte-Routine erklärt dir Reinigung, Toner, Serum, Feuchtigkeit und Sonnenschutz. Klicke jetzt rein und starte deine Hautpflege richtig.',
+        board:'Hautpflege Basics', category:'Hautpflege',
+        keywords:['hautpflege routine','skincare anfänger','gesichtspflege','skincare tipps'],
+        format:'standard', status:'bereit', evergreen:true
+      },
+      {
+        title:'Sommer Sonnenschutz Tipps für gesunde Haut',
+        description:'So schützt du deine Haut im Sommer richtig vor der Sonne, inklusive Tipps zu Lichtschutzfaktor und Anwendung.',
+        board:'Hautpflege Basics', category:'Hautpflege',
+        keywords:['sonnenschutz','sommer haut'],
+        format:'video', status:'idee', evergreen:false
+      },
+      {
+        title:'7 Ideen für ein gesundes Frühstück in 10 Minuten',
+        description:'Diese 7 schnellen Frühstücksideen liefern dir Energie für den ganzen Vormittag und sind in nur 10 Minuten fertig. Entdecke jetzt einfache Rezepte für jeden Tag, vegan und vegetarisch anpassbar.',
+        board:'Gesunde Ernährung', category:'Ernährung',
+        keywords:['gesundes frühstück','schnelle rezepte','meal prep','ernährungstipps'],
+        format:'idea', status:'optimiert', evergreen:true
+      },
+      {
+        title:'Meal Prep Ideen für die ganze Woche',
+        description:'Spare Zeit unter der Woche mit diesen einfachen Meal Prep Ideen. Hol dir jetzt 5 ausgewogene Rezepte zum Vorbereiten.',
+        board:'Gesunde Ernährung', category:'Ernährung',
+        keywords:['meal prep','wochenplan','gesund kochen'],
+        format:'standard', status:'entwurf', evergreen:true
+      },
+      {
+        title:'15 Minuten Home Workout ohne Geräte',
+        description:'Ein effektives 15-Minuten-Workout für zuhause, komplett ohne Geräte. Perfekt für stressige Tage, wenn du wenig Zeit hast. Starte jetzt direkt durch.',
+        board:'Fitness zuhause', category:'Fitness',
+        keywords:['home workout','fitness ohne geräte','15 minuten workout'],
+        format:'video', status:'bereit', evergreen:true
+      },
+      {
+        title:'5 Produktivitäts Hacks für einen fokussierten Tag',
+        description:'Diese 5 einfachen Hacks helfen dir, dich besser zu fokussieren und produktiver zu arbeiten. Entdecke jetzt Methoden wie Time Blocking und die 2-Minuten-Regel.',
+        board:'Produktivität Tipps', category:'Produktivität',
+        keywords:['produktivität','fokus','time management','produktiv arbeiten'],
+        format:'idea', status:'optimiert', evergreen:true
+      },
+      {
+        title:'Die perfekte Morgenroutine für mehr Produktivität',
+        description:'So gestaltest du eine Morgenroutine, die dich den ganzen Tag produktiver macht.',
+        board:'Produktivität Tipps', category:'Produktivität',
+        keywords:['morgenroutine'],
+        format:'standard', status:'idee', evergreen:true
+      },
+      {
+        title:'Zyklusphasen verstehen: So tickt dein Körper',
+        description:'Lerne die 4 Phasen deines Zyklus kennen und wie sie deine Energie, Stimmung und Leistungsfähigkeit beeinflussen. Entdecke jetzt, wie du dein Training und deinen Alltag an deinen Zyklus anpassen kannst.',
+        board:'Zyklusgesundheit', category:'Zyklusgesundheit',
+        keywords:['zyklusgesundheit','zyklusphasen','hormone','weibliche gesundheit'],
+        format:'idea', status:'optimiert', evergreen:true
+      }
+    ];
+  }
+
+  function loadDemoPins(){
+    var defs = getDemoPinDefinitions();
+    defs.forEach(function(def){
+      var pin = {
+        id: genId(),
+        title: def.title,
+        description: def.description,
+        board: def.board,
+        category: def.category,
+        keywords: def.keywords.slice(),
+        format: def.format,
+        status: def.status,
+        evergreen: def.evergreen,
+        image: null,
+        imageName: '',
+        imageType: '',
+        imageSizeKb: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+      pin.score = calculateScore(pin);
+      pins.unshift(pin);
+    });
+    savePins();
+    renderAll();
+  }
+
+  /* ---------- Filter / Suche ---------- */
+
+  function getFilteredPins(){
+    var search = searchInput.value.trim().toLowerCase();
+    var cat = filterCategory.value;
+    var status = filterStatus.value;
+    var ever = filterEvergreen.value;
+    var scoreF = filterScore.value;
+
+    return pins.filter(function(p){
+      if(search){
+        var hay = (p.title + ' ' + p.description + ' ' + p.keywords.join(' ')).toLowerCase();
+        if(hay.indexOf(search) === -1) return false;
+      }
+      if(cat && p.category !== cat) return false;
+      if(status && p.status !== status) return false;
+      if(ever === 'yes' && !p.evergreen) return false;
+      if(ever === 'no' && p.evergreen) return false;
+      if(scoreF){
+        var t = p.score.total;
+        if(scoreF === 'high' && !(t >= 70)) return false;
+        if(scoreF === 'mid' && !(t >= 40 && t < 70)) return false;
+        if(scoreF === 'low' && !(t < 40)) return false;
+      }
+      return true;
+    });
+  }
+
+  /* ---------- Rendering: Dashboard ---------- */
+
+  function renderDashboard(){
+    var total = pins.length;
+    var avg = total ? Math.round(pins.reduce(function(s, p){ return s + p.score.total; }, 0) / total) : 0;
+    var evergreenCount = pins.filter(function(p){ return p.evergreen; }).length;
+    var evergreenPct = total ? Math.round((evergreenCount / total) * 100) : 0;
+
+    dashStats.innerHTML =
+      '<div class="stat-card"><span class="stat-number">' + total + '</span><span class="stat-label">Pins gesamt</span></div>' +
+      '<div class="stat-card"><span class="stat-number">' + avg + '</span><span class="stat-label">Ø Score</span></div>' +
+      '<div class="stat-card"><span class="stat-number">' + evergreenPct + '%</span><span class="stat-label">Evergreen-Anteil</span></div>';
+
+    var statusCounts = { idee:0, entwurf:0, optimiert:0, bereit:0 };
+    pins.forEach(function(p){
+      if(statusCounts.hasOwnProperty(p.status)) statusCounts[p.status]++;
+    });
+
+    statusOverview.innerHTML = STATUS_ORDER.map(function(s){
+      return '<div class="status-stat">' +
+        '<span class="badge status-' + s + '">' + STATUS_LABELS[s] + '</span>' +
+        '<span class="status-count">' + statusCounts[s] + '</span>' +
+        '</div>';
+    }).join('');
+
+    var lowest = pins.slice().sort(function(a, b){ return a.score.total - b.score.total; }).slice(0, 5);
+
+    if(lowest.length === 0){
+      lowScoreList.innerHTML = '<p class="empty-hint">Noch keine Pins vorhanden. Erstelle deinen ersten Pin mit dem +-Button.</p>';
+    } else {
+      lowScoreList.innerHTML = lowest.map(function(p){
+        return '<button type="button" class="low-score-item" data-action="edit" data-id="' + p.id + '">' +
+          '<span class="score-chip tier-' + scoreTier(p.score.total) + '">' + p.score.total + '</span>' +
+          '<span class="low-score-title">' + escapeHtml(p.title) + '</span>' +
+          '</button>';
+      }).join('');
+    }
+  }
+
+  /* ---------- Rendering: Pin-Grid ---------- */
+
+  function renderPinCard(pin){
+    var tier = scoreTier(pin.score.total);
+    var kwAll = pin.keywords || [];
+    var kwToShow = kwAll.slice(0, 6);
+    var kwExtra = kwAll.length > 6 ? kwAll.length - 6 : 0;
+
+    var kwHtml = kwAll.length ? '<div class="pin-keywords">' +
+      kwToShow.map(function(k){ return '<span class="kw-tag">' + escapeHtml(k) + '</span>'; }).join('') +
+      (kwExtra ? '<span class="kw-tag kw-extra">+' + kwExtra + '</span>' : '') +
+      '</div>' : '';
+
+    var descHtml = pin.description ? '<p class="pin-desc">' + escapeHtml(truncate(pin.description, 90)) + '</p>' : '';
+    var categoryHtml = pin.category ? '<span class="meta-item">🗂️ ' + escapeHtml(pin.category) + '</span>' : '';
+    var boardHtml = pin.board ? '<span class="meta-item">📋 ' + escapeHtml(pin.board) + '</span>' : '';
+    var evergreenHtml = pin.evergreen ? '<span class="meta-item evergreen-tag">🌿 Evergreen</span>' : '';
+    var imageHtml = pin.image ? '<div class="pin-card-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
+
+    return '<article class="pin-card" data-id="' + pin.id + '">' +
+      imageHtml +
+      '<div class="pin-card-top">' +
+        '<span class="badge badge-compact status-' + pin.status + '">' + STATUS_CARD_LABELS[pin.status] + '</span>' +
+        '<span class="score-chip tier-' + tier + '">' + pin.score.total + '</span>' +
+      '</div>' +
+      '<h3 class="pin-title">' + escapeHtml(pin.title) + '</h3>' +
+      descHtml +
+      '<div class="pin-meta">' +
+        categoryHtml + boardHtml +
+        '<span class="meta-item">' + FORMAT_ICONS[pin.format] + ' ' + FORMAT_LABELS[pin.format] + '</span>' +
+        evergreenHtml +
+      '</div>' +
+      kwHtml +
+      '<div class="pin-actions">' +
+        '<button type="button" class="icon-btn" data-action="edit" data-id="' + pin.id + '">✏️ Bearbeiten</button>' +
+        '<button type="button" class="icon-btn" data-action="duplicate" data-id="' + pin.id + '">📋 Duplizieren</button>' +
+        '<button type="button" class="icon-btn danger" data-action="delete" data-id="' + pin.id + '">🗑️ Löschen</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function renderPinGrid(){
+    if(pendingDeleteTimeout){ clearTimeout(pendingDeleteTimeout); pendingDeleteTimeout = null; }
+    pendingDeleteId = null;
+
+    var filtered = getFilteredPins();
+
+    if(pins.length === 0){
+      resultCount.textContent = '';
+    } else {
+      resultCount.textContent = filtered.length + ' von ' + pins.length + ' Pin(s)';
+    }
+
+    if(filtered.length === 0){
+      pinGrid.innerHTML = '';
+      emptyState.classList.remove('hidden');
+      emptyState.textContent = pins.length === 0
+        ? 'Noch keine Pins vorhanden. Erstelle deinen ersten Pin mit dem +-Button.'
+        : 'Keine Pins gefunden. Passe deine Suche oder Filter an.';
+    } else {
+      emptyState.classList.add('hidden');
+      pinGrid.innerHTML = filtered.map(renderPinCard).join('');
+    }
+  }
+
+  /* ---------- Filter-Optionen & Vorschläge aktualisieren ---------- */
+
+  function updateFilterCategoryOptions(){
+    var current = filterCategory.value;
+    var categories = [];
+    pins.forEach(function(p){
+      if(p.category && categories.indexOf(p.category) === -1) categories.push(p.category);
+    });
+    categories.sort(function(a, b){ return a.localeCompare(b, 'de'); });
+
+    filterCategory.innerHTML = '<option value="">Alle Kategorien</option>' +
+      categories.map(function(c){ return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>'; }).join('');
+
+    if(categories.indexOf(current) !== -1) filterCategory.value = current;
+  }
+
+  function updateSuggestionLists(){
+    var categories = [];
+    var boards = [];
+    pins.forEach(function(p){
+      if(p.category && categories.indexOf(p.category) === -1) categories.push(p.category);
+      if(p.board && boards.indexOf(p.board) === -1) boards.push(p.board);
+    });
+    categoryDatalist.innerHTML = categories.map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
+    boardDatalist.innerHTML = boards.map(function(b){ return '<option value="' + escapeHtml(b) + '">'; }).join('');
+  }
+
+  function renderAll(){
+    updateFilterCategoryOptions();
+    renderDashboard();
+    renderPinGrid();
+  }
+
+  /* ---------- Referenz-Pins: Filter & Rendering (Version 1.4) ---------- */
+
+  function getFilteredReferencePins(){
+    var search = refSearchInput.value.trim().toLowerCase();
+    var cat = refFilterCategory.value;
+    var rebuild = refFilterRebuild.value;
+    var scoreF = refFilterScore.value;
+
+    return referencePins.filter(function(p){
+      if(search){
+        var hay = (p.title + ' ' + p.description + ' ' + p.keywords.join(' ') + ' ' + p.notes).toLowerCase();
+        if(hay.indexOf(search) === -1) return false;
+      }
+      if(cat && p.category !== cat) return false;
+      if(rebuild === 'yes' && !p.wouldRebuild) return false;
+      if(rebuild === 'no' && p.wouldRebuild) return false;
+      if(scoreF){
+        var t = p.score.total;
+        if(scoreF === 'high' && !(t >= 70)) return false;
+        if(scoreF === 'mid' && !(t >= 40 && t < 70)) return false;
+        if(scoreF === 'low' && !(t < 40)) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderReferencePinCard(pin){
+    var tier = scoreTier(pin.score.total);
+    var kwAll = pin.keywords || [];
+    var kwToShow = kwAll.slice(0, 6);
+    var kwExtra = kwAll.length > 6 ? kwAll.length - 6 : 0;
+
+    var kwHtml = kwAll.length ? '<div class="pin-keywords">' +
+      kwToShow.map(function(k){ return '<span class="kw-tag">' + escapeHtml(k) + '</span>'; }).join('') +
+      (kwExtra ? '<span class="kw-tag kw-extra">+' + kwExtra + '</span>' : '') +
+      '</div>' : '';
+
+    var descHtml = pin.description ? '<p class="pin-desc">' + escapeHtml(truncate(pin.description, 90)) + '</p>' : '';
+    var categoryHtml = pin.category ? '<span class="meta-item">🗂️ ' + escapeHtml(pin.category) + '</span>' : '';
+    var rebuildHtml = pin.wouldRebuild ? '<span class="meta-item evergreen-tag">🔁 Würde ich nachbauen</span>' : '';
+    var imageHtml = pin.image ? '<div class="pin-card-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
+
+    return '<article class="pin-card" data-id="' + pin.id + '">' +
+      imageHtml +
+      '<div class="pin-card-top">' +
+        '<span class="badge badge-compact status-optimiert">📌 Referenz</span>' +
+        '<span class="score-chip tier-' + tier + '">' + pin.score.total + '</span>' +
+      '</div>' +
+      '<h3 class="pin-title">' + escapeHtml(pin.title) + '</h3>' +
+      descHtml +
+      '<div class="pin-meta">' +
+        categoryHtml +
+        '<span class="meta-item">' + FORMAT_ICONS[pin.format] + ' ' + FORMAT_LABELS[pin.format] + '</span>' +
+        rebuildHtml +
+      '</div>' +
+      kwHtml +
+      '<div class="pin-actions">' +
+        '<button type="button" class="icon-btn" data-ref-action="edit" data-id="' + pin.id + '">✏️ Bearbeiten</button>' +
+        '<button type="button" class="icon-btn" data-ref-action="duplicate" data-id="' + pin.id + '">📋 Duplizieren</button>' +
+        '<button type="button" class="icon-btn danger" data-ref-action="delete" data-id="' + pin.id + '">🗑️ Löschen</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function renderReferencePinGrid(){
+    if(pendingReferenceDeleteTimeout){ clearTimeout(pendingReferenceDeleteTimeout); pendingReferenceDeleteTimeout = null; }
+    pendingReferenceDeleteId = null;
+
+    var filtered = getFilteredReferencePins();
+
+    if(referencePins.length === 0){
+      refResultCount.textContent = '';
+    } else {
+      refResultCount.textContent = filtered.length + ' von ' + referencePins.length + ' Referenz-Pin(s)';
+    }
+
+    if(filtered.length === 0){
+      referencePinGrid.innerHTML = '';
+      referenceEmptyState.classList.remove('hidden');
+      referenceEmptyState.textContent = referencePins.length === 0
+        ? 'Noch keine Referenz-Pins vorhanden. Speichere deinen ersten Referenz-Pin mit dem +-Button.'
+        : 'Keine Referenz-Pins gefunden. Passe deine Suche oder Filter an.';
+    } else {
+      referenceEmptyState.classList.add('hidden');
+      referencePinGrid.innerHTML = filtered.map(renderReferencePinCard).join('');
+    }
+  }
+
+  function updateReferenceFilterCategoryOptions(){
+    var current = refFilterCategory.value;
+    var categories = [];
+    referencePins.forEach(function(p){
+      if(p.category && categories.indexOf(p.category) === -1) categories.push(p.category);
+    });
+    categories.sort(function(a, b){ return a.localeCompare(b, 'de'); });
+
+    refFilterCategory.innerHTML = '<option value="">Alle Kategorien</option>' +
+      categories.map(function(c){ return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>'; }).join('');
+
+    if(categories.indexOf(current) !== -1) refFilterCategory.value = current;
+  }
+
+  function updateReferenceSuggestionLists(){
+    var categories = [];
+    referencePins.forEach(function(p){
+      if(p.category && categories.indexOf(p.category) === -1) categories.push(p.category);
+    });
+    referenceCategoryDatalist.innerHTML = categories.map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
+  }
+
+  function renderReferenceAll(){
+    updateReferenceFilterCategoryOptions();
+    renderReferencePinGrid();
+  }
+
+  /* ---------- Modal ---------- */
+
+  function updateScorePreview(){
+    var data = getFormData();
+    var temp = {
+      title: data.title,
+      description: data.description,
+      board: data.board,
+      category: data.category,
+      keywords: parseKeywords(data.keywords),
+      evergreen: data.evergreen
+    };
+    var scored = calculateScore(temp);
+
+    scorePreview.innerHTML =
+      '<div class="score-preview-title">Voraussichtlicher Score</div>' +
+      '<div class="score-preview-row"><span class="score-chip tier-' + scoreTier(scored.total) + '">' + scored.total + '</span><span>Gesamt</span></div>' +
+      '<div class="score-preview-bars">' +
+        '<span>SEO: ' + scored.seo + ' / 100</span>' +
+        '<span>Evergreen: ' + scored.evergreen + ' / 100</span>' +
+        '<span>Vollständigkeit: ' + scored.completeness + ' / 100</span>' +
+      '</div>';
+  }
+
+  function openModal(pin){
+    editingId = pin ? pin.id : null;
+    modalTitleEl.textContent = pin ? 'Pin bearbeiten' : 'Neuen Pin erstellen';
+
+    pinIdField.value = pin ? pin.id : '';
+    titleInput.value = pin ? pin.title : '';
+    descInput.value = pin ? pin.description : '';
+    boardInput.value = pin ? pin.board : '';
+    categoryInput.value = pin ? pin.category : '';
+    keywordsInput.value = pin ? pin.keywords.join(', ') : '';
+    formatSelect.value = pin ? pin.format : 'standard';
+    statusSelect.value = pin ? pin.status : 'idee';
+    evergreenCheckbox.checked = pin ? !!pin.evergreen : false;
+
+    pinImageInput.value = '';
+    imageProcessing = false;
+    hideImageError();
+    if(pin && pin.image){
+      currentImageData = {
+        dataUrl: pin.image,
+        name: pin.imageName || 'Bild',
+        type: pin.imageType || 'image/jpeg',
+        sizeKb: pin.imageSizeKb || 0
+      };
+    } else {
+      currentImageData = null;
+    }
+    updateImagePreview();
+
+    updateSuggestionLists();
+    updateScorePreview();
+
+    modalOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    titleInput.focus();
+  }
+
+  function closeModal(){
+    modalOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    editingId = null;
+    pinForm.reset();
+    currentImageData = null;
+    imageProcessing = false;
+    hideImageError();
+    updateImagePreview();
+  }
+
+  /* ---------- Referenz-Pin-Formular (Version 1.4) ---------- */
+
+  function buildCheckboxGridHtml(items, idPrefix, checkedKeys, autoKeys){
+    return items.map(function(item){
+      var key = typeof item === 'string' ? item : item.key;
+      var label = typeof item === 'string' ? item : item.label;
+      var id = idPrefix + '-' + key;
+      var checked = checkedKeys && checkedKeys.indexOf(key) !== -1 ? ' checked' : '';
+      var isAuto = autoKeys && autoKeys.indexOf(key) !== -1;
+      var autoTag = isAuto ? ' <span class="auto-tag">🔍 auto</span>' : '';
+      return '<label' + (isAuto ? ' class="auto-detected"' : '') + '>' +
+        '<input type="checkbox" id="' + id + '"' + checked + '>' +
+        '<span>' + escapeHtml(label) + '</span>' + autoTag +
+      '</label>';
+    }).join('');
+  }
+
+  function renderSuccessFactorsGrid(checkedFactors){
+    var checkedKeys = SUCCESS_FACTOR_DEFS.filter(function(def){
+      return checkedFactors && checkedFactors[def.key];
+    }).map(function(def){ return def.key; });
+    successFactorsGrid.innerHTML = buildCheckboxGridHtml(SUCCESS_FACTOR_DEFS, 'success-factor', checkedKeys, AUTO_DETECTABLE_KEYS);
+  }
+
+  function renderImageStyleGrid(checkedValues){
+    imageStyleGrid.innerHTML = buildCheckboxGridHtml(IMAGE_STYLE_OPTIONS, 'image-style', checkedValues || [], null);
+  }
+
+  function renderColorSchemeGrid(checkedValues){
+    colorSchemeGrid.innerHTML = buildCheckboxGridHtml(COLOR_SCHEME_OPTIONS, 'color-scheme', checkedValues || [], null);
+  }
+
+  function updateReferenceScorePreview(){
+    var factors = {};
+    SUCCESS_FACTOR_DEFS.forEach(function(def){
+      var box = document.getElementById('success-factor-' + def.key);
+      factors[def.key] = box ? box.checked : false;
+    });
+    var score = calculateReferenceScore(factors);
+    referenceScorePreview.innerHTML =
+      '<div class="score-preview-title">Referenz-Score</div>' +
+      '<div class="score-preview-row"><span class="score-chip tier-' + scoreTier(score) + '">' + score + '</span><span>Muster-Übereinstimmung</span></div>';
+  }
+
+  function updateAutoDetectedFactors(){
+    var detected = detectSuccessFactors(referenceTitleInput.value, referenceDescInput.value);
+    AUTO_DETECTABLE_KEYS.forEach(function(key){
+      var box = document.getElementById('success-factor-' + key);
+      if(box) box.checked = !!detected[key];
+    });
+    updateReferenceScorePreview();
+  }
+
+  function openReferenceModal(pin){
+    editingReferenceId = pin ? pin.id : null;
+    referenceModalTitleEl.textContent = pin ? 'Referenz-Pin bearbeiten' : 'Neuen Referenz-Pin speichern';
+
+    referenceIdField.value = pin ? pin.id : '';
+    referenceTitleInput.value = pin ? pin.title : '';
+    referenceDescInput.value = pin ? pin.description : '';
+    referenceSourceUrlInput.value = pin ? pin.sourceUrl : '';
+    referenceCategoryInput.value = pin ? pin.category : '';
+    referenceKeywordsInput.value = pin ? pin.keywords.join(', ') : '';
+    referenceFormatSelect.value = pin ? pin.format : 'standard';
+    referenceNotesInput.value = pin ? pin.notes : '';
+    referenceWhyInput.value = pin ? pin.whyILikeIt : '';
+    referenceWouldRebuildCheckbox.checked = pin ? !!pin.wouldRebuild : false;
+
+    renderSuccessFactorsGrid(pin ? pin.successFactors : null);
+    renderImageStyleGrid(pin ? pin.imageStyle : null);
+    renderColorSchemeGrid(pin ? pin.colorScheme : null);
+
+    referenceImageInput.value = '';
+    referenceImageProcessing = false;
+    hideReferenceImageError();
+    if(pin && pin.image){
+      currentReferenceImageData = {
+        dataUrl: pin.image,
+        name: pin.imageName || 'Bild',
+        type: pin.imageType || 'image/jpeg',
+        sizeKb: pin.imageSizeKb || 0
+      };
+    } else {
+      currentReferenceImageData = null;
+    }
+    updateReferenceImagePreview();
+
+    updateReferenceSuggestionLists();
+    updateReferenceScorePreview();
+
+    referenceModalOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    referenceTitleInput.focus();
+  }
+
+  function closeReferenceModal(){
+    referenceModalOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    editingReferenceId = null;
+    referenceForm.reset();
+    currentReferenceImageData = null;
+    referenceImageProcessing = false;
+    hideReferenceImageError();
+    updateReferenceImagePreview();
+  }
+
+  function openDetailModal(pin){
+    var kwScore = getKeywordScore(pin);
+    var ctaScore = getCtaScore(pin);
+    var insights = getPinInsights(pin);
+
+    var scoreItems = [
+      { label: 'Gesamtscore', value: pin.score.total },
+      { label: 'SEO-Score', value: pin.score.seo },
+      { label: 'Keyword-Score', value: kwScore },
+      { label: 'Evergreen-Score', value: pin.score.evergreen },
+      { label: 'Vollständigkeits-Score', value: pin.score.completeness },
+      { label: 'CTA-Score', value: ctaScore }
+    ];
+
+    var scoreHtml = scoreItems.map(function(item){
+      return '<div class="detail-score-item">' +
+        '<span class="score-chip tier-' + scoreTier(item.value) + '">' + item.value + '</span>' +
+        '<span class="detail-score-label">' + item.label + '</span>' +
+      '</div>';
+    }).join('');
+
+    var strengthsHtml = insights.strengths.map(function(s){ return '<li>' + s + '</li>'; }).join('');
+    var improvementsHtml = insights.improvements.map(function(s){ return '<li>' + s + '</li>'; }).join('');
+
+    var metaParts = [];
+    metaParts.push(STATUS_LABELS[pin.status]);
+    if(pin.category) metaParts.push(escapeHtml(pin.category));
+
+    var detailImageHtml = pin.image ? '<div class="detail-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
+
+    detailContent.innerHTML =
+      '<h3 class="detail-pin-title">' + escapeHtml(pin.title) + '</h3>' +
+      '<p class="detail-pin-meta">' + metaParts.join(' · ') + '</p>' +
+      detailImageHtml +
+      '<div class="detail-score-grid">' + scoreHtml + '</div>' +
+      '<div class="detail-section">' +
+        '<h3>Stärken</h3>' +
+        '<ul class="detail-list strengths">' + strengthsHtml + '</ul>' +
+      '</div>' +
+      '<div class="detail-section">' +
+        '<h3>Verbesserungsvorschläge</h3>' +
+        '<ul class="detail-list improvements">' + improvementsHtml + '</ul>' +
+      '</div>';
+
+    detailOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeDetailModal(){
+    detailOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+
+  /* ---------- Aktionen (Bearbeiten/Duplizieren/Löschen) ---------- */
+
+  function handleGridAction(e){
+    var btn = e.target.closest('[data-action]');
+
+    if(!btn){
+      var card = e.target.closest('.pin-card');
+      if(card){
+        var cardPin = findPinById(card.getAttribute('data-id'));
+        if(cardPin) openDetailModal(cardPin);
+      }
+      return;
+    }
+
+    var id = btn.getAttribute('data-id');
+    var action = btn.getAttribute('data-action');
+
+    if(action === 'edit'){
+      var pin = findPinById(id);
+      if(pin) openModal(pin);
+    } else if(action === 'duplicate'){
+      duplicatePinById(id);
+      renderAll();
+    } else if(action === 'delete'){
+      if(pendingDeleteId === id){
+        if(pendingDeleteTimeout){ clearTimeout(pendingDeleteTimeout); pendingDeleteTimeout = null; }
+        pendingDeleteId = null;
+        deletePinById(id);
+        renderAll();
+      } else {
+        if(pendingDeleteTimeout){ clearTimeout(pendingDeleteTimeout); pendingDeleteTimeout = null; }
+        pendingDeleteId = id;
+        btn.textContent = '❗ Wirklich löschen?';
+        pendingDeleteTimeout = setTimeout(function(){
+          pendingDeleteId = null;
+          pendingDeleteTimeout = null;
+          btn.textContent = '🗑️ Löschen';
+        }, 3000);
+      }
+    }
+  }
+
+  function handleReferenceGridAction(e){
+    var btn = e.target.closest('[data-ref-action]');
+
+    if(!btn){
+      var card = e.target.closest('.pin-card');
+      if(card){
+        var cardPin = findReferencePinById(card.getAttribute('data-id'));
+        if(cardPin) openReferenceModal(cardPin);
+      }
+      return;
+    }
+
+    var id = btn.getAttribute('data-id');
+    var action = btn.getAttribute('data-ref-action');
+
+    if(action === 'edit'){
+      var pin = findReferencePinById(id);
+      if(pin) openReferenceModal(pin);
+    } else if(action === 'duplicate'){
+      duplicateReferencePinById(id);
+      renderReferenceAll();
+    } else if(action === 'delete'){
+      if(pendingReferenceDeleteId === id){
+        if(pendingReferenceDeleteTimeout){ clearTimeout(pendingReferenceDeleteTimeout); pendingReferenceDeleteTimeout = null; }
+        pendingReferenceDeleteId = null;
+        deleteReferencePinById(id);
+        renderReferenceAll();
+      } else {
+        if(pendingReferenceDeleteTimeout){ clearTimeout(pendingReferenceDeleteTimeout); pendingReferenceDeleteTimeout = null; }
+        pendingReferenceDeleteId = id;
+        btn.textContent = '❗ Wirklich löschen?';
+        pendingReferenceDeleteTimeout = setTimeout(function(){
+          pendingReferenceDeleteId = null;
+          pendingReferenceDeleteTimeout = null;
+          btn.textContent = '🗑️ Löschen';
+        }, 3000);
+      }
+    }
+  }
+
+  /* ---------- Event-Listener ---------- */
+
+  navButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      navButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var view = btn.getAttribute('data-view');
+      viewDashboard.classList.toggle('active', view === 'dashboard');
+      viewPins.classList.toggle('active', view === 'pins');
+      if(view === 'dashboard'){
+        renderDashboard();
+      } else if(pinDbMode === 'reference'){
+        renderReferencePinGrid();
+      } else {
+        renderPinGrid();
+      }
+    });
+  });
+
+  pinDbModeButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      pinDbModeButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      pinDbMode = btn.getAttribute('data-mode');
+      ownPinsSection.classList.toggle('hidden', pinDbMode !== 'own');
+      referencePinsSection.classList.toggle('hidden', pinDbMode !== 'reference');
+      if(pinDbMode === 'reference'){
+        renderReferenceAll();
+      } else {
+        renderPinGrid();
+      }
+    });
+  });
+
+  searchInput.addEventListener('input', renderPinGrid);
+  filterCategory.addEventListener('change', renderPinGrid);
+  filterStatus.addEventListener('change', renderPinGrid);
+  filterEvergreen.addEventListener('change', renderPinGrid);
+  filterScore.addEventListener('change', renderPinGrid);
+
+  resetFiltersBtn.addEventListener('click', function(){
+    searchInput.value = '';
+    filterCategory.value = '';
+    filterStatus.value = '';
+    filterEvergreen.value = '';
+    filterScore.value = '';
+    renderPinGrid();
+  });
+
+  loadDemoBtn.addEventListener('click', loadDemoPins);
+
+  pinGrid.addEventListener('click', handleGridAction);
+  lowScoreList.addEventListener('click', handleGridAction);
+
+  refSearchInput.addEventListener('input', renderReferencePinGrid);
+  refFilterCategory.addEventListener('change', renderReferencePinGrid);
+  refFilterRebuild.addEventListener('change', renderReferencePinGrid);
+  refFilterScore.addEventListener('change', renderReferencePinGrid);
+
+  refResetFiltersBtn.addEventListener('click', function(){
+    refSearchInput.value = '';
+    refFilterCategory.value = '';
+    refFilterRebuild.value = '';
+    refFilterScore.value = '';
+    renderReferencePinGrid();
+  });
+
+  referencePinGrid.addEventListener('click', handleReferenceGridAction);
+
+  fab.addEventListener('click', function(){
+    if(pinDbMode === 'reference'){
+      openReferenceModal(null);
+    } else {
+      openModal(null);
+    }
+  });
+
+  modalCloseBtn.addEventListener('click', closeModal);
+  cancelBtn.addEventListener('click', closeModal);
+
+  modalOverlay.addEventListener('click', function(e){
+    if(e.target === modalOverlay) closeModal();
+  });
+
+  detailCloseBtn.addEventListener('click', closeDetailModal);
+
+  detailOverlay.addEventListener('click', function(e){
+    if(e.target === detailOverlay) closeDetailModal();
+  });
+
+  exportBtn.addEventListener('click', function(){
+    exportPins();
+  });
+
+  importBtn.addEventListener('click', function(){
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener('change', function(){
+    var file = importFileInput.files && importFileInput.files[0];
+    if(!file) return;
+    handleImportFile(file);
+  });
+
+  importCloseBtn.addEventListener('click', closeImportModal);
+
+  importOverlay.addEventListener('click', function(e){
+    if(e.target === importOverlay) closeImportModal();
+  });
+
+  exportTextCloseBtn.addEventListener('click', closeExportTextModal);
+
+  exportTextOverlay.addEventListener('click', function(e){
+    if(e.target === exportTextOverlay) closeExportTextModal();
+  });
+
+  exportTextSelectBtn.addEventListener('click', function(){
+    exportTextArea.focus();
+    exportTextArea.select();
+  });
+
+  exportTextCopyBtn.addEventListener('click', function(){
+    exportTextArea.focus();
+    exportTextArea.select();
+
+    if(navigator.clipboard && typeof navigator.clipboard.writeText === 'function'){
+      navigator.clipboard.writeText(exportTextArea.value).then(function(){
+        exportTextStatus.textContent = '✅ In die Zwischenablage kopiert.';
+        exportTextStatus.classList.remove('hidden');
+      }).catch(function(){
+        exportTextStatus.textContent = 'Automatisches Kopieren nicht möglich – der Text ist markiert, bitte manuell kopieren.';
+        exportTextStatus.classList.remove('hidden');
+      });
+    } else {
+      exportTextStatus.textContent = 'Der Text ist markiert – bitte manuell kopieren.';
+      exportTextStatus.classList.remove('hidden');
+    }
+  });
+
+  pasteImportBtn.addEventListener('click', openPasteImportModal);
+  pasteImportCloseBtn.addEventListener('click', closePasteImportModal);
+  pasteImportCancelBtn.addEventListener('click', closePasteImportModal);
+  pasteImportConfirmBtn.addEventListener('click', handlePasteImportConfirm);
+
+  pasteImportOverlay.addEventListener('click', function(e){
+    if(e.target === pasteImportOverlay) closePasteImportModal();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      if(!modalOverlay.classList.contains('hidden')) closeModal();
+      if(!detailOverlay.classList.contains('hidden')) closeDetailModal();
+      if(!importOverlay.classList.contains('hidden')) closeImportModal();
+      if(!exportTextOverlay.classList.contains('hidden')) closeExportTextModal();
+      if(!pasteImportOverlay.classList.contains('hidden')) closePasteImportModal();
+      if(!referenceModalOverlay.classList.contains('hidden')) closeReferenceModal();
+    }
+  });
+
+  pinForm.addEventListener('input', updateScorePreview);
+  pinForm.addEventListener('change', updateScorePreview);
+
+  pinImageInput.addEventListener('change', function(){
+    var file = pinImageInput.files && pinImageInput.files[0];
+    if(!file) return;
+
+    hideImageError();
+
+    if(!file.type || file.type.indexOf('image/') !== 0){
+      showImageError('Bitte eine Bilddatei auswählen (JPG, PNG, WebP).');
+      pinImageInput.value = '';
+      return;
+    }
+
+    imageProcessing = true;
+    imageInfoText.textContent = 'Bild wird verarbeitet …';
+
+    processImageFile(file).then(function(result){
+      currentImageData = result;
+      imageProcessing = false;
+      updateImagePreview();
+    }).catch(function(err){
+      console.error('Bildverarbeitung fehlgeschlagen:', err);
+      imageProcessing = false;
+      imageInfoText.textContent = '';
+      showImageError('Bild konnte nicht verarbeitet werden. Bitte ein anderes Bild versuchen.');
+    });
+  });
+
+  imageRemoveBtn.addEventListener('click', function(){
+    currentImageData = null;
+    pinImageInput.value = '';
+    hideImageError();
+    updateImagePreview();
+  });
+
+  pinForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!titleInput.value.trim()){
+      titleInput.focus();
+      return;
+    }
+    if(imageProcessing){
+      showImageError('Bild wird noch verarbeitet – bitte kurz warten und erneut speichern.');
+      return;
+    }
+    addOrUpdatePin(getFormData(), editingId);
+    closeModal();
+    renderAll();
+  });
+
+  referenceModalCloseBtn.addEventListener('click', closeReferenceModal);
+  referenceCancelBtn.addEventListener('click', closeReferenceModal);
+
+  referenceModalOverlay.addEventListener('click', function(e){
+    if(e.target === referenceModalOverlay) closeReferenceModal();
+  });
+
+  referenceForm.addEventListener('input', function(e){
+    if(e.target === referenceTitleInput || e.target === referenceDescInput){
+      updateAutoDetectedFactors();
+    }
+  });
+
+  referenceForm.addEventListener('change', function(e){
+    if(e.target && e.target.closest('#success-factors-grid')){
+      updateReferenceScorePreview();
+    }
+  });
+
+  referenceImageInput.addEventListener('change', function(){
+    var file = referenceImageInput.files && referenceImageInput.files[0];
+    if(!file) return;
+
+    hideReferenceImageError();
+
+    if(!file.type || file.type.indexOf('image/') !== 0){
+      showReferenceImageError('Bitte eine Bilddatei auswählen (JPG, PNG, WebP).');
+      referenceImageInput.value = '';
+      return;
+    }
+
+    referenceImageProcessing = true;
+    referenceImageInfoText.textContent = 'Bild wird verarbeitet …';
+
+    processImageFile(file).then(function(result){
+      currentReferenceImageData = result;
+      referenceImageProcessing = false;
+      updateReferenceImagePreview();
+    }).catch(function(err){
+      console.error('Bildverarbeitung fehlgeschlagen:', err);
+      referenceImageProcessing = false;
+      referenceImageInfoText.textContent = '';
+      showReferenceImageError('Bild konnte nicht verarbeitet werden. Bitte ein anderes Bild versuchen.');
+    });
+  });
+
+  referenceImageRemoveBtn.addEventListener('click', function(){
+    currentReferenceImageData = null;
+    referenceImageInput.value = '';
+    hideReferenceImageError();
+    updateReferenceImagePreview();
+  });
+
+  referenceForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!referenceTitleInput.value.trim()){
+      referenceTitleInput.focus();
+      return;
+    }
+    if(referenceImageProcessing){
+      showReferenceImageError('Bild wird noch verarbeitet – bitte kurz warten und erneut speichern.');
+      return;
+    }
+    addOrUpdateReferencePin(getReferenceFormData(), editingReferenceId);
+    closeReferenceModal();
+    renderReferenceAll();
+  });
+
+  /* ---------- Initialisierung ---------- */
+
+  loadPins();
+  loadReferencePins();
+  if(!storageIssueShown && !isLocalStorageAvailable()){
+    showStorageBanner('Lokaler Speicher ist in dieser Ansicht nicht verfügbar (z. B. privater/Inkognito-Modus). Daten werden nicht dauerhaft gespeichert. Bitte im normalen Browser-Tab öffnen.');
+  }
+  renderAll();
+  renderReferenceAll();
+
+})(); // Ende DOMContentLoaded
+</script>
+
+</body>
+</html>
