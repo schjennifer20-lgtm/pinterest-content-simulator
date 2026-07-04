@@ -255,7 +255,7 @@
     gap:.6rem;
     margin-bottom:.6rem;
   }
-  #export-btn, #import-btn, #paste-import-btn{
+  #export-btn, #export-meta-btn, #import-btn, #paste-import-btn, #connect-ref-file-btn{
     background:transparent;
     border:1px solid var(--sand);
     border-radius:var(--radius-md);
@@ -266,11 +266,51 @@
     cursor:pointer;
     flex:1 1 160px;
   }
-  #export-btn:hover, #import-btn:hover, #paste-import-btn:hover{ background:var(--card); }
+  #export-btn:hover, #export-meta-btn:hover, #import-btn:hover, #paste-import-btn:hover, #connect-ref-file-btn:hover{ background:var(--card); }
+  #connect-ref-file-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+  }
+  #connect-ref-file-btn:disabled:hover{ background:transparent; }
+
+  /* Datei-Sync-Status (Hybrid-Modus, Variante B) */
+  .file-sync-row{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    margin-top:.75rem;
+    padding:.6rem .8rem;
+    border-radius:var(--radius-md);
+    border:1px solid var(--sand);
+    background:var(--paper);
+    font-size:.8rem;
+    line-height:1.4;
+  }
+  .file-sync-row.connected{
+    border-color:var(--sage);
+    background:var(--sage-tint);
+    color:var(--sage);
+  }
+  .file-sync-row.disconnected{
+    color:var(--muted);
+  }
+  .file-sync-row.unavailable{
+    color:var(--muted);
+    opacity:.7;
+  }
+  .file-sync-filename{
+    font-family:var(--font-mono);
+    font-size:.76rem;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    max-width:200px;
+  }
   .backup-hint{
     font-size:.76rem;
     color:var(--muted);
     margin:0;
+    line-height:1.6;
   }
 
   /* Badges */
@@ -973,12 +1013,22 @@
     <div class="dash-block">
       <h2>Backup &amp; Daten</h2>
       <div class="backup-actions">
-        <button type="button" id="export-btn">⬇️ Pins exportieren</button>
+        <button type="button" id="export-btn">⬇️ Vollständig exportieren</button>
+        <button type="button" id="export-meta-btn">📄 Nur Metadaten exportieren</button>
         <button type="button" id="import-btn">⬆️ Pins importieren</button>
         <button type="button" id="paste-import-btn">📋 JSON-Text einfügen</button>
+        <button type="button" id="connect-ref-file-btn">📂 Mit reference-pins.json verbinden</button>
         <input type="file" id="import-file-input" accept="application/json,.json" class="hidden">
       </div>
-      <p class="backup-hint">Exportiert alle Pins inklusive Bilder als JSON-Datei. Beim Import wird standardmäßig zum bestehenden Bestand hinzugefügt. „JSON-Text einfügen" eignet sich, wenn keine Datei ausgewählt werden kann (z. B. Text aus Notizen kopiert).</p>
+      <div class="file-sync-row disconnected" id="ref-file-sync-status" aria-live="polite">
+        <span id="ref-file-sync-icon">⚪</span>
+        <span id="ref-file-sync-text">Nicht verbunden – Referenz-Pins werden aus lokalem Speicher geladen.</span>
+      </div>
+      <p class="backup-hint">
+        <strong>Vollständig exportieren</strong> – alle Pins inkl. Bilder (große Datei, für Gerätewechsel).<br>
+        <strong>Nur Metadaten exportieren</strong> – alle Pins ohne Bilder aus Referenz-Pins (kleine Datei, für regelmäßige Backups).<br>
+        <strong>Mit reference-pins.json verbinden</strong> – Datei direkt öffnen und bei jeder Änderung automatisch speichern (Chrome/Edge).
+      </p>
     </div>
   </section>
 
@@ -1349,6 +1399,9 @@ document.addEventListener('DOMContentLoaded', function(){
   var referenceImageProcessing = false;
   var pendingImportReferencePins = null;
 
+  /* File System Access API – Hybrid-Dateiverbindung (Variante B) */
+  var refFileHandle = null; /* FileSystemFileHandle | null – nicht serialisierbar, lebt nur in dieser Session */
+
   /* ---------- DOM-Referenzen ---------- */
 
   var navButtons = document.querySelectorAll('.nav-btn');
@@ -1416,8 +1469,15 @@ document.addEventListener('DOMContentLoaded', function(){
   var storageBanner = document.getElementById('storage-banner');
 
   var exportBtn = document.getElementById('export-btn');
+  var exportMetaBtn = document.getElementById('export-meta-btn');
   var importBtn = document.getElementById('import-btn');
   var importFileInput = document.getElementById('import-file-input');
+
+  /* Hybrid-Dateiverbindung */
+  var connectRefFileBtn = document.getElementById('connect-ref-file-btn');
+  var refFileSyncStatus = document.getElementById('ref-file-sync-status');
+  var refFileSyncIcon = document.getElementById('ref-file-sync-icon');
+  var refFileSyncText = document.getElementById('ref-file-sync-text');
   var importOverlay = document.getElementById('import-overlay');
   var importCloseBtn = document.getElementById('import-close');
   var importContent = document.getElementById('import-content');
@@ -1584,8 +1644,8 @@ document.addEventListener('DOMContentLoaded', function(){
      Bild pro Pin gespeichert (kein separates Vorschaubild), Zielgröße
      ca. 300 KB. Nichts davon verändert die bestehende Score-Berechnung. */
 
-  var MAX_IMAGE_DIMENSION = 700;
-  var MAX_IMAGE_KB = 300;
+  var MAX_IMAGE_DIMENSION = 400; /* v1.4.1: von 700px reduziert – reicht für Thumbnail-Vorschau */
+  var MAX_IMAGE_KB = 60;         /* v1.4.1: von 300KB reduziert – ~80% kleinere Backups */
 
   function estimateBase64Kb(dataUrl){
     var commaIdx = dataUrl.indexOf(',');
@@ -1840,9 +1900,145 @@ document.addEventListener('DOMContentLoaded', function(){
       console.error('Fehler beim Speichern der Referenz-Pins in localStorage:', e);
       showStorageBanner('Speichern der Referenz-Pins fehlgeschlagen. Der Speicher ist eventuell eingeschränkt oder voll.');
     }
+    /* Hybrid-Modus: falls Datei verbunden, auch direkt in Datei schreiben (nachgelagert,
+       localStorage ist bereits gesichert und bleibt die primäre Quelle) */
+    if(refFileHandle){
+      writeReferenceFile().catch(function(err){
+        console.error('Datei-Sync fehlgeschlagen (localStorage ist aktuell):', err);
+      });
+    }
   }
 
-  /* ---------- Import / Export / Backup (Version 1.3) ---------- */
+  /* ---------- Hybrid-Dateiverbindung – File System Access API (Variante B) ---------- */
+
+  /* Prüft ob die File System Access API verfügbar ist (Chrome/Edge ≥ 86, Safari ≥ 15.2).
+     Firefox und file://-Umgebungen werden explizit ausgeschlossen. */
+  function isFileSystemAccessSupported(){
+    return (
+      typeof window.showOpenFilePicker === 'function' &&
+      window.isSecureContext === true
+    );
+  }
+
+  /* Status-Anzeige im Dashboard aktualisieren. */
+  function updateFileSyncStatus(){
+    if(!isFileSystemAccessSupported()){
+      refFileSyncStatus.className = 'file-sync-row unavailable';
+      refFileSyncIcon.textContent = '🚫';
+      refFileSyncText.textContent = 'Datei-Verbindung nicht verfügbar (nur Chrome/Edge über GitHub Pages).';
+      connectRefFileBtn.disabled = true;
+      connectRefFileBtn.title = 'Wird von diesem Browser oder dieser Umgebung nicht unterstützt.';
+      return;
+    }
+    if(refFileHandle){
+      refFileSyncStatus.className = 'file-sync-row connected';
+      refFileSyncIcon.textContent = '✅';
+      refFileSyncText.innerHTML = 'Verbunden: <span class="file-sync-filename">' + escapeHtml(refFileHandle.name) + '</span> – Änderungen werden automatisch gespeichert.';
+      connectRefFileBtn.textContent = '📂 Andere Datei verbinden';
+    } else {
+      refFileSyncStatus.className = 'file-sync-row disconnected';
+      refFileSyncIcon.textContent = '⚪';
+      refFileSyncText.textContent = 'Nicht verbunden – Referenz-Pins werden aus lokalem Speicher geladen.';
+      connectRefFileBtn.textContent = '📂 Mit reference-pins.json verbinden';
+    }
+  }
+
+  /* Liest den Inhalt eines FileHandle und gibt ihn als Text zurück. */
+  function readFileHandleText(fileHandle){
+    return fileHandle.getFile().then(function(file){
+      return new Promise(function(resolve, reject){
+        var reader = new FileReader();
+        reader.onload = function(){ resolve(reader.result); };
+        reader.onerror = function(){ reject(new Error('Datei konnte nicht gelesen werden.')); };
+        reader.readAsText(file);
+      });
+    });
+  }
+
+  /* Stellt sicher, dass Schreibberechtigung für refFileHandle vorliegt.
+     Gibt Promise<boolean> zurück (true = Schreiben erlaubt). */
+  function ensureWritePermission(){
+    if(!refFileHandle) return Promise.resolve(false);
+    return refFileHandle.queryPermission({ mode: 'readwrite' }).then(function(state){
+      if(state === 'granted') return true;
+      if(state === 'denied') return false;
+      /* state === 'prompt' – Nutzergeste erforderlich */
+      return refFileHandle.requestPermission({ mode: 'readwrite' }).then(function(s){
+        return s === 'granted';
+      });
+    });
+  }
+
+  /* Schreibt den aktuellen referencePins-Stand als vollständige Export-Hülle in die verbundene Datei.
+     Wird nur aufgerufen wenn refFileHandle gesetzt ist.
+     localStorage ist zu diesem Zeitpunkt bereits gespeichert. */
+  function writeReferenceFile(){
+    return ensureWritePermission().then(function(allowed){
+      if(!allowed){
+        showStorageBanner('Schreibberechtigung für die Datei wurde verweigert. Änderungen nur im lokalen Speicher gespeichert.');
+        return;
+      }
+      var envelope = buildExportEnvelope();
+      var json = JSON.stringify(envelope, null, 2);
+      return refFileHandle.createWritable().then(function(writable){
+        return writable.write(json).then(function(){
+          return writable.close();
+        });
+      });
+    });
+  }
+
+  /* Öffnet den nativen Dateiauswahl-Dialog, liest die gewählte Datei,
+     lädt die Referenz-Pins (ersetzt localStorage-Stand) und merkt den Handle. */
+  function connectReferenceFile(){
+    if(!isFileSystemAccessSupported()){
+      showStorageBanner('Datei-Verbindung wird von diesem Browser oder dieser Umgebung nicht unterstützt. Bitte Chrome oder Edge über GitHub Pages verwenden.');
+      return;
+    }
+    window.showOpenFilePicker({
+      types: [{
+        description: 'JSON-Backup',
+        accept: { 'application/json': ['.json'] }
+      }],
+      suggestedName: 'reference-pins.json',
+      multiple: false
+    }).then(function(handles){
+      var handle = handles[0];
+      return readFileHandleText(handle).then(function(text){
+        var result = prepareImportFromJsonText(text, 'Die gewählte Datei enthält kein gültiges JSON-Format.');
+        if(!result.ok){
+          showStorageBanner('Datei konnte nicht geladen werden: ' + result.error);
+          return;
+        }
+        /* Datei ist die Quelle der Wahrheit – Referenz-Pins aus Datei übernehmen */
+        var incoming = pendingImportReferencePins || [];
+        referencePins = incoming;
+        pendingImportPins = null;
+        pendingImportReferencePins = null;
+        pendingImportMeta = null;
+        /* Handle und Berechtigung sicherstellen */
+        return handle.requestPermission({ mode: 'readwrite' }).then(function(){
+          refFileHandle = handle;
+          /* localStorage auf Stand der Datei bringen */
+          try{
+            localStorage.setItem(REFERENCE_STORAGE_KEY, JSON.stringify(referencePins));
+          }catch(e){
+            console.error('localStorage-Sync nach Datei-Verbindung fehlgeschlagen:', e);
+          }
+          updateFileSyncStatus();
+          renderReferenceAll();
+          showStorageBanner(
+            'Verbunden mit ' + handle.name + ' – ' + referencePins.length + ' Referenz-Pin(s) geladen.',
+            'success'
+          );
+        });
+      });
+    }).catch(function(err){
+      if(err && err.name === 'AbortError') return; /* Nutzer hat Dialog abgebrochen – kein Fehler */
+      console.error('Datei-Verbindung fehlgeschlagen:', err);
+      showStorageBanner('Datei konnte nicht verbunden werden. Bitte erneut versuchen.');
+    });
+  }
 
   function pad2(n){
     return n < 10 ? '0' + n : '' + n;
@@ -1940,6 +2136,56 @@ document.addEventListener('DOMContentLoaded', function(){
         showExportTextFallback(json);
       }
       showStorageBanner(pins.length + ' Pin(s) exportiert.', 'success');
+    });
+  }
+
+  /* Metadaten-Export (Version 1.4.1):
+   * Identisch zum Vollexport, aber image-Felder der Referenz-Pins werden
+   * auf null gesetzt. Eigene Pins bleiben vollständig (haben i.d.R. nur
+   * kleine Bilder). Bestehende Importlogik verarbeitet dieses Format
+   * automatisch korrekt – fehlende Bilder werden als null behandelt. */
+  function exportPinsMeta(){
+    var envelope = buildExportEnvelope();
+
+    /* Referenz-Pin-Bilder entfernen – alle anderen Felder vollständig erhalten */
+    envelope.referencePins = envelope.referencePins.map(function(pin){
+      return {
+        id: pin.id,
+        title: pin.title,
+        description: pin.description,
+        sourceUrl: pin.sourceUrl,
+        category: pin.category,
+        keywords: pin.keywords,
+        format: pin.format,
+        notes: pin.notes,
+        whyILikeIt: pin.whyILikeIt,
+        wouldRebuild: pin.wouldRebuild,
+        successFactors: pin.successFactors,
+        imageStyle: pin.imageStyle,
+        colorScheme: pin.colorScheme,
+        image: null,
+        imageName: '',
+        imageType: '',
+        imageSizeKb: 0,
+        score: pin.score,
+        createdAt: pin.createdAt,
+        updatedAt: pin.updatedAt
+      };
+    });
+
+    var json = JSON.stringify(envelope, null, 2);
+    var filename = 'pinterest-simulator-meta-' + getDateStringForFilename() + '.json';
+
+    triggerBlobDownload(json, filename);
+
+    tryShareExportFile(json, filename).then(function(handled){
+      if(!handled){
+        showExportTextFallback(json);
+      }
+      showStorageBanner(
+        'Metadaten-Export: ' + pins.length + ' Pin(s) + ' + referencePins.length + ' Referenz-Pin(s) ohne Bilder exportiert.',
+        'success'
+      );
     });
   }
 
@@ -3363,6 +3609,14 @@ document.addEventListener('DOMContentLoaded', function(){
     exportPins();
   });
 
+  exportMetaBtn.addEventListener('click', function(){
+    exportPinsMeta();
+  });
+
+  connectRefFileBtn.addEventListener('click', function(){
+    connectReferenceFile();
+  });
+
   importBtn.addEventListener('click', function(){
     importFileInput.click();
   });
@@ -3555,6 +3809,7 @@ document.addEventListener('DOMContentLoaded', function(){
   if(!storageIssueShown && !isLocalStorageAvailable()){
     showStorageBanner('Lokaler Speicher ist in dieser Ansicht nicht verfügbar (z. B. privater/Inkognito-Modus). Daten werden nicht dauerhaft gespeichert. Bitte im normalen Browser-Tab öffnen.');
   }
+  updateFileSyncStatus(); /* Hybrid-Datei-Status beim Start setzen */
   renderAll();
   renderReferenceAll();
 
