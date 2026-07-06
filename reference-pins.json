@@ -1,13 +1,785 @@
 {
   "exportFormatVersion": 1,
   "appVersion": "1.4",
-  "exportedAt": "2026-07-05T10:17:07.460Z",
-  "pinCount": 0,
-  "referencePinCount": 33,
-  "pins": [],
+  "exportedAt": "2026-07-05T20:54:41.647Z",
+  "pinCount": 20,
+  "referencePinCount": 37,
+  "pins": [
+    {
+      "id": "p_mr6sqvez_1rbgd0",
+      "title": "Zyklusphasen verstehen: So tickt dein Körper",
+      "description": "Lerne die 4 Phasen deines Zyklus kennen und wie sie deine Energie, Stimmung und Leistungsfähigkeit beeinflussen. Entdecke jetzt, wie du dein Training und deinen Alltag an deinen Zyklus anpassen kannst.",
+      "board": "Zyklusgesundheit",
+      "category": "Zyklusgesundheit",
+      "keywords": [
+        "zyklusgesundheit",
+        "zyklusphasen",
+        "hormone",
+        "weibliche gesundheit"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr6sqvez_utm7gk",
+      "title": "Die perfekte Morgenroutine für mehr Produktivität",
+      "description": "So gestaltest du eine Morgenroutine, die dich den ganzen Tag produktiver macht.",
+      "board": "Produktivität Tipps",
+      "category": "Produktivität",
+      "keywords": [
+        "morgenroutine"
+      ],
+      "format": "standard",
+      "status": "idee",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 65,
+        "evergreen": 100,
+        "completeness": 80,
+        "total": 80
+      }
+    },
+    {
+      "id": "p_mr6sqvez_9z2cy6",
+      "title": "5 Produktivitäts Hacks für einen fokussierten Tag",
+      "description": "Diese 5 einfachen Hacks helfen dir, dich besser zu fokussieren und produktiver zu arbeiten. Entdecke jetzt Methoden wie Time Blocking und die 2-Minuten-Regel.",
+      "board": "Produktivität Tipps",
+      "category": "Produktivität",
+      "keywords": [
+        "produktivität",
+        "fokus",
+        "time management",
+        "produktiv arbeiten"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr6sqvez_3edvx7",
+      "title": "15 Minuten Home Workout ohne Geräte",
+      "description": "Ein effektives 15-Minuten-Workout für zuhause, komplett ohne Geräte. Perfekt für stressige Tage, wenn du wenig Zeit hast. Starte jetzt direkt durch.",
+      "board": "Fitness zuhause",
+      "category": "Fitness",
+      "keywords": [
+        "home workout",
+        "fitness ohne geräte",
+        "15 minuten workout"
+      ],
+      "format": "video",
+      "status": "bereit",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 86,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 94
+      }
+    },
+    {
+      "id": "p_mr6sqvez_f7itn9",
+      "title": "Meal Prep Ideen für die ganze Woche",
+      "description": "Spare Zeit unter der Woche mit diesen einfachen Meal Prep Ideen. Hol dir jetzt 5 ausgewogene Rezepte zum Vorbereiten.",
+      "board": "Gesunde Ernährung",
+      "category": "Ernährung",
+      "keywords": [
+        "meal prep",
+        "wochenplan",
+        "gesund kochen"
+      ],
+      "format": "standard",
+      "status": "entwurf",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 78,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 91
+      }
+    },
+    {
+      "id": "p_mr6sqvez_5bjqco",
+      "title": "7 Ideen für ein gesundes Frühstück in 10 Minuten",
+      "description": "Diese 7 schnellen Frühstücksideen liefern dir Energie für den ganzen Vormittag und sind in nur 10 Minuten fertig. Entdecke jetzt einfache Rezepte für jeden Tag, vegan und vegetarisch anpassbar.",
+      "board": "Gesunde Ernährung",
+      "category": "Ernährung",
+      "keywords": [
+        "gesundes frühstück",
+        "schnelle rezepte",
+        "meal prep",
+        "ernährungstipps"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr6sqvez_m53f44",
+      "title": "Sommer Sonnenschutz Tipps für gesunde Haut",
+      "description": "So schützt du deine Haut im Sommer richtig vor der Sonne, inklusive Tipps zu Lichtschutzfaktor und Anwendung.",
+      "board": "Hautpflege Basics",
+      "category": "Hautpflege",
+      "keywords": [
+        "sonnenschutz",
+        "sommer haut"
+      ],
+      "format": "video",
+      "status": "idee",
+      "evergreen": false,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 77,
+        "evergreen": 35,
+        "completeness": 80,
+        "total": 65
+      }
+    },
+    {
+      "id": "p_mr6sqvez_khxa2d",
+      "title": "5 Schritte Hautpflege Routine für Anfänger",
+      "description": "Du weißt nicht, wo du bei deiner Hautpflege anfangen sollst? Diese einfache 5-Schritte-Routine erklärt dir Reinigung, Toner, Serum, Feuchtigkeit und Sonnenschutz. Klicke jetzt rein und starte deine Hautpflege richtig.",
+      "board": "Hautpflege Basics",
+      "category": "Hautpflege",
+      "keywords": [
+        "hautpflege routine",
+        "skincare anfänger",
+        "gesichtspflege",
+        "skincare tipps"
+      ],
+      "format": "standard",
+      "status": "bereit",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr6sqvez_oebbzk",
+      "title": "Abend Selfcare Ritual für besseren Schlaf",
+      "description": "Ein einfaches Abendritual mit 5 Schritten, das dir hilft abzuschalten und besser einzuschlafen. Jetzt entdecken und noch heute Abend ausprobieren.",
+      "board": "Selfcare Ideen",
+      "category": "Selfcare",
+      "keywords": [
+        "abendroutine",
+        "schlaf",
+        "entspannung"
+      ],
+      "format": "standard",
+      "status": "entwurf",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 91,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 96
+      }
+    },
+    {
+      "id": "p_mr6sqvez_y1qtie",
+      "title": "10 Minuten Selfcare Routine für stressige Tage",
+      "description": "Entdecke eine schnelle 10-Minuten Selfcare Routine, die du jeden Tag einbauen kannst – perfekt für stressige Phasen. Inklusive Atemübung, Journaling-Frage und kurzer Dehnroutine. Sichere dir die Routine jetzt und gönn dir täglich eine kleine Auszeit.",
+      "board": "Selfcare Ideen",
+      "category": "Selfcare",
+      "keywords": [
+        "selfcare routine",
+        "stressabbau",
+        "achtsamkeit",
+        "me time",
+        "mentale gesundheit"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1783195813259,
+      "updatedAt": 1783195813259,
+      "score": {
+        "seo": 100,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 100
+      }
+    },
+    {
+      "id": "p_mr4k3he1_xkrhlp",
+      "title": "Zyklusphasen verstehen: So tickt dein Körper",
+      "description": "Lerne die 4 Phasen deines Zyklus kennen und wie sie deine Energie, Stimmung und Leistungsfähigkeit beeinflussen. Entdecke jetzt, wie du dein Training und deinen Alltag an deinen Zyklus anpassen kannst.",
+      "board": "Zyklusgesundheit",
+      "category": "Zyklusgesundheit",
+      "keywords": [
+        "zyklusgesundheit",
+        "zyklusphasen",
+        "hormone",
+        "weibliche gesundheit"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352713,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr4k3he2_hmp10r",
+      "title": "Die perfekte Morgenroutine für mehr Produktivität",
+      "description": "So gestaltest du eine Morgenroutine, die dich den ganzen Tag produktiver macht.",
+      "board": "Produktivität Tipps",
+      "category": "Produktivität",
+      "keywords": [
+        "morgenroutine"
+      ],
+      "format": "standard",
+      "status": "idee",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 65,
+        "evergreen": 100,
+        "completeness": 80,
+        "total": 80
+      }
+    },
+    {
+      "id": "p_mr4k3he2_5af2mo",
+      "title": "5 Produktivitäts Hacks für einen fokussierten Tag",
+      "description": "Diese 5 einfachen Hacks helfen dir, dich besser zu fokussieren und produktiver zu arbeiten. Entdecke jetzt Methoden wie Time Blocking und die 2-Minuten-Regel.",
+      "board": "Produktivität Tipps",
+      "category": "Produktivität",
+      "keywords": [
+        "produktivität",
+        "fokus",
+        "time management",
+        "produktiv arbeiten"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr4k3he2_iittwi",
+      "title": "15 Minuten Home Workout ohne Geräte",
+      "description": "Ein effektives 15-Minuten-Workout für zuhause, komplett ohne Geräte. Perfekt für stressige Tage, wenn du wenig Zeit hast. Starte jetzt direkt durch.",
+      "board": "Fitness zuhause",
+      "category": "Fitness",
+      "keywords": [
+        "home workout",
+        "fitness ohne geräte",
+        "15 minuten workout"
+      ],
+      "format": "video",
+      "status": "bereit",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 86,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 94
+      }
+    },
+    {
+      "id": "p_mr4k3he2_y1499v",
+      "title": "Meal Prep Ideen für die ganze Woche",
+      "description": "Spare Zeit unter der Woche mit diesen einfachen Meal Prep Ideen. Hol dir jetzt 5 ausgewogene Rezepte zum Vorbereiten.",
+      "board": "Gesunde Ernährung",
+      "category": "Ernährung",
+      "keywords": [
+        "meal prep",
+        "wochenplan",
+        "gesund kochen"
+      ],
+      "format": "standard",
+      "status": "entwurf",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 78,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 91
+      }
+    },
+    {
+      "id": "p_mr4k3he2_zminzg",
+      "title": "7 Ideen für ein gesundes Frühstück in 10 Minuten",
+      "description": "Diese 7 schnellen Frühstücksideen liefern dir Energie für den ganzen Vormittag und sind in nur 10 Minuten fertig. Entdecke jetzt einfache Rezepte für jeden Tag, vegan und vegetarisch anpassbar.",
+      "board": "Gesunde Ernährung",
+      "category": "Ernährung",
+      "keywords": [
+        "gesundes frühstück",
+        "schnelle rezepte",
+        "meal prep",
+        "ernährungstipps"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr4k3he2_xyhhpz",
+      "title": "Sommer Sonnenschutz Tipps für gesunde Haut",
+      "description": "So schützt du deine Haut im Sommer richtig vor der Sonne, inklusive Tipps zu Lichtschutzfaktor und Anwendung.",
+      "board": "Hautpflege Basics",
+      "category": "Hautpflege",
+      "keywords": [
+        "sonnenschutz",
+        "sommer haut"
+      ],
+      "format": "video",
+      "status": "idee",
+      "evergreen": false,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 77,
+        "evergreen": 35,
+        "completeness": 80,
+        "total": 65
+      }
+    },
+    {
+      "id": "p_mr4k3he2_ryogco",
+      "title": "5 Schritte Hautpflege Routine für Anfänger",
+      "description": "Du weißt nicht, wo du bei deiner Hautpflege anfangen sollst? Diese einfache 5-Schritte-Routine erklärt dir Reinigung, Toner, Serum, Feuchtigkeit und Sonnenschutz. Klicke jetzt rein und starte deine Hautpflege richtig.",
+      "board": "Hautpflege Basics",
+      "category": "Hautpflege",
+      "keywords": [
+        "hautpflege routine",
+        "skincare anfänger",
+        "gesichtspflege",
+        "skincare tipps"
+      ],
+      "format": "standard",
+      "status": "bereit",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 96,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 98
+      }
+    },
+    {
+      "id": "p_mr4k3he2_wh1n1d",
+      "title": "Abend Selfcare Ritual für besseren Schlaf",
+      "description": "Ein einfaches Abendritual mit 5 Schritten, das dir hilft abzuschalten und besser einzuschlafen. Jetzt entdecken und noch heute Abend ausprobieren.",
+      "board": "Selfcare Ideen",
+      "category": "Selfcare",
+      "keywords": [
+        "abendroutine",
+        "schlaf",
+        "entspannung"
+      ],
+      "format": "standard",
+      "status": "entwurf",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 91,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 96
+      }
+    },
+    {
+      "id": "p_mr4k3he2_860isb",
+      "title": "10 Minuten Selfcare Routine für stressige Tage",
+      "description": "Entdecke eine schnelle 10-Minuten Selfcare Routine, die du jeden Tag einbauen kannst – perfekt für stressige Phasen. Inklusive Atemübung, Journaling-Frage und kurzer Dehnroutine. Sichere dir die Routine jetzt und gönn dir täglich eine kleine Auszeit.",
+      "board": "Selfcare Ideen",
+      "category": "Selfcare",
+      "keywords": [
+        "selfcare routine",
+        "stressabbau",
+        "achtsamkeit",
+        "me time",
+        "mentale gesundheit"
+      ],
+      "format": "idea",
+      "status": "optimiert",
+      "evergreen": true,
+      "image": null,
+      "imageName": "",
+      "imageType": "",
+      "imageSizeKb": 0,
+      "createdAt": 1782032713743,
+      "updatedAt": 1783060352714,
+      "score": {
+        "seo": 100,
+        "evergreen": 100,
+        "completeness": 100,
+        "total": 100
+      }
+    }
+  ],
   "referencePins": [
     {
-      "id": "p_mr7mzztf_7h5n17",
+      "id": "p_mr89rwzu_nw98tr",
+      "title": "Hello Monday ✨ Ein neuer Tag voller Möglichkeiten",
+      "description": "Starte mit positiver Energie in die neue Woche. 💗 Jeder Montag ist eine neue Chance, deine Ziele mit kleinen Schritten zu verfolgen. Lass dich inspirieren und beginne den Tag mit mehr Leichtigkeit und Motivation.\n\n\n\n#hellomonday\n#montagsmotivation\n#neuewoche\n#motivationfürmamas\n#mamaalltag\n#positivdenken\n#mehrleichtigkeit\n#organisiertleben\n#familienalltag\n#mamaleben",
+      "sourceUrl": "https://pin.it/4wUJuW1pd",
+      "category": "Motivation",
+      "keywords": [
+        "Montagsmotivation",
+        "NeueWoche",
+        "Mamaalltag",
+        "Positivdenken",
+        "mehrleichtigkeit"
+      ],
+      "format": "standard",
+      "notes": "",
+      "whyILikeIt": "",
+      "wouldRebuild": true,
+      "successFactors": {
+        "numberInTitle": false,
+        "howTo": false,
+        "list": false,
+        "checklist": false,
+        "beforeAfter": false,
+        "strongHook": true,
+        "clearBenefit": true,
+        "evergreenPotential": true,
+        "cta": false,
+        "textOnImage": true,
+        "personVisible": false,
+        "productVisible": false
+      },
+      "imageStyle": [
+        "Minimalistisch",
+        "Cozy",
+        "Clean",
+        "Modern",
+        "Natürlich",
+        "Hell"
+      ],
+      "colorScheme": [
+        "Beige",
+        "Weiß",
+        "Pastell",
+        "Rosa",
+        "Neutral"
+      ],
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAGQAQsDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAwQBAgUGAAf/xABCEAACAQMDAQUHAgMGBAUFAAABAgMABBEFEiExEyJBUWEGFDJxgZGhQrEjUsEVQ2Jy0fAzkuHxBxYkRIJTc5Oiwv/EABkBAAMBAQEAAAAAAAAAAAAAAAABAgMEBf/EACMRAQEAAgICAwEBAAMAAAAAAAABAhESIQMxE0FRIjJhccH/2gAMAwEAAhEDEQA/APpNSK8RUVzOpNTUCpoC8fxU/EQBSCcGmosmgqYZiTgUGVCetMRpXpAAKadsuRcNVRRZvjNDpKSDTlswApMUeLPhQKfMnFRgnmqxrkDNGxgVSPQDLluaHJgUSVsdKUlYkUlRLy93AoBOTXjXqRvUSPJPFDFMwYoAqjC80rN8Zp0kbaSl+M0yTB8daKHC1mwna2aZM2FogsFmmCik3YuagkuaYhh8TR7HpEMXiaZ24WrKoArz/DT0WyMx79Q7ZGK9Ny9EWLK0jLBCTxR0t+7k0eKEDrRmAC0aG2PcLtbFBpi8/wCJS1I1zXhU16gPVOK9U0GlByKft14FJIO8KehbAFOJpnoKXncAVMknhQJFLUWlIWc5NUq7jBxVKSkimrcZpUU3bnFBHVGBVZHwKq0mFoQJZuelVstLqhY5NCnQAGmlwFpe5OQaBCRr2KsRXsVKkVeMnIxVcUeBfE0AYL3aUm+M027gLSbnLE0yigq6gsaqBk4pyCKgPQw4plRipUYqaqRNr1Vf4atVW6UUEmGZKcQALSp/4lMhsLUw6ksBQbibAwKHLJzml3fceaNiQCU5bJoWKJJ1qlJQhr1TXqYRVhUYqRSCRwaaiyaWUc07EoApwqkJzk16TAFXc4oEmSKCLSctVauwwarSUgCjR0MCmIFzQBkjLdaL2YAq6LgVLHFVpGwm4HFLy0d2Apdzk0HAsV7FWxXsUjVxVw2BUYr2KAh2JoZFGCZqpXBoD0Iy1PxjApKId6nk6U4VWr1TXqpKKhulWqj9KVEKMP4lMKvdpf8AvKZ3ALSiqVuFxSjUzPJuNLNSOBtzVak9aikYleqaimE1NRU0gletNxtSopqBacKiKpY81dkGKIoAqsh4plsjKO9QsUWXlqHSU8KbthSopiFsUFTmQBQ3ao3ZFDmUSROrZwVI4OKpKCdxqpFcv7M38R9mlW4F/LK/a737KZ84dgMOAfADoaAzzD/w395E8/vJhEna9q27du65zmkbrsV7FY2krazXSvbtepJDCpkWYyhXDZwcP6qeRVPZoMbzWNzyOEvWRN8jNtXaDgZPHU0Bt4qQpJrD1Df/AObtLQSSCN4JmZBIQrFduCRnHGTTOu3U8bWFnaydlJe3AiMo6ooBZseuBgfOgNhVwKC471Y/tLC2i6UdU06SVJLQqZEeVnWZCQGDAk885z1rYDCSNXAxuANAlTH8VOJ0pOP4qcTpRCq1eqaiqJ6ofpU0KV8ClRCrnDk1DS5GKq5yaoalaDVSM9KtjNHSLu5xQZFhg1FFmGHodILivVY1FMPYrwFeqRSCyjkU7CQoFJr1o6MaZUyXob5NWRM8miFeKZEZBzVMUhrWr+7XC2VlF7zfyDKxA8KPNj4ClU0e8lX3i/1S594xkLA+yND6Dx+tTtcx63W1iixCk9Nle4sIJZCC7INxHifGn4VzTib0KBkVWdX7BxEFMm07QxwM+pwaMFwKq58KpLD0LT73S9CFjJ7vJOm/YyuwVtzE88ZHX16Uk+hX59kP7F323bbez7Xc23bnOemc+ldMBUMRSDKtotUWWATCzjhjGJOzdmZ+MAcqMc80lYWGr2UmoNGLFve7hplzI/cJAGPh56Vv16mGHdadqb6tYX0bWrm1gaNhI7KZGbGTwpx8NFu9Iu9VtV98njgu4bhZ7Z4MssRXpnOM55z8616IpxSDKvbC/wBWtRZ6mLaG23K0vu8jMZtpzjlRtGQPOtBlxwBgCjluKE3WmFE+Km06Vz2ta4mlyJDFCbi4YbigbGxPMn9vOuhj5UHzFKXvR2WTdWrx4r1CkfFOpj0kmKWdi1SxJNV2k1KopivFDV1XvUysWRzQZeGIscmm9gC4qyKFFUmkCimne2dcj+JQKNOdzZoFSsU0K5Zkt5GQgMBwScUY0C8ZVgbeSoPBYLnHqfSjL0J7EQ70VvMZq9L2RLRc7QBwAg4pkUsLuHlNVK9acgSlYxzT8PSqiKIBisr2h1RtPtkjtlEl7cNst4/M+fyFapOK5myX+0Pai/vZuVssW8CnwOMsfnTyv1Dwne79D6TpK6dEzyN2t3Md08zdWby+VC9pLs2Wi3UqnDlNin1PH9a1nOTWDriC+1LT9PPMYk7eUeYXp9OtTep0rH+st1oaTAbXTLaJ/iSJd2fPHNZOoanfXFpdXthP7tY2ynbLsBadx5Z6LnjPjWhqW69lGnRFgjDdcOp6J/L8z+1L+0KB7ey0m3UKLiZUIUcLGOv9KV9Kx99uisZXmsYJZBh3jVm+ZFI6tq8OnskSxvcXUgJSCPqR5nyHqatrOojTbaOO3j7W6mPZ28APLN/oPE1iazC2h+z9zO79vql9iJpSOSzeC+QAzj5VVukY47u629J1FNU06G9iVkWUHut1BBIP5FMmg6RYiw0u2tccxRhT6nx/OaMRg0567Tdb6RU5qBU0yeqRUVdBQFgOKWv7mOztZrmY4SJCxPypzwrkvbi5Qpaac7hVnk7SXn+7Tk/fw8zSyuorDHllovpFk19Is95n3i8dbmYfyxKe4noCcfau1U8Vj6NDIsBuLhQs85DFR+hf0r9B/WtPfxSxmofku6u70Akk1YnNWVM00qKmTRtgAq6ripbpT0Wyv95TIYBaWbh6LtLClDq/aDHWlZMyNxRSuOKIiACj2PTNlXBoB605dDvUqetSoXFLXrSooZNpiH/EBHOPSmqSd0ftJIJSzqTlScjjqMVOfo8fb1mqwgJvznhR9etODrStjGvZq6jhuRk5+1OdKXj/AMnne1k605E1Z0lwkLIrZJdsACtCBeM1pLLdIs6G60mNPgjvZLyMOssqgSAMdreRK9M8daeqkh4qtJlJycE5rltNvRJJqGsSIWLS+72yj9QHQD5nH2Na/tJcm20q4ZWw7js1I65PH+tZugWqStEAD7vp4MSeTyn42+nT71nl702xmsba2rG3MERLnMsh3SN5ms1ruFdZub2dwttYRbWY/wAx8vyPtWxPIsMMkshwiKWY+QAzXHezMEmvXLTTjFikxlkU/wB7J+kH0A5+tGXWpBhNy5V0ug2stzO+s6guJ5lxbxn+5i8B8z1NJ3+dV9s7S0PMGnx9vIPDecbc/g10xIVCTwAKwPZCIyJfak/L3lwSD/hXgD96dnqJl95NfU7+30yykurt9kSD6k+AHrWHY6pfu1lcXscC2t+cRKmd0eQWXPnkCqasg1b2stdNm71raw+8Oh6O2cDP4/NI3Fncf29baTp16ewtAbgCSMOICcgL1GepwD0otuzxxmu3WsQASTgDqTWRZ65HPLfSuY0sLYhVuCfjbHOPOg6rbe76dLc6peSXIjXPZ47OMnwyo68+ZNIezFgNQghnmTFhC26CIjiSTxcjyHQUW3ehMceNta9hriXeoLZtazwGSPtYmkwN65xnHUfWthTjrXP2aG49sr+V/wD2tvHGo/zc/wBDQ/arU5hYe76cQWnkEBlB4BbjA9f2o5anZXDeUkGOtX+p3kkOhRQ+7wHEl1PnazeSgdfnWLpa/wDmj2ibUbmPbFZIiGMngyDJ+2cn7VrSD3SCD2e0fHvBTE0g/ukPxMT/ADHwqfY6zSz06ZU6NcOeeuBx/Sl3b2vrHG2N7pWCurX2q3klvoUURhhbbJdzZ2FvJQOvzqntZqEyW6WFmcS3LrEz/wAu7jA9ai7nGm2I0LQ8e8rEWlk8IVxyx/xHwFO36Tjj1s9pOpT32rXFqqxNDaxqs0iZwZT1A9ODW1cTR2ltLPM22ONSzH0Fc97AQR2nsxHcOwXt2aWRmPrjk/IVn+1U91rM2n2MJMdjeThUIyGmA5Zj5KB08+tG9Y7FxmWep6dRoeotqumxXrW7QCTJVGbPGeD9aVXX4ZvaJtGgjLtHEXllDcIeO7j61bVLqS3ji03SkX3yRdsYx3YUH6j5AeHmawfZe0t7HW9XnDnsrbbb9q5yZH6ufU5/enbeoUxllrrG+PJoyMrRhlIKkZBB4NZM8MuosBMWhtCOYxw8nzPgPTrWiqqkaxxqFVRhVUYAFOVFiWbLVdTkV5U4qQNtMiV0MNSp601dnLUrUqgjMq/EQM+dKXf8NlnV2AHUKMj60e7hSWP+Ipbb3gB50qf4lu8eD/ExkN1GTjGPlWedvpeP6LF/EcKGIVBgYPX1o9zMsELSuCVXk4GTQ+0igwvPPkPpVZbjNybWSPusvDZ60tzGe+xrdBRWnudwfuYBV2A6Hp9ufvW/BjaOc1zliGl/hOcKGIyB4DzrdttsUaopJCjHJpeG77Pyz6NM2KBJJnpXnYt0qBHxzW7GRx3tjdSyX9hp9rzOzh19G6KT8uTXR2FqllZxW0fwxrjPmfE/U0n/AGKf/MUuqzyBx2YSGPHwcYP9fvWpUyd2tcspxmMCuYI7q2lt5gTHKhRgDjg1Ol2cGnWqW1qmyJOnmfU0SpBxVI3daB1ufsdKumB57MqD5Z4/rRtLhW10y2iUYCxj79T+aS1uGW60m6ihGZCmUHmRyB+KNpt7Fd2cLRyKW7MbkB5U+II8KX2ev5J6jpVzJqX9o6bdrb3DRdjJvj3hlznI560fSNLi02JwrtLNK2+aZ/ikbz/6VoqpNSVxRqb2XK60zNb0tdXs1tpJWiTtFdtozuA8KfhiSGJIolCogCqo8AKvipxT19lu60zLzRrW6umuGaeN3UJJ2UpQSAdA2OtTfaLa3tnDbDfAsDq8TQnBRl6EVo14UcYfK/pXS9MttLhdLfczyNuklkO53PmTWZYx6haGazS2G0zO63BcbdrHI465rdY1WjQmV+2bfaPBewRRyPLG0UglWSNsMH880bS9JtdPgaG3QneSZHc7mcnxJ8acHWjxrRqC5XWmPbezFrFGkDz3MtpGxZLV3HZg5zzgZIz4Emm9V0lNQa1kSeS2ntXLRSRgHbkYIwRjpWlSWoXbwlYLVBJdyjuKTwo/mb0H5p6khcsrWfe3Np7PWsjqslxdupc87pHwPiY+A/FIew+l7NMTUbpnknumaXDnhcnqB5nA5qPaO0a201LKJzLe6nMscs7fEwzk/IdBj1rp4IUt7eOCIYjjQIo8gBgVOt1dusf+w2+OjKvFCPx0wvSqjOpHAoNw20URmAFJ3D7uKLRC8r7jQqs3WqVCxg3dGSM45rP1BhA0e0kPLJwTzyATj8UL3iB1QTEGZTk4PGRzRRPHdSpIFJERY4PXd0AH3NY3OZTTTjcbtdre47CSS32C4IBUSDK5FLS3BuwGCqtxA2GwcA846+VHnmmtrgzysOy44A5Uf96RmVbi6jeBT2eMsVOO6OAPqajP8i8P2nbe5LTrFbICBw7E8n1pqTUo4Z+yZWbvhMqM4J/3+aRSVBJFJbw4aSIgjGTjIrR0+3e2hecBpWC52EYLEU8LlepSymPutONMgGrkYFL3QnZE7BxG+CSp6Hjjn51NvcdvAHwQenIxXTL3pz662rL1oVXfOapTD1TVasoyaDWUZqqRIrsyooZviIHJ+dHVOKssXnRotpjHFS44ogGBVJOlNLNu9ThtbhbZYpri5Zd4ihTJC+ZPQD50eyvYb2NmiDqyHa8ciFWQ+RBpCwYJ7RanHJxJIkTx58UAIOPkc/8ANVvaCa5s4o5rCIyTyv2OAPFhgMfQGp39r1N6TeazbW1wbdUnuJhyyW8RcoP8WOBTltcRXUCTwOHjcZB/340K3gt9H05yMBI1Mksh6scZLE+dJeykUiaLFJKpRp3efaf0h2LD8Gn3sWTW41qjFEA4qp600oHWmU6UuvWmE6UCh3dwlrbvM/RRwB1J8BQ7K3MYaaXBnl5dvL0+QpLXZkgn05rhglr25MsjHAUhTtz9cVn6prMurM2l+zzdpI/E14P+HCvjg+J+VK3tUxtnS2nP/bPtLPfLlrWxBhhb9LOfiI/35V0bdKW0vT4dMsYrS3B2RjqerHxJppulEmoWV3evRY/HRt2FoD/HRFBIoCrMWoLRk0wVAqGIC0BnyLg0E9aPOctQalTBeKKC7KxxEduAr8khhg568itW2gjsmwvwJCGbJJJ5x/SkI4SbxC+4YUnLHOT5/mtGJVe6mdg7CNU7o8xk8feuXxz+nRnegjKt1I8d4iogVh3iP2+XNY7z+7GaOIsY8kE+IGac1bZMXmhOWkTEZA5YcDH70qLW4Fwss1qzII0wmBjdjHPy/wBKjybt/wDV4SSNHSoe9ns5cNyMtwvpXRdvHDsWQ4L5wPPFZlrJN7sSIgCq91V86chaK627kDhR8JHIPXn8Vv4pxnTDyXd7OxKQo3nc+OtWI86Xs4riOSRZiGUtuVs56+H06UVriLtTDvHaAZK+OK3l67Y330FL1oRoUt4cjETbju7vyOKvC/axq+1kz+luopTKW6h6siaLEuTVMUaEVRDqOKsK8OlTVJeqklXobGgMnV7KaR4b6x2++22SgbpIp+JD8/wab0++iv7cSxZUg7XjcYaNvFSPOmKUvrWSZMWkiwPI69rIF7zIOoB88cA+FJW99UrqVs+qzraOpFghDTHOO1I5CD08T9vOtNQAAAMAeFeVAihVGABgVNGit+k54qh61YVB60BA60wnSlx1phelAqXVXUq6hgeoIzmojjSJQsaKijoFGBVq9TJ6quwxXmbFBck0qcUPLUwgwKWHBopfu8UjUmbnihMxNEClua8I6QJS9aFTFwuDS5HNJTn4Jt2yd+7uIDKT8HX/AH9qet5WZbmZT/CWVWO44GAAMD8msRJZJWjJVSm7vF+OgJ/pTk14sdnMI+zMbAhgwOGPkMVxzL7dVx+iN3ePBcLDArYjZlCDkAf7NaNtrA7RInYq5AJB4I6+B58OopOOC2e+e4kZ+0CgYz1I/rRrewt7vUXvZbdpGjURxqc9Rkk/PnH0NRMst9VpdSenRWd12ke5RnI4560xHus7QLaoJZN3QeJJ5NZ8cLi1U2kZwCAA5xjz+3So0qWeKVBPKjowxG4PUg9Dk8nBzXTMrNbc+Ul7jWnuZHaaEhouz2sJFYd7xI/elrhhJfqVZQcDBY/MfXrVpZFW43BQ0sg4HmT0/A+wosESvCoVUBXjPXveZqrvLpnNYrxw9kDgDJ8QetTUW8ckUISVw7D9QHUVetcZ0i+3hRYqGKJGKZUSaVYYXlfdtRSx2jJx8qUg1e1ni7VBPs7EzgmBxuQY5HHJ5HHWmLs7bSY4Ldw8KCSePIVz0Blg0FoYBqJuWsAu0o69k6ocbTgckkDjyqkulDhlDDOCMjIxVTXMX8d3NDfSRNfCZbWBoApkH8QZzgdCfhyPvWrrqyyQWggM4zdRF+x3A7M97OOcYoDSr1cnIt+jiHderZrdzqzBHdwpA2EfqK53efhVtQN9bwXVvCdQklaO2MMgDknBAc5HAOOo8c+NAdTVZXWKJ5HztRSxwMnA9K52FLz3m897lvROrzFFjRgjRkHZhhxwMcDnIrW0WJk023ZzMZXjUydszFt2AD8XTpQERavayTtCon3qyo2YHAUt0ySOOtOnrWI7yxTa28VvcMxCFNispfC4O1sftWe09xAiib3rYbt8Jtl7yGPIIxlsBv8Arikbql60wnSsTQZ0azt4ElnuCkQL3Dq2GYEqwy3Ocg8HpW0h4oFXqrNXmaqY3UEjljVtuBVlGKlulGjKv8VXCEjmoI79MKOKQqEUBao5C1MjhaA3f5oEK3DZagUaYYNAPWpU4S2Znhw7NntNoPnny/NRHP8AwXtu2JYtt3r1HPUUldm/LWsdxC8EkbYyRktjPI+9H05UaUyFzIwySxXknPXFedXoSH7a4exfbIGlcEBieSfAf79K6DTtSQQMUKq3Z72DZIBPPOPn+a5t43aSZnYIzns48nxI6/v9qPAoihgaJAJNxcHdjAx1Pnzjj5UY5XEZ47daztFp7SuFCLGXZVHHAzikZYVZFluZHEUB7SOOP4hyOTxx8qWfUpVtyDtkYAI6oOpJwSM9etOyBHs1VtsgYdtOGGAVGcDjzP8AWt+XKMOPHs5BOSYrhog0bqQXI+EA8feteIKyblAANZ8Nos9mFlcR8EKsZ5BPj8xTdrG8EIjC8LwCx6jz/wC9dHj3PbDPV9JkZd5UEbgMkelVoE26GdWSIO0rBXfPRRTHjVy7TY8KulVFZWtTyQXemhDNtlmZJEiOCw2Mf3Aqkt0V7NYq3L291p8Uj3TtLDNKqOVGcYO1/HIDAA/PNVj9o4xD21zaSwq1qLmIbgxdSQMcdDll+9Mm6BVSMUvYXjXaTboHjaJ9vOcNwDkEgZHOOnUGsyH2jR1SW5tJILeSGWZZCwbiP4gQPxQG1UeNZkOsb5UR7WRA8qxhj0O5SQeRzjBBFBX2hibKLbuZ98yiPOciJtrHIHiSMfOgNk16svWb+WGztfd8xPdzxwh3XmMOeTjzx+aHrVvJb6VfTw3VwClrIcdoT3gMgg+BGPzQGxSl3Zw3TxvIG3xZ2MrFSM9enyFKw6s2J45rYxywGPOZBtIfoxbw6HPy4zQI9dNxHbPa2bye8RyMAZAApjIDAn59KQasEMcEYjiUKgJOPUnJPzzRw1ZFvq/vm02Vu0o7KKWTLhSqvyB6kDk0XSdWXUXXsoJBDIjPHKQcEA4544z1HXjy6UG0wM0QDFeAxU0yeqG6VNQ3SgF/10cthaAfjq7E4qYYLsWNQDROzOKskeBzQZGbOeaBTd0MGlcVJuF17WEmgNpEgZ4ZNpm6j0IOfpWVol0Y9wYF5HHTHGCaiOUyNNGmwmXgDrgdM11OlaLZJGJT/ELDlm8fP9v3rzbdvQnTGNwC6kkfwdzgN5jOPyR96figk1AoIsiPaqhx+oY/T6f6VS59n09+e5jlKwllDJjPjk/TpW1aypE1ukmxTKndhzjGDn6cGjHHfVGWQ0lnGsSRxyAYb+IQoOeD5+WKDpsU91BIl5EYWJGQSdzE9OB4AeHpQtXvhY3FuIl3xhGeQDk7fADzJ/1rU07UVumTsiA4Q5JHeQ+R8j6VvOPLTG8tbHsb6OFJX2yhIm7PvDlucZrZV+0QNgj0NZ07xOogZlYABtjcj048cUPTJrpruUXC4VwGjYDAK4x0+f71vjlxumGU5dtB+tRVRPHJLJGrd6NgrfMjOPsatW0ZrClruwjvJoJXklR4GLRlGxgkEZ+xNMirp1pkUGkQ9tHO0tw00YkCuz5Pfxu/YfLFDPs/YuiJL2siJbe7BWf9GQfDxyBz6VoXNxFa28lxcNsijUs7YztA6mhz39pbWXvk06Jb4BEhPBB6fvTSvbW3u8PZ9tNKf55X3NSB0KzEMUJ7R44o5IwrNwVf4gfOtUHIB86XvruGxg7a5YrHuVMhSeWIA6epFAJNo8LWaWxnuj2bh0kMuXQjpg/iqDQbRSjRPcRyLI8glWTvd85YZ8iQK1KDZ3cN7EZbdyyB2QkqR3lYqRg+oNBou7OC9tjb3Kb4zjgk5BHIIPUEHxpWXSI57eSCe5upVkQxnc44U9RwPycn1rRr1AZlzoltcSNJI8wctG25Xxgx/CR9z969Bo9tbiMRNKBEJAgL5x2hy35rSNVNIMy10S1tWiaB50KRrEdshG9V+EN54o9ro8NvE8UE1zHESNiLKcR85wvkP6cU2KOvSgLV6vV6qJ6obpU1DdKRlz8VGVcihfro69KUOvYFUkcKKl3wKAVL80WiQtO240vzTM67TS5qFx8fg3W+oRTSRtGgY8Efp/78fSu2sLuWSIoGUuw7o2kH5kjgYH1rKhtTqVowQ92QEEr41nJczaZLJGW3JG5LhW5JwAAT5Yry/fb0da6dvZwsDtkbcCcZ8KHcaY1zdvIkqkouF4+HOPz1+9Z1prRMa/wT2kyhVAPJOOM+XUVK6jPbyxAPHIZ9zbRwM5wCfIdenlV4ySIy3vp6ZZIodrd6aSbbEfJV/pnJ/wDlRIEj0yNTp6NcTyEtcv4EdSQceH4rUj06CaJWBR3fG6Ru9jzI8vkPOmppom22VipeUgM5XqB4ZPh8vl4VrMPtlc9GLK9VpGRApkABkBHTyB/enpLvs9u/aFCbnP7AVlQaWYCXDdnLJz2Ifdu/0+fSnJbFjJ280jIFwdoI25A+Vb43ORjlxtBdluXTbJ2bMd8Zxyx/7cfWtL50tB2kludyhJFJVcrwPI0aAOIUEp7+O9WmH6jIQUSOhirpWiCuv86LeoEdzJCyBUUsTkY6D51zOq2N8NE1DTmhkktrQFrRlQlpQ3KKAOe4Cw/5a7VRVqZOdury4bWIewW7CLMqtlW2spiJ4AGMbscnnOegpK+33ughWF+b4mAXCFHwrCVCxAxjjBxjjFdfUGgMvSu0S51CFmmMMcw7Ey7jwUUnBPUbt1Ymmx3VpEkkKXKyy3l5mNg+wqWkZCQeBk7Tn1rraigOUV70ael4Li7ZhJbGaLsZFK4cdoeeuQTkDjjii75JLyKWcXhgXUG28SDCGE49cbj+a6avUBz+hveTXG+9mmSZTKJYGiYL8XdwT3cADjHUHmpuGkfWyo97WFCN2N+JHYYAGOAqjknz+RreNVpBz2jXF1LcaYs3vOVtHS57RGA7QFMZzxn4ufGunTpQRRk6UBavV6vVRPVDdKmobpSpwH9dXLYHFCbrV0UnrUmhVLHJooUAVIGBVWcCmCd38VK0xcNualjUKjm5rq00+3P8RA7KGVQeuemPsa4qR/fJWu8xgmRlC4xuXrn+lAltJxaxmaTDRNvRTzmPjJPoOn1q+kql3FbxjEeMsOQSoz056/KvOvp3w5DeiQL+mOItkj4mAUtn7BfvR9OmiUqNu8k/xycnryFHpjH5rq4rOxktzE9vFtCbWXaOAcf9KXtPZuOB4TDl41lLupPLDHAJ8fKjjv0OWvbU06RpEVA7kyR7nKgYAxjC1o26RadDvZO8zdyOMZLHwA8+P6msiGR45e3C75nchIx0x5g4zjGOfL1NdBpoyqtMq9ttwT6enpXV4vxzeT9UeIFe0nWZpfiJRcYx+kelTbzf2jZhpshWJ4j8PrTdyzvHJHAxV8YMngn/AFpWzmWOVrZ3iLjoI+c+v3rWzWX/AAzl3F4JUdSke8iM7MsCCcfOi17s1jBCAAE54qK0nrtF9rCrp1qgoFxqFpZsFuZ0jZhkKTzjzplrYVzdXM2qxWto4jjhZTO2Mls87fQY6n1WtasL2bV0sZdRvSIzcM0x3nG1Sc5Plxj6AVrQXdvcQNNFKDGvVjwBxnnPpzSlPOa6n0YqrdKEJxFbCW6eOMcZIbujPTn7UTejFlVlJXhgDyPnVJRXqCLu3N0bYSAzAZKjw8fvjwr015bQBzNcRRhCAxZgNpPQH50bGqNUE4GTXgwJIBGR1FQQCCCMg0ArPcylB7lCJ2boxfag9c8/gGs3T5NR1GOSc3UcERdljEcW44U4yCfAkHwrR1KZbWywowXZYYwo6FiFH2z+K9JNbadbRiaRIo1wi58fQVN9rnrqKW1tcRTb5b+adcco6IB/+qg1op0pWGeKdd8Lh1yRkdMjrRLS8trkutvPHKYzhwjZwacTd0zXq9UE4ppSTihu1eZs1G3NJUDHLc0cYAoOMNRT8NKAKSTnigM58as45qhU5pHApDk0OiSLihUlPjN+qJawC1c5nUxuHPKO2cf8yqDVrq1m0JbaaGUTBuSSuFJI6Z8ueoNI3C301xbzXtpesIpADiHkgA7fpwPuafsrm9ubSKO4sbhiYA74RssVb4QMYHw/kVxXF1Sug0nU7q9uordZooWxltzEAYxgDnnqeOn2rt7Hd2PfTLbeV86+e+y+j3fZdrfWdw07tufK7OTjgfIcf9q7zQ7HUFCS3sjM5GCHPwjy4/ejDC3IZ5zRy1SRSzSxhZGweME48hzwBVlO3UlB3s7ICVPAA55z0+gpzs13Z4yPGrrEhlEuO/jGfT/Zrq4VzcoL2UQHdjC5OTt45pWSC4bUI5O0YwqmNvrnr+1PKpPJq5GBWlxlRLoGSh1eSqCqCRXLXtvdT6bqMkqPGzlmmZxgsAcIq/4QMEn/AK11Iq6gMCCAQeCD41Nmzxy4svWEa5tbeC3ZvchKBNJCu84XPAGDkZAzx/Wh3lsz6Ulvbx3CWrzL22UJlkUt3iR15/3gVvRoqIFRQqgYAAwBV6fEc9Of1Fb++ntIYoWhtzJuyy8qF/U3kc/CPTJ8qPFbS2N3cpZ23EoQI5+EAA5LHqTkn51s1VulPiXPrTn9EtjAm4i4kvCpZ2mjKrG7ctjgZ5+fAHQUh/ZeoXOmTzFXN1czDYsxxsQkBmI8yoxjwHFdZXs1PFXyWXbFt7SWy1GZ4YXleSGNBMx4JyxZmP1HHyArWhRo4lVnZ2HVm8TV6iqk0i5bK3WXu7VOCqsZCD6DA/JrKvYrybULpoY37UJsglYdyJNuSy+bEnH05rYMAN2Lnc2RH2e3w65zRDSs2qZaYDC5XSbeztYLhYxtSeTYQ5H6sDrk85Pr9vWYlbXFS2iQNb2wQru7lvuPA46nC/XNaty7uxgt32PjLv8AyD/WgezUcYt57qKPYtxMWTPUoO6pPzxn61Ou18v5taVm69m6CZ5Wjcq7N13df6+FFY5rzNmvKtWyeVc1cjipqD0pkCfiome7Qz8VFAyKUMAJubNXKAUULiqsuTRobI3PWljTd2MGlKhTj0iijI2ZHpmtSxbOO4DWCk3aOAK6DTFxgjnwNYSdt627XIGQMD0pxRwTmgWiMw4BNMLxkEVvGNqgo0S0EDBpiM1SaKOBVXavE1G3NMgHJzVaLIMUKg0iiR9aFRI+tBGV6VNVXpVqZPVRzUs1UNAINqkAEjhJWgiYq86rlFIOD68HqcY4NFmvooplgUPNOy7xHEMnb5nwA+dL6Kgign0+UAtBI2R/MjMWU/Y4+YNTYxHSdLL3rKzxg5ZecqDhFHmcYHzqe12Q3b3Md1CJYSduSpBGCCDgg+oINWNKaRbSW1iO3/40rvNIP5WdixH0zj6U2acTffTxqprxNVzQGLvvLmB7VYpIp5ZG7eZkIWNM/pP6jtwBj51uQIsUSRRqFRFCqB4AVWjRLUyKt2uq1cCvAYqatD1QelTUHpQAj8VFXpQf1UZelKHU1DHAqGYAUrNN4Ci0SBXTAnilT1ojnJodQpzFraRx9FBJrXt8LjaKzoDnoa0oSD41lI1rQhmIHBP0oyyE0rGvFNxQs3witJtF1FlyaMmelDEZU89auhyAcYNVE0wq1eoU5UGvE1aAJaFmiy0A0lJokXWhUSI0A0DxUM1V3cVKjNCXgM1JFWAxUNTBO6tWkljuLdxHcRnG4rkMvip9P2NRBm+KzTwvGkbns0fgkjjcR98fenFFQ7AUtHtVzigk1LtmqZoCSarmvUjqt1JZxxzxAEq3KnxFTbo5NtDaQMniidqqLy3PkFrFt/aGynAErmFjxiTgffpTvbRyrujdXH+Eg0uc+lcb9iTX7p8J/FZ1zr7w+I+1RdyBVOa5vU7lV3HIrLPyWNMcJWlN7ZyxHGxG+lUi9uXZgGt48eJ3YriricMx9aCO8e6QPp1rD5s/1t8WH4+j23tjZyMPeIZYfXG4V0FlqVpex7rWdX9B1+1fHV352x5+ldN7M6dqpvIpdjRQA5YycZHoOtaePzZW6rPPw4ybd7LJml2NXI5xVHGK6WATnmqZqXPNUzSNzVtIMDBrTt3rCtnO7GOAOOK1bdyMDFYytbGzA44zWnbzgL1GaxYWOB507EfWtcctM8ps7M+W48aoDzVFOetTnnFPaZDsXKCrHgVSA/wxUsc1aQpTQDRZKEaDeq6GhZosQyaQHRc0UDFQg4q1Ul6qMeaknNUfgUBBfFCZiTVCeakc1KtPVWpPFVoCayPaQ4s1+da1Y/tK2LMfOpz/AM1WP+o5hj0Hhjmh8DlQUOeqnFXkGGHPhQ2xnr0rldIourleBcuwHg+GH5qe0WcgTwQOD/gx+1LE4HSiW5wec8nyoB+DS9OkOWsY/u/+taltpOnKRtsLc/5kDfvS9n3lxxxWpAAMCrxkRlaatoYoRiGCKMeaxgU2gx15PrQYh0AHFHH3raMay9RuZRclIUZsAfU0IXV7B35LRmj8drAn7VoBd0rMQOTRXAVKnjfe1cp60TinhvITLbtyPjQ9VqlIXje4alDdxcJIdso8CK0JBtkYDpninjd9UWa7jkIeDwc89a1Lc4wT1NZkYwccVpWvJGKyaVp254658qfi8Kz4M59KehII4rSIpnp0r3jVVORn04zU586pJ2D4BRcVgz6z7vK0eQFXzqY9eVv1IR9qfyYl8eTVmoBoUd+kw5wD86KMMMqciqllTqz2ijQDmhY5osZxQDQPFQTmqqc1cCml4ChzfCaNQZ/hNFOFc81bOBQ84r1I1iaipxUGgPVi+0x/9Kg9TWwTWN7Sc28f+Y1Gf+avD/Uc3IQWNUYY614HLmrH1Ncu3SCfSjQfFgUPHNEg+KgmxZ8BckeuK17c5A8KyLPzIGa1Lckda1xZ5NKI8UbpS8Occ0cVrGVL7sHNVlk3DFF7Pu5NLSEAnFMmVr5Huf8A8hitLgqpY8lVz9hWRqx94uILRD3mYZrQkYFztPA4HyrPG/1Wl/zHLxdRmtK3OPLBrMjPPHNaVv4eNZytK04CcZJp6I+FIQnpgU6nQDPPnWkZ0cHiqu2Aa9nigzSBQSTxVWpcTrV8o1O5RySAQMD5DrS8N4SVCDnwOelacukQX13LKz4aQ5OOaYm9m0gjBhmOQueR1rjuGdtrrmeMkiuns0gaSR2UDOW3V0tlMQQnbK525rj7a493n92lI3eGfGte2uR2iRv/AMRV7sijj61p48tI8mO3VIQ448qui81lWl6AzK4II4J8DTZuCnwt/wBa6plNOW41pqMCrVmrqBO0EgE+lEFy7fCwPyqplE3GnWYAUnNLu4FDaVz1NDMmOozRacietGjjzzSV3qMFoimVT3jgYFLDV9xwqbT6tmoueMulTDKz02XAApdjWedSkPio+lV/tBj1ej5MT+OnyTWR7Qn/ANMhPnTAvh+pvzWT7RXCyQxFT0Yg1Gec4rwwu2KPi681cnjmhxnJwKvjBGea5o30pnk0W35frQmXlj4nxotuMNmnstNm1BAHQCtSBQMccVmWpGB/WtOA8Dj51rizyaEXSjZxigQ8AUVumM4PnW0ZVMmXTCYrF1K8jtAQWDP5DwoFxd3UpKLJnJ6Rir2Wkp2glvO8f5Ki53LrFUxmPeQWj2M0rPezgh34TI6DzrS90H/1D/y1pRyxgBQMAVJaLyFaY4STSMs7a+dxtk+Vadt0FY8T96tW0JPOMDxPnXLjXTlGrCOOQCcdadU4UYpKFulNBwozW0ZVd32jk1y/tVrItrdo4m77DA5rQ1fUltoGOeceFfOru4l1DUVG0sqHcQRnis/Jn9ReGP3XZ6G3Z2waViZXAJx1HoK6OyuFuIcE5ZeobrXEQ6jFbsCWBJ8PAVuQ3DBhPC5K9SB5VOGelZ47Ke02lushvrcZA/FK6fqIuU7J2KsOSQec12UMsdzbkEA8d4eYrkde0BrRjdWWTGck48KXkw1/WIwz3/NaUd32XdY93djPUfXyp6K8YAN8SE+eSK5Sx1JsCC4XZ5sR1rVgkKjfb95CMBSelLHM8sW2ZN4DQHLDwz+KpHctCybVcZPOfClIJg+JEYo5+IN0ptWDgJIMMeQ2f2Nae+4jWmva3aXCHONw61MpTwYVibXtn3J0J5PnVpLvCklsfOtJ5Ou2fD8Ja1fxNFKj3BX+L2axg4yR51lwXbQsFkYlP0t5VzGo3QM0sM7kx7syHoe0JOD8uKZ0vUjKxt7lssOEfHDCuTLK5XbpxnGadkk24DJGa8zGsa3uvd2CyHMZ6HyrSL5UEHg9DVS7Fi7OaTviWhPPK81aRyBWfeTFVJFFEXhcEg+flTPUY8a5caq1lMRMjGMnhhzityw1O2ulAjlUn50tnozIhI8qiJyGx+aYYBhx40MRFTkjJpbGmpZsOCf3rXgI8MAVgWrhfXzzWxbSrwc1rjkzyxasRx6VN0x7BgnxEYFLxSbvh5oh3E5Nbb6Zcey1qiWoGFyfEnrT6bJVyh58qAyg+FU2lTlSRTxvHossd9mWiYetD5ryTkfF186JvbyFaSys7LGJdezkLjdbsY2Jzg8ilxo08K9yYE+db0M6SLGeNrDg/L0qs00ZjKnCYPnis7hje2kyyZy2vYMFaQs3l0z51VryNX2bQw5zn9qpfz7CZGlAG3aMmududQw2yN+6vXC9T161lllxaY48m+lwJH2i2VvHO0cU3DFFMypNBGG8imKxtK3XTCVctGpAyfGuqmgTYjBAXVhggdKrDdm05al05f2g9n4OweSCMKPHAwR9a5vStQk0+4FvMT2JOAzeFfUp4leNlIBBFfM9c04CaRccjPhUebDjdxfiy5TVdFbSmB1mhbKkZIU/mtuGeKeEjaCvjHjwrgNH1dreUWlwpKKMBieldIkvZYliY89Avh60sPJo88Nqav7NJcDtrJgOMhD1+lY0dvdWEuJUcIvPPFdUl+rMXZv4vABU/uKZ7dLlBGTHOOuD1NVcMMu4mZZY9VzLSJLzgjdw2OKesJym2GYFk6Bv9+NarWFhLkbeyckYFKT6PNHuMZ3Rg5wDzS4ZTuHzxvVMxY3rE5yrKSjHx9KXvrAlWKD4eo8qGryRxsjg93DAetbEcwktxOPDhh5irmsuqi7j5prul9sDLGu2YeJ8a5qFym2zmZkI+Fj+k8Zz8yfwK+w6xpaTwmWADkbiAK+ea9o4mJeNcSqfofQ1hnhca2wy5CWMwuUNrdMFmxjPg4+h64rW02drJuxuMyW54B8VribWbEiw3ZAuEOI5HXnxPPywOa6nS79Lodjc92dePLdSxO/rrhYxyIHRg6N0YUvcaGslKadePYNgAtbn4k8vUV0EUqyRiSJt8LdD5fOtZJUW2OYn9lt+RkYPmKy5/YZmbdCwjbzU4r6ASAKzb/WbOyYq7l5B+iNcn/pSuGOM3aczyrkYvZv2htjiDUQVHhJ3q0LbTfaMEdq9o3rkj+lFuPaa4YH3W1CeRkRnP2A/rSg1bVpW7xuAP8EaIPyc1jfJ459rkz/GzBp+of3vu4Pjhif6Vo29sIeZnUn0XH75rAS6O3N094fMNchR9gDRkvbYDFtaqT4ntXb9sVPzYT0fDOum94ijTJdVX1ND/tKzH/uYz8mzXO9rO7Zj0+PPmLTJ+7ZoU15rwlVI7K6VSeX3KgA+Sc/irnnyvqJ+L9rqPf4j8CTP/kiY/wBKo9+/haTAeblU/ciuYew165J3OuzwMhL/AILii2/s9ejma92//ZRU/of3onl8t9Qvjxn26A3p27mWJfnOp/bNUGoR/qmiB8gzn/8AmhWmlxQIA7PK3iXbdn70+qhQAqqAPACtJfJfabMCc7TpGI7fsirZJLNxGfGl59SYCGFuzB8efhI6Vy03tFBtdtkhB4woyCPWsu51o9nvihlLEYzyAR4daq+T8KYfrd1fU5WkMTtCrgZRs55rHjRry4EIDMzNyxJwayBe3cqk9i4HQlhzXVex9rIZjNOowThSBnjxNZ6uWXbTcxjr/Z+BbdjbKO7GoBGep863UO5iXGNprO0Nd0lxMDuRnwGIweK1UA7/ABgZP1rswnTkzvaCRgnzriNdjxcyOCBuOa7aUcVzWqW+9nLAc/gVHmm8V+K6riNRtAJOgLnnOfKnNHv3hPZuWKDpmnrm27QRsSuNuN46fKs+S2Ebbgp3AHuqOT9a4u5XX1Y3htkwQoZvPxqq70bejhWb8UpaTbcAkbvLNEmk3d1AAx5zjjHkavadNC11N5NqyZIY4Un0rWtbtyzBXEqquT/p61y4kIw2VVcgc9D8qcsJXVwUBHJBGelXhnftnlhHSNbw3o7WMYb96Xsk7KZ4WGFI6fvTNo3Cyx/A3xj186Pew4VZV6g810a32w3roO05R425ZOPmKwdd0xVXto1G1jyB4V0IOyaPjh1x9arLEsxlgYDHWjLHlNCZau3yPXtIEqmWIbZR0I8ay7GZp+JO5cxHGOny/au/1OzIlkXb0PNcnrGks7ieDuTRnIPn6Vx5TXTrxrS0rU/eV7ObCzL1Hn6ityxupLRt0XMZ+KPwPyrhLeU3BDkdldRHnnFdFpGp+8fw5gEnXqPA+oqsct9fZZY67jsUSO6hEsMz9meoU8rS76HazcyPM/qZKUt5pIH7a36/qTwYVsW1zHcR9tD8OcMnka11L1We7O4QHs7p6nJE3/53/wBaMujWK8diWH+N2b9zWidv6mUfM1XdH/Pn/KCaPjw/Bzy/S8WnWUR3RWkCt5iMZpkIPKvAknuxyH6YogSY/DCB8zVTGfSblVdoqcAnpVxBcN1ZVHoKsLOQ/FM5HzqtX8Tygew+WPnUEqvBdR9aOLCP9RLfM0RbSJeiinxpcoSZ4x+on/KpNRvH8kp+laQiRegAq2weVHGlzcbPp1ondSJB4fSs24tIQdgGFHUYrbuSxwzAHB6t4VkXQ3HJbqckjisc9NsWdJboW4XKmul0OPsIcJtXu5JbpWAx3suNvXx5rptNiDHDx9oAnTpS8fs8702dMi7O0Vg5O41op8J+dZekEmzbhhjwz0rTQgjdzj1rqw9RzZe1ZeAfMis65hDq+0ckfenpn4x5jilDw5PUD4qMuxix5bQrFhQSN3HpSc2nysWGCc/tW8x3ZI2iMDcyml7kCYKyOVz5YrG+OVrM65+WyeNxhQviPlSc+AcSHao5yTyTXQzqkis2SD8Oc9ax5rYR5cNuYkknHjWWWGvTXHPftkNcv24aQgQDAA6kkdDXQaUTJhiuM+dYzQGaROcv546V01jaGG3TAPUAmlhN0Z3pt6eipvTaRx4dDWgRutzn+XpQUGOyUKcHqaYk7sTCu2TUcluyAb+EkhPwsP8ASrsdtyh6716YoQXfFJENuQT/AK1YOd6kqRtPHlzUxVIaxbbj2ir14Ncze23+HnxrvLqISRuOCeoFc/eWRYHA5xWXlw33F+PPXT59q2mEyCaDAmU8Hzodt/6hBk9ndRdcda6e7spUBLqSAcVh6hZOXEkQ2SL0PnXNcdOiZNLR9R7Ruxnwsy9R/N6iun0zSrO/JmuIVcxnuenjXDQKl8BkmKeM8kdV9a7jQprmxtEEkaziQ7jKjBQB8jWvjyl/0jPGzvFux2MCfDGuflRhEi9FFKPfEDIKAepoRvWf4XLf5FzW/LGemPDK+2kAvlUM6L1YCs7dO/SOQj1OB+ausM56iNfrmnyt9QuMnum2njH6vxVPeh4IT86AbRj8VwR/lUCp92iU95nc+rGj+6P4i0l4VGcKo82NCN2z/DKD6IM0VYbcHcsKE+ZHNFL+lHG/o5Yz1CTPM57qTv8ALu/uRVPdpDybaH/5Pz+1O9o3gOKrvfzo4QfJfp//2Q==",
+      "imageName": "fba462510be3d4ece42c521eb4c296a7.jpg",
+      "imageType": "image/jpeg",
+      "imageSizeKb": 15,
+      "score": {
+        "total": 33
+      },
+      "createdAt": 1783284881610,
+      "updatedAt": 1783284881610
+    },
+    {
+      "id": "p_mr89g0k3_kx0z80",
+      "title": "Trotzphase verstehen | Wutanfälle liebevoll begleiten | Tipps für den Mama-Alltag",
+      "description": "Wutanfälle gehören zur Trotzphase dazu und sind ein wichtiger Teil der Entwicklung. 💗 Erfahre, wie du dein Kleinkind liebevoll begleiten, Gefühle verstehen und im Alltag gelassener reagieren kannst.\n\n\n✨ 5 Tipps für den Umgang mit Wutanfällen\n\n\n✨ Bedürfnisorientierte Erziehung\n\n\n✨ Mehr Verbindung statt Strafen\n\n\n✨ Liebevoll durch die Trotzphase begleiten\n\n\nTrotzphase • Wutanfälle • Kleinkind • Bedürfnisorientierte Erziehung • Gefühle begleiten • Mama Alltag • Familienalltag • Gefühlsstarke Kinder • Kleinkind Entwicklung",
+      "sourceUrl": "https://pin.it/1kB8p6qHr",
+      "category": "Familienalltag",
+      "keywords": [
+        "Trotzphase",
+        "Wutanfälle",
+        "Kleinkind",
+        "BedürfnisorientierteErziehung",
+        "Gefühle",
+        "Mamaalltag",
+        "Entwicklung"
+      ],
+      "format": "standard",
+      "notes": "",
+      "whyILikeIt": "",
+      "wouldRebuild": true,
+      "successFactors": {
+        "numberInTitle": true,
+        "howTo": true,
+        "list": true,
+        "checklist": true,
+        "beforeAfter": false,
+        "strongHook": true,
+        "clearBenefit": true,
+        "evergreenPotential": true,
+        "cta": true,
+        "textOnImage": true,
+        "personVisible": true,
+        "productVisible": true
+      },
+      "imageStyle": [
+        "Cozy",
+        "Clean",
+        "Modern",
+        "Natürlich",
+        "Hell"
+      ],
+      "colorScheme": [
+        "Beige",
+        "Weiß",
+        "Pastell",
+        "Rosa",
+        "Neutral"
+      ],
+      "image": "data:image/jpeg;base64,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",
+      "imageName": "8080a806c638b048bfef5b50d526a888.jpg",
+      "imageType": "image/jpeg",
+      "imageSizeKb": 19,
+      "score": {
+        "total": 92
+      },
+      "createdAt": 1783284326355,
+      "updatedAt": 1783284326355
+    },
+    {
+      "id": "p_mr896v8y_g0lr2j",
+      "title": "Entspannter in den Tag starten – einfache Morgenroutinen für Mamas",
+      "description": "Ein entspannter Morgen muss nicht perfekt sein. 🌷 Schon kleine Gewohnheiten können dabei helfen, ruhiger und strukturierter in den Tag zu starten.\n\n\n🤍 Das Outfit am Abend bereitlegen\n\n\n☕ Vor den Kindern in Ruhe einen Kaffee trinken\n\n\n📝 Die drei wichtigsten Aufgaben des Tages notieren\n\n\n🍎 Brotdosen und Snacks vorbereiten\n\n\n🧺 Eine kleine Haushaltsaufgabe direkt erledigen\n\n\n📱 Den Tag ohne Social Media beginnen\n\n\n✨ Mehr Struktur, weniger Stress und mehr Familienzeit – genau das machen kleine Routinen möglich.\n\n\n#morgenroutine\n#mamaalltag\n#familienorganisation\n#mamamitplan\n#alltagsorganisation\n#mamaleben\n#berufstätigemama\n#mehrleichtigkeit\n#wenigerstress\n#morgenroutinefürmamas\n#familienalltag\n#organisationstipps\n#haushaltstipps\n#mamablogger\n#strukturimalltag",
+      "sourceUrl": "https://pin.it/On7F2joP5",
+      "category": "Morgenroutine",
+      "keywords": [
+        "Organisationstipps",
+        "Haushaltstipps",
+        "Strukturimalltag",
+        "Morgenroutine",
+        "wenigerstress",
+        "mehrleichtigkeit"
+      ],
+      "format": "standard",
+      "notes": "",
+      "whyILikeIt": "",
+      "wouldRebuild": true,
+      "successFactors": {
+        "numberInTitle": false,
+        "howTo": true,
+        "list": false,
+        "checklist": false,
+        "beforeAfter": false,
+        "strongHook": true,
+        "clearBenefit": true,
+        "evergreenPotential": true,
+        "cta": false,
+        "textOnImage": true,
+        "personVisible": false,
+        "productVisible": false
+      },
+      "imageStyle": [
+        "Minimalistisch",
+        "Cozy",
+        "Clean",
+        "Modern",
+        "Natürlich",
+        "Hell"
+      ],
+      "colorScheme": [
+        "Beige",
+        "Weiß",
+        "Pastell",
+        "Rosa",
+        "Neutral"
+      ],
+      "image": "data:image/jpeg;base64,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",
+      "imageName": "3629279b6612028ef60ec2646e0630bd.jpg",
+      "imageType": "image/jpeg",
+      "imageSizeKb": 16,
+      "score": {
+        "total": 42
+      },
+      "createdAt": 1783283899570,
+      "updatedAt": 1783283899570
+    },
+    {
+      "id": "p_mr88xzjx_i65qnm",
+      "title": "5 einfache Routinen für einen entspannten Morgen ❤️",
+      "description": "💕 Morgens mit Kleinkind kann es schnell hektisch werden. Diese 5 kleinen Routinen helfen uns, entspannter in den Tag zu starten und den Morgenstress zu reduzieren. 🤍\n\n\n✨ Alles am Vorabend vorbereiten\n\n\n✨ Genügend Zeit einplanen\n\n\n✨ Gemeinsam frühstücken\n\n\n✨ Kleine Momente der Verbindung schaffen\n\n\n✨ Perfektion loslassen\n\n\nSpeichere dir diesen Pin für später und folge mir für mehr Tipps rund um Familienalltag, Morgenroutine und Organisation. 🌷\n\n\n#morgenroutine\n#kleinkindalltag\n#familienalltag\n#mamaalltag\n#mamaleben\n#morgenmitkind\n#familienorganisation\n#mamamitkleinkind\n#routine\n#alltagsorganisation",
+      "sourceUrl": "https://pin.it/4x7mDX90M",
+      "category": "Morgenroutine",
+      "keywords": [
+        "Mamamitkleinkind",
+        "Alltagsorganisation",
+        "Morgenroutine",
+        "Familienalltag"
+      ],
+      "format": "standard",
+      "notes": "",
+      "whyILikeIt": "",
+      "wouldRebuild": true,
+      "successFactors": {
+        "numberInTitle": true,
+        "howTo": true,
+        "list": true,
+        "checklist": true,
+        "beforeAfter": false,
+        "strongHook": true,
+        "clearBenefit": true,
+        "evergreenPotential": true,
+        "cta": true,
+        "textOnImage": true,
+        "personVisible": false,
+        "productVisible": false
+      },
+      "imageStyle": [
+        "Minimalistisch",
+        "Cozy",
+        "Clean",
+        "Modern",
+        "Natürlich",
+        "Hell"
+      ],
+      "colorScheme": [
+        "Beige",
+        "Weiß",
+        "Pastell",
+        "Rosa",
+        "Neutral"
+      ],
+      "image": "data:image/jpeg;base64,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",
+      "imageName": "91a2566fe3210ebf1346ca01ed4ff98d.jpg",
+      "imageType": "image/jpeg",
+      "imageSizeKb": 16,
+      "score": {
+        "total": 75
+      },
+      "createdAt": 1783283485245,
+      "updatedAt": 1783283485245
+    },
+    {
+      "id": "p_mr88km6x_ka5988",
       "title": "7 Easy Meal Prep Recipes for Beginners",
       "description": "New to meal prep? These beginner-friendly recipes make healthy eating easier and help you stay organized throughout the week.",
       "sourceUrl": "https://pin.it/22j8C2Cds",
@@ -63,14 +835,14 @@
       "imageName": "7 Easy Meal Prep Recipes for Beginners.jfif",
       "imageType": "image/jpeg",
       "imageSizeKb": 33,
+      "createdAt": 1783246627347,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 83
-      },
-      "createdAt": 1783246627347,
-      "updatedAt": 1783246627347
+      }
     },
     {
-      "id": "p_mr7j3erm_e4vno0",
+      "id": "p_mr88km6x_ogzjtu",
       "title": "7 Easy Meal Prep Recipes for Beginners",
       "description": "New to meal prep? These beginner-friendly recipes make healthy eating easier and help you stay organized throughout the week.\n\n#MealPrepForBeginners\n#MealPrep\n#HealthyRecipes\n#HealthyEating\n#EasyMeals\n#HealthyLifestyle\n#FoodPrep\n#MealPlanning\n#HealthyFood\n#BeginnerRecipes\n#WeeklyPrep\n#EasyCooking",
       "sourceUrl": "https://pin.it/1LBAu7AMN",
@@ -119,14 +891,14 @@
       "imageName": "7ad61078f6dcadaa54c1e20b4b025369.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 33,
+      "createdAt": 1783199608869,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 83
-      },
-      "createdAt": 1783199608869,
-      "updatedAt": 1783244455983
+      }
     },
     {
-      "id": "p_mr7j3erm_v35pmu",
+      "id": "p_mr88km6x_v59kg8",
       "title": "Easy & Healthy Meal Prep Ideas for Weight Loss | High Protein Weekly Meal Prep",
       "description": "Looking for easy meal prep ideas that save time and help you stay on track with your health goals? These healthy meal prep recipes are packed with protein, nutrients, and flavor. Perfect for weight loss, muscle building, busy students, professionals, and anyone who wants simple, balanced meals throughout the week. Prep once and enjoy delicious, healthy food every day while saving money and reducing stress.",
       "sourceUrl": "https://pin.it/Q1P4FmEQi",
@@ -172,14 +944,14 @@
       "imageName": "f2eef1097c3f7642dc8656884e7664c5.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 30,
+      "createdAt": 1783197217416,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 75
-      },
-      "createdAt": 1783197217416,
-      "updatedAt": 1783245985494
+      }
     },
     {
-      "id": "p_mr7j3erm_u5bn5k",
+      "id": "p_mr88km6x_vsjjw9",
       "title": "Low Carb Meal Prep for Women Simple for Consistency",
       "description": "Low Carb Meal Prep for Women Simple for Consistency",
       "sourceUrl": "https://pin.it/4PD201RR5",
@@ -224,14 +996,14 @@
       "imageName": "71c3e24d49c0abaf0904da6b75bd615f.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 27,
+      "createdAt": 1783197054612,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 67
-      },
-      "createdAt": 1783197054612,
-      "updatedAt": 1783245972566
+      }
     },
     {
-      "id": "p_mr7j3erm_wct3yh",
+      "id": "p_mr88km6x_oyv3z5",
       "title": "meal prep ideas",
       "description": "meal prep ideas",
       "sourceUrl": "https://pin.it/6iRPVY9V5",
@@ -276,14 +1048,14 @@
       "imageName": "dbae4503d13b284b1cbcc11f23a1c3f2.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 27,
+      "createdAt": 1783196930164,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 67
-      },
-      "createdAt": 1783196930164,
-      "updatedAt": 1783245917165
+      }
     },
     {
-      "id": "p_mr7j3erm_l4r63v",
+      "id": "p_mr88km6x_0jgzlk",
       "title": "7 Meal Prep Ideas That Save Time and Money",
       "description": "Make healthy eating easier with these smart meal prep ideas. Save time, reduce food waste, and stick to your nutrition goals all week long.\n\n#MealPrep\n#MealPrepIdeas\n#HealthyEating\n#HealthyLifestyle\n#FoodPrep\n#BudgetMeals\n#HealthyRecipes\n#EasyMeals\n#HealthyFood\n#WeeklyMealPrep\n#MealPlanning\n#TimeSavingTips",
       "sourceUrl": "https://pin.it/EDQeRu10h",
@@ -336,14 +1108,14 @@
       "imageName": "2851c35cdb5da7492f7cd3fa8ae61bf7.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 28,
+      "createdAt": 1783196817812,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 83
-      },
-      "createdAt": 1783196817812,
-      "updatedAt": 1783246188732
+      }
     },
     {
-      "id": "p_mr7j3erm_aun95e",
+      "id": "p_mr88km6x_x28501",
       "title": "Energie",
       "description": "Schenkt Energie\n\nnimmt Energie",
       "sourceUrl": "https://pin.it/6N9BXvbMD",
@@ -386,14 +1158,14 @@
       "imageName": "30f5caa1bab70cd7858305ab5c89a8b8.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 18,
+      "createdAt": 1783196594569,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 67
-      },
-      "createdAt": 1783196594569,
-      "updatedAt": 1783242560046
+      }
     },
     {
-      "id": "p_mr7j3erm_9e4dhf",
+      "id": "p_mr88km6x_h0fira",
       "title": "5 Gewohnheiten für mehr Energie in der neuen Woche",
       "description": "Mehr Energie beginnt oft nicht mit einer großen Veränderung, sondern mit kleinen täglichen Gewohnheiten. 🌿\n\n\nDiese 5 einfachen Routinen können helfen, fokussierter, ausgeglichener und mit mehr Energie durch die Woche zu gehen.\n\n\nWelche Gewohnheit möchtest du diese Woche stärken?",
       "sourceUrl": "https://pin.it/2GS35bKBL",
@@ -441,14 +1213,14 @@
       "imageName": "f66fbed0a0ad432f0273c9c27f922d95.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 21,
+      "createdAt": 1783196471349,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 83
-      },
-      "createdAt": 1783196471349,
-      "updatedAt": 1783242954074
+      }
     },
     {
-      "id": "p_mr7j3ern_sh4u13",
+      "id": "p_mr88km6x_nn0sx7",
       "title": "5 einfache Tipps für mehr Energie am Morgen",
       "description": "Fühlst du dich morgens oft müde und kommst nur schwer in den Tag? ☀️\n\nSchon kleine Veränderungen in deiner Morgenroutine können dein Energielevel positiv beeinflussen. In diesem Pin findest du 5 einfache Gewohnheiten, die dir helfen können, fokussierter und energiegeladener in den Tag zu starten.\n\n✨ Mehr Energie\n\n🌱 Mehr Wohlbefinden\n\n🧠 Mehr Fokus im Alltag\n\nWelche Gewohnheit setzt du bereits um?",
       "sourceUrl": "https://pin.it/sfJTNxjvV",
@@ -497,14 +1269,14 @@
       "imageName": "b4977812233f378f89a65dd98831a6e1.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 23,
+      "createdAt": 1783196325745,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 75
-      },
-      "createdAt": 1783196325745,
-      "updatedAt": 1783243304755
+      }
     },
     {
-      "id": "p_mr7j3ern_umf557",
+      "id": "p_mr88km6x_fk38hf",
       "title": "Energiekiller im Alltag. Diese Gewohnheiten machen dich Müde - jeden Tag",
       "description": "Fühlst du dich ständig müde und energielos? Oft sind es alltägliche Gewohnheiten, die uns unbemerkt Kraft rauben. Zu viel Bildschirmzeit, chronischer Stress, Bewegungsmangel, schlechte Schlafqualität, Nährstoffmangel und eine ungesunde Ernährung können deine Energie stark beeinflussen. Erfahre, welche Energiekiller im Alltag hinter deiner Erschöpfung stecken und wie du mit kleinen Veränderungen wieder mehr Energie, Wohlbefinden und Lebensfreude gewinnen kannst.",
       "sourceUrl": "https://pin.it/70E9qLxS0",
@@ -552,14 +1324,14 @@
       "imageName": "153eed4ac956dcd0cf95237aa97abc2b.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 15,
+      "createdAt": 1783196135237,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 58
-      },
-      "createdAt": 1783196135237,
-      "updatedAt": 1783242222709
+      }
     },
     {
-      "id": "p_mr7j3ern_v6pezf",
+      "id": "p_mr88km6x_lqlthg",
       "title": "Stress abbauen: 6 Tipps, die sofort wirken",
       "description": "Stress abbauen muss nicht kompliziert sein. Manchmal reicht ein tiefer Atemzug, ein Song oder fünf Minuten draußen und dein Nervensystem schaltet einen Gang runter. In meiner Podcastfolge „Wie gestresst bist du noch?\" gehe ich noch tiefer rein: Was Stress wirklich mit dir macht und wie du langfristig rauskommst.",
       "sourceUrl": "https://pin.it/2DdY9IIOj",
@@ -605,14 +1377,14 @@
       "imageName": "16ee04208d54dc39dfe0f364f4c97277.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 16,
+      "createdAt": 1783195293188,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 67
-      },
-      "createdAt": 1783195293188,
-      "updatedAt": 1783240504812
+      }
     },
     {
-      "id": "p_mr7j3ern_h51kq7",
+      "id": "p_mr88km6x_a8gzj4",
       "title": "Experten-Tipp gegen Dauerstress im Kopf",
       "description": "Ostern frühling 2026 steht an und du merkst schon jetzt, wie dein Kopf im Dauerlauf ist? In diesem Blogartikel findest du wirksame nervensystem beruhigen tipps und klare stressbewältigung tipps, die dir helfen, trotz Feiertagsplanung ruhig zu bleiben. Alltagsnah, schnell umsetzbar und ohne Perfektionsdruck. Klick dich rein und hol dir deinen mentalen Reset für entspanntere Ostertage. KI-assistierte Erstellung mit manueller Nachbearbeitung.",
       "sourceUrl": "https://pin.it/1m8eBMCvr",
@@ -659,14 +1431,14 @@
       "imageName": "04eb64de999b1c3e3b292d5e06f10ea4.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 23,
+      "createdAt": 1783195149197,
+      "updatedAt": 1783282861401,
       "score": {
         "total": 58
-      },
-      "createdAt": 1783195149197,
-      "updatedAt": 1783240917593
+      }
     },
     {
-      "id": "p_mr7j3ern_56a49c",
+      "id": "p_mr88km6x_jqkcnn",
       "title": "5 Sofort-Tipps gegen Stress im Alltag | Schnelle Entspannung für zwischendurch",
       "description": "Fühlst du dich gestresst, überfordert oder ständig unter Druck? Diese 5 einfachen Sofort-Tipps helfen dir dabei, Stress schnell abzubauen und wieder mehr Ruhe in deinen Alltag zu bringen.",
       "sourceUrl": "https://pin.it/6k0KppRJF",
@@ -716,14 +1488,14 @@
       "imageName": "786200e88041efd36b21f60a46511a5f.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 21,
+      "createdAt": 1783194941492,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 67
-      },
-      "createdAt": 1783194941492,
-      "updatedAt": 1783241396547
+      }
     },
     {
-      "id": "p_mr7j3ern_om41cj",
+      "id": "p_mr88km6y_n39ojg",
       "title": "5 Simple Ways to Manage Stress | Easy Daily Habits for a Calmer Mind",
       "description": "Feeling overwhelmed? 🌿 These 5 simple stress management tips can help you feel calmer, more focused, and in control. Learn how deep breathing, movement, journaling, quality sleep, and meaningful connections can reduce stress naturally and improve your mental well-being.\n\n\nSave this pin for daily stress relief and a healthier, happier mindset. 💚\n\n\n#StressManagement\n#MentalWellness\n#StressRelief\n#SelfCareTips\n#Mindfulness\n#MentalHealthTips\n#AnxietyRelief\n#HealthyHabits\n#SelfCareRoutine\n#PersonalGrowth\n#WellnessJourney\n#PositiveMindset\n#StressFreeLiving\n#MentalHealthAwareness\n#DailyHabits\n#MindsetMatters\n#EmotionalWellness\n#LifeTips\n#Wellbeing\n#PinterestTips",
       "sourceUrl": "https://pin.it/1nWbTx49H",
@@ -771,14 +1543,14 @@
       "imageName": "f437d2e50cb62769a4c6b8b6819fe21a.jpg",
       "imageType": "image/jpeg",
       "imageSizeKb": 28,
+      "createdAt": 1783194756609,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 83
-      },
-      "createdAt": 1783194756609,
-      "updatedAt": 1783241744412
+      }
     },
     {
-      "id": "p_mr7j3ern_fuwsqp",
+      "id": "p_mr88km6y_419ct8",
       "title": "Bleib länger jung – 10 tägliche Anti-Aging Gewohnheiten ✨",
       "description": "Jung aussehen beginnt mit deinen täglichen Routinen. 🌿 Diese einfachen Anti-Aging Gewohnheiten helfen dir dabei, deine Energie, Haut und Gesundheit langfristig zu unterstützen. Von Morgenritualen bis zu gesunder Ernährung – kleine Veränderungen können eine große Wirkung haben. Speichere diesen Pin als tägliche Erinnerung für ein gesünderes und strahlenderes Leben.",
       "sourceUrl": "https://pin.it/7zP6TZ8zY",
@@ -828,13 +1600,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 24,
       "createdAt": 1783191372297,
-      "updatedAt": 1783240068227,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 67
       }
     },
     {
-      "id": "p_mr7j3ern_aqxio6",
+      "id": "p_mr88km6y_7mop04",
       "title": "20 Healthy Habits for Self-Care &amp; Wellness",
       "description": "20 Healthy Habits for Self-Care &amp; Wellness",
       "sourceUrl": "https://pin.it/5LdmNkh7L",
@@ -882,13 +1654,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 19,
       "createdAt": 1783190418748,
-      "updatedAt": 1783240068227,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 58
       }
     },
     {
-      "id": "p_mr7j3ern_qfz77k",
+      "id": "p_mr88km6y_n4vjpy",
       "title": "5 AM Soft Girl Morning Routine for Productivity, Self Care and Healthy Habits",
       "description": "Start your day with intention using this 5 AM soft girl morning routine ☁️✨ From gentle wake-ups to hydration, skincare, journaling, and peaceful sunrise walks, this routine is all about creating calm, productive mornings that feel good. Romanticize the little moments and build habits that support your mind and body.\n\n• Boost energy and focus with slow, mindful morning habits\n• Create a calming self-care ritual that reduces stress\n\nPerfect for soft life lovers, wellness routines, healthy habits, feminine energy, productivity, and morning motivation. Save this for your next morning reset!\n\n#SoftGirlRoutine #MorningRoutine #5AMRoutine #SelfCareHabits #HealthyLifestyle #ProductiveMorning #WellnessInspo #FeminineEnergy #ThatGirlRoutine #MorningMotivation",
       "sourceUrl": "https://pin.it/4Et7Saiuh",
@@ -944,13 +1716,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 43,
       "createdAt": 1783062631628,
-      "updatedAt": 1783240068228,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 50
       }
     },
     {
-      "id": "p_mr7j3ero_kx5yd2",
+      "id": "p_mr88km6y_vf5r44",
       "title": "Die perfekte Morgenroutine in 15 Minuten | Produktiver & gesunder Start in den Tag",
       "description": "Diese einfache Morgenroutine hilft dir dabei, achtsam in den Tag zu starten, deine Gedanken zu ordnen und positive Gewohnheiten aufzubauen. Perfekt für alle, die wenig Zeit haben, aber dennoch produktiv, gesund und motiviert in den Tag starten.",
       "sourceUrl": "https://pin.it/1V1lQ7xhi",
@@ -994,13 +1766,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 63,
       "createdAt": 1782924792097,
-      "updatedAt": 1783240068228,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 67
       }
     },
     {
-      "id": "p_mr7j3ero_8gdftz",
+      "id": "p_mr88km6y_rjuxqa",
       "title": "5-Minuten Morgenroutine",
       "description": "Weniger Chaos. Mehr Energie. Diese 5-Minuten-Morgenroutine hilft mir, ruhiger und fokussierter in den Tag zu starten. Keine komplizierten Regeln. Keine Stunde früher aufstehen. Nur 5 Minuten für einen besseren Start. Speichern, damit du morgen direkt loslegen kannst!",
       "sourceUrl": "https://pin.it/21rktqXa8",
@@ -1051,13 +1823,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 74,
       "createdAt": 1782204013803,
-      "updatedAt": 1783240068228,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 67
       }
     },
     {
-      "id": "p_mr7j3ero_gcalgm",
+      "id": "p_mr88km6y_zxzvk1",
       "title": "12 simple ways to take care of yourself",
       "description": "fashion | lifestyle | nature | photography l quotes | coffee | food | aesthetics | blogs | soft life content",
       "sourceUrl": "https://pin.it/1eMSwcFYi",
@@ -1107,13 +1879,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 47,
       "createdAt": 1782203484359,
-      "updatedAt": 1783240068229,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3erp_ksnwjh",
+      "id": "p_mr88km6y_q41k8w",
       "title": "Glow Up Routine at Home Simple Self Care & Healthy Girl Habits",
       "description": "Want to glow up naturally at home?\nThis\ncute aesthetic routine includes skincare, hair care, body care, healthy habits, and self-care tips to help you become your best version Perfect for teens who want clear skin, healthy hair, confidence, and a productive lifestyle v Save this pin for daily motivation!",
       "sourceUrl": "https://pin.it/7CF2LCBSf",
@@ -1164,13 +1936,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 61,
       "createdAt": 1782203124211,
-      "updatedAt": 1783240068229,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 58
       }
     },
     {
-      "id": "p_mr7j3erp_y30ey3",
+      "id": "p_mr88km6y_a43joc",
       "title": "20 Self Care Ideas for a Happier & Healthier You",
       "description": "Self care isn't selfish — it's necessary\nThese simple self care ideas can help improve your mood, confidence, mindset, skin & overall happiness\nSave this pin for daily reminders to slow down, heal & glow\nPerfect for your feminine glow up & that girl journey",
       "sourceUrl": "https://pin.it/5QOvWwFSA",
@@ -1218,13 +1990,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 77,
       "createdAt": 1782117189912,
-      "updatedAt": 1783240068229,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 58
       }
     },
     {
-      "id": "p_mr7j3erp_cy33j4",
+      "id": "p_mr88km6y_4qzk8t",
       "title": "Beauty Starts With Self-Care",
       "description": "Your glow starts from within\nThis self-care and beauty guide is filled with simple habits to help you feel confident, healthy, and refreshed every day. From skincare and hair care tips to relaxation ideas and wellness routines, discover ways to nourish your mind, body, and beauty naturally\nSave this pin for your next\nself-care day!",
       "sourceUrl": "https://pin.it/3VEDF2kIR",
@@ -1271,13 +2043,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 68,
       "createdAt": 1782116518298,
-      "updatedAt": 1783240068229,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3erp_dcctub",
+      "id": "p_mr88km6y_a64d2r",
       "title": "happy hormones",
       "description": "hormone health",
       "sourceUrl": "https://pin.it/6t7sCWAjg",
@@ -1319,13 +2091,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 73,
       "createdAt": 1782115987991,
-      "updatedAt": 1783240068230,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 50
       }
     },
     {
-      "id": "p_mr7j3erq_axbum5",
+      "id": "p_mr88km6y_k9u9l2",
       "title": "Vitamine für Frauen: Was du wirklich brauchst",
       "description": "Ob im stressigen Alltag, während der Periode oder in besonderen Lebensphasen - Frauen haben oft einen erhöhten Bedarf an bestimmten Vitaminen. In meinem Artikel erfährst du, warum Vitamin D, Magnesium, Kalzium, Eisen, Biotin und B12 eine wichtige Rolle für dein Wohlbefinden spielen. Ich zeige dir, welche Funktionen sie im Körper erfüllen,\nz. B. beim Energiestoffwechsel, für Haut und Haare oder für Nerven- und Muskelfunktionen.\nDu bekommst keine medizinischen Empfehlungen, sondern eine verständliche Übersicht, die dich dabei unterstützt, besser auf deinen Körper zu hören.",
       "sourceUrl": "https://pin.it/4xIFZxe2P",
@@ -1367,13 +2139,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 56,
       "createdAt": 1782115681872,
-      "updatedAt": 1783240068230,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3erq_gkrpu2",
+      "id": "p_mr88km6y_mlc7k2",
       "title": "Essential Daily Habits for Women's Health | Women Health | Nurture Her Health",
       "description": "Taking care of your body and mind each day can transform your overall well-being. Focus on nourishing meals, regular movement, quality sleep, stress management, proper hydration, and routine health check-ups to build a strong foundation for long-term wellness. Small, consistent habits create powerful results, helping you feel energized, balanced, and confident in every season of life. Save this guide as your daily reminder to prioritize self-care and support your health journey.",
       "sourceUrl": "https://pin.it/4KDRhGsVe",
@@ -1426,13 +2198,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 80,
       "createdAt": 1782038120389,
-      "updatedAt": 1783240068230,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 50
       }
     },
     {
-      "id": "p_mr7j3erq_s3hg24",
+      "id": "p_mr88km6y_12d3ho",
       "title": "4 Wichtige Gesundheitstipps für Frauen",
       "description": "Entdecken Sie einfache Möglichkeiten, Ihr Wohlbefinden zu steigern, mit diesen 8 wichtigen Tipps für die Gesundheit von Frauen. Für weitere Expertenratgeber und umsetzbare Strategien besuchen Sie unsere\nWebsite!",
       "sourceUrl": "https://pin.it/29F8vf8YV",
@@ -1474,13 +2246,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 39,
       "createdAt": 1782037426675,
-      "updatedAt": 1783240068231,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3err_s5yisd",
+      "id": "p_mr88km6y_0lm38x",
       "title": "Healthy Lifestyle Routine for Women | Daily Habits for a Happier & Healthier Life",
       "description": "Looking to improve your health and wellness?\nThis healthy lifestyle routine for women includes simple daily habits to boost energy, improve fitness, support mental health, and create a balanced life. From morning hydration and nutritious meals to self-care and quality sleep, these wellness tips can help you feel your best every day.\nSave this pin for daily motivation and\nhealthy living inspiration!",
       "sourceUrl": "https://pin.it/6OrCzcqyP",
@@ -1539,13 +2311,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 52,
       "createdAt": 1782036463925,
-      "updatedAt": 1783240068231,
+      "updatedAt": 1783282861402,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3err_cfoedp",
+      "id": "p_mr88km6y_wxyk4i",
       "title": "Warum du während des Eisprungs strahlst",
       "description": "Während des Eisprungs befindet sich dein Körper in seiner energiegeladensten Phase.\nViele Frauen fühlen sich jetzt selbstbewusster, sozialer und strahlen von innen heraus.\nDer hohe Östrogenspiegel kann sich positiv auf deine Stimmung, Haut, Ausstrahlung und Energie auswirken. In diesem Pin erfährst du, was während der Ovulationsphase in deinem Körper passiert und wie du deinen Körper mit der richtigen Ernährung und Selfcare unterstützen kannst",
       "sourceUrl": "https://pin.it/3fOStDG7G",
@@ -1593,13 +2365,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 66,
       "createdAt": 1782034296529,
-      "updatedAt": 1783240068231,
+      "updatedAt": 1783282861403,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3err_cc9333",
+      "id": "p_mr88km6z_qeeet5",
       "title": "Weibliche Hormone beeinflussen weit mehr als nur den Zyklus",
       "description": "Von Energie und Stimmung bis hin zu Schlaf, Haut und Wohlbefinden — unsere Hormone arbeiten jeden Tag im Hintergrund zusammen.\nKleine Gewohnheiten wie ausgewogene Ernährung, ausreichend Schlaf, weniger Stress und genügend Protein können deine hormonelle Balance positiv unterstützen",
       "sourceUrl": "https://pin.it/5AUhVYo98",
@@ -1645,13 +2417,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 55,
       "createdAt": 1782033600961,
-      "updatedAt": 1783240068231,
+      "updatedAt": 1783282861403,
       "score": {
         "total": 33
       }
     },
     {
-      "id": "p_mr7j3err_xzvjfv",
+      "id": "p_mr88km6z_g295vn",
       "title": "Menstrual Cycle Phases Explained | Period Cycle Guide for Women, Hormones, Ovulation & Self-Care Tip",
       "description": "the 4 menstrual cycle phases with this easy-to-understand visual guide.\nDiscover what happens during the menstrual, follicular, ovulation, and luteal phases, how hormones affect your mood, energy, cravings, skin, and overall wellness. Perfect for women tracking their periods, improving hormonal health, understanding fertility, and practicing cycle syncing. Save this aesthetic menstrual cycle infographic for quick reference and start working with your body's natural rhythm for better self-care, productivity, and well-being.",
       "sourceUrl": "https://pin.it/52J4o6pQN",
@@ -1707,13 +2479,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 71,
       "createdAt": 1782031662834,
-      "updatedAt": 1783240068232,
+      "updatedAt": 1783282861403,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3ers_583z9r",
+      "id": "p_mr88km6z_15n1fn",
       "title": "5 Anzeichen dafür, dass deine Hormone im Gleichgewicht sind",
       "description": "Erholsamer Schlaf, stabile Energie und ein regelmäßiger Zyklus - so erkennst du gesunde Hormone. Diese 5 Anzeichen zeigen, dass dein Körper im Balance-Modus ist.",
       "sourceUrl": "https://pin.it/17eIbazLP",
@@ -1756,13 +2528,13 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 26,
       "createdAt": 1782030938672,
-      "updatedAt": 1783240068232,
+      "updatedAt": 1783282861403,
       "score": {
         "total": 42
       }
     },
     {
-      "id": "p_mr7j3ers_vix66k",
+      "id": "p_mr88km6z_fzuo0k",
       "title": "DEIN ZYKLUS ERKLÄRT IN 4 PHASEN",
       "description": "Dein Zyklus erklärt in 4 Phasen - so unterstützt du deinen Körper optimal\nMenstruation (Tag 1-5)\nRuhe, Wärme, Eisenreiche Ernährung\nFollikelphase (Tag 6-13)\nEnergie steigt, gute Zeit für Sport & Projekte Ovulation (ca. Tag 14-16)\nPeak Energie & Ausstrahlung - ideal für Meetings, Dates\nLutealphase (Tag 17-28)\nRückzug, achtsame Ernährung, PMS-Support",
       "sourceUrl": "https://pin.it/6N9uxSMHr",
@@ -1804,7 +2576,7 @@
       "imageType": "image/jpeg",
       "imageSizeKb": 63,
       "createdAt": 1782030096900,
-      "updatedAt": 1783240068232,
+      "updatedAt": 1783282861403,
       "score": {
         "total": 42
       }
