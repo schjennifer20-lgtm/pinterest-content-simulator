@@ -3793,6 +3793,128 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  /* Erzeugt den vollständig verwendbaren Analyseauftrag als UTF-8-Text.
+     Erhält das bereits fertige envelope-Objekt und den Datums-String,
+     damit batchId und alle Werte exakt mit dem JSON-Export übereinstimmen. */
+  function buildKiPromptText(envelope, dateStr){
+    var sf = envelope.analysisInstructions;
+    var rubric = sf.qualityScoreRubric;
+    var dims = rubric.dimensions.map(function(d){
+      return '   • ' + d.label + ' (max. ' + d.maxPoints + ' Punkte): ' + d.description;
+    }).join('\n');
+    var scale = Object.keys(rubric.scaleInterpretation).map(function(k){
+      return '   ' + k + ': ' + rubric.scaleInterpretation[k];
+    }).join('\n');
+
+    var returnFilename = 'ki-rueckgabe-' + dateStr + '.json';
+    var exportFilename = 'ki-export-' + dateStr + '.json';
+
+    return [
+      '=============================================================',
+      'ANALYSEAUFTRAG FÜR CHATGPT – Pinterest Content Simulator',
+      '=============================================================',
+      '',
+      'Batch-ID:        ' + envelope.batchId,
+      'Export-Version:  ' + envelope.exportVersion,
+      'Exportiert am:   ' + envelope.exportedAt,
+      'Anzahl Pins:     ' + envelope.pinCount,
+      'Export-Datei:    ' + exportFilename,
+      '',
+      '-------------------------------------------------------------',
+      'AUFGABE',
+      '-------------------------------------------------------------',
+      '',
+      'Analysiere alle Pins aus der hochgeladenen Datei "' + exportFilename + '".',
+      'Erstelle anschließend eine herunterladbare JSON-Datei mit dem',
+      'Namen "' + returnFilename + '" (ohne Backticks, kein Chat-Text).',
+      '',
+      '-------------------------------------------------------------',
+      'RÜCKGABEFORMAT (exakt einhalten)',
+      '-------------------------------------------------------------',
+      '',
+      '{',
+      '  "returnType": "ai-evaluation",',
+      '  "exportVersion": "' + envelope.exportVersion + '",',
+      '  "batchId": "' + envelope.batchId + '",',
+      '  "evaluatedAt": "<ISO-Timestamp>",',
+      '  "model": "<verwendetes Modell>",',
+      '  "totalRequested": ' + envelope.pinCount + ',',
+      '  "totalEvaluated": <Anzahl erfolgreich bewerteter Pins>,',
+      '  "totalWarnings": <Anzahl Warnungen>,',
+      '  "totalErrors": 0,',
+      '  "updates": [',
+      '    {',
+      '      "id": "<exakte Pin-ID aus Export, unveraendert>",',
+      '      "imageStyle": ["<Wert>"],',
+      '      "colorScheme": ["<Wert>"],',
+      '      "successFactors": {',
+      '        "numberInTitle": true|false,',
+      '        "howTo": true|false,',
+      '        "list": true|false,',
+      '        "checklist": true|false,',
+      '        "beforeAfter": true|false,',
+      '        "strongHook": true|false,',
+      '        "clearBenefit": true|false,',
+      '        "evergreenPotential": true|false,',
+      '        "cta": true|false,',
+      '        "textOnImage": true|false,',
+      '        "personVisible": true|false,',
+      '        "productVisible": true|false',
+      '      },',
+      '      "keywords": ["<deutschsprachiger Vorschlag>"],',
+      '      "targetAudience": "<Beschreibung>",',
+      '      "qualityScore": <Integer 0-100>,',
+      '      "reasoning": "<Begruendung>",',
+      '      "warnings": []',
+      '    }',
+      '  ],',
+      '  "errors": []',
+      '}',
+      '',
+      '-------------------------------------------------------------',
+      'PFLICHTREGELN (keine Ausnahmen)',
+      '-------------------------------------------------------------',
+      '',
+      '1. batchId immer exakt so zurückgeben: ' + envelope.batchId,
+      '2. Alle ' + envelope.pinCount + ' Pin-IDs aus dem Export unverändert übernehmen.',
+      '3. Kein "status"-Feld in updates zurückgeben (wird vom System gesetzt).',
+      '4. Grunddaten (title, description, sourceUrl) NICHT zurückgeben.',
+      '5. imageStyle und colorScheme immer als Array ausgeben (auch wenn nur ein Wert).',
+      '6. Alle 12 successFactors vollständig als Boolean (true/false) ausgeben.',
+      '7. qualityScore als Integer zwischen 0 und 100 (nicht "82/100", nicht 82.5).',
+      '8. Ausgabe: NUR die JSON-Datei "' + returnFilename + '", kein Chat-Text, keine Erklärungen.',
+      '',
+      '-------------------------------------------------------------',
+      'ERLAUBTE WERTE',
+      '-------------------------------------------------------------',
+      '',
+      'imageStyle (nur diese Werte verwenden):',
+      '  ' + sf.allowedImageStyle.join(' | '),
+      '',
+      'colorScheme (nur diese Werte verwenden):',
+      '  ' + sf.allowedColorScheme.join(' | '),
+      '',
+      'successFactorKeys (alle 12 müssen vorhanden sein):',
+      '  ' + sf.successFactorKeys.join(', '),
+      '',
+      '-------------------------------------------------------------',
+      'QUALITÄTSSCORE-RUBRIK (qualityScore)',
+      '-------------------------------------------------------------',
+      '',
+      'Skala: 0–100, aufgeteilt in 4 gleichgewichtete Dimensionen (je max. 25 Punkte):',
+      '',
+      dims,
+      '',
+      'Skaleninterpretation:',
+      scale,
+      '',
+      '-------------------------------------------------------------',
+      '=============================================================',
+      'ENDE DES ANALYSEAUFTRAGS',
+      '=============================================================',
+    ].join('\n');
+  }
+
   function exportForKi(){
     var ids = Object.keys(selectedReferenceIds);
     if(ids.length === 0){
@@ -3805,6 +3927,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     var batchId = generateBatchId();
+    var dateStr = getDateStringForFilename(); /* einmal berechnen – beide Dateien verwenden denselben Wert */
 
     var selectedPins = ids.map(function(id){ return findReferencePinById(id); }).filter(Boolean);
 
@@ -3852,13 +3975,34 @@ document.addEventListener('DOMContentLoaded', function(){
       })
     };
 
+    /* --- Download 1: JSON-Exportdatei (unverändert) --- */
     var json = JSON.stringify(envelope, null, 2);
-    var filename = 'ki-export-' + getDateStringForFilename() + '.json';
-    triggerBlobDownload(json, filename);
+    var jsonFilename = 'ki-export-' + dateStr + '.json';
+    triggerBlobDownload(json, jsonFilename);
 
-    tryShareExportFile(json, filename).then(function(handled){
+    /* --- Download 2: Prompt-Textdatei (verzögert, damit Browser beide Downloads akzeptiert) --- */
+    var promptText = buildKiPromptText(envelope, dateStr);
+    var promptFilename = 'ki-prompt-' + dateStr + '.txt';
+    setTimeout(function(){
+      try{
+        var promptBlob = new Blob([promptText], { type: 'text/plain;charset=utf-8' });
+        var promptUrl = URL.createObjectURL(promptBlob);
+        var a = document.createElement('a');
+        a.href = promptUrl;
+        a.download = promptFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(promptUrl); }, 1000);
+      }catch(e){
+        console.error('Prompt-Download fehlgeschlagen:', e);
+        showStorageBanner('JSON-Export erfolgreich. Prompt-Datei konnte nicht heruntergeladen werden – bitte den Text aus der Konsole kopieren oder erneut exportieren.');
+      }
+    }, 400); /* 400 ms Abstand verhindert Browser-Blockierung des zweiten Downloads */
+
+    tryShareExportFile(json, jsonFilename).then(function(handled){
       if(!handled) showExportTextFallback(json);
-      showStorageBanner(selectedPins.length + ' Referenz-Pin(s) für KI-Analyse exportiert. Batch-ID: ' + batchId, 'success');
+      showStorageBanner(selectedPins.length + ' Pin(s) exportiert – JSON + Prompt-Datei werden heruntergeladen. Batch-ID: ' + batchId, 'success');
     });
   }
 
