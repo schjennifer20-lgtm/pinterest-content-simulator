@@ -328,6 +328,111 @@
   .status-entwurf{ background:var(--amber-tint); color:var(--amber); }
   .status-optimiert{ background:var(--sage-tint); color:var(--sage); }
   .status-bereit{ background:#FCE4E8; color:var(--pin-dark); }
+  .status-unbearbeitet{ background:#F0EBF7; color:#6B3FA0; }
+  .status-ki-bewertet{ background:#E4EEF7; color:#1A5FA0; }
+
+  /* KI-Workflow (Version 1.5) – Auswahl, Export, Merge */
+  .ref-select-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:.5rem;
+    padding:.6rem .8rem;
+    background:var(--paper);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    margin-bottom:.75rem;
+    font-size:.82rem;
+    color:var(--muted);
+  }
+  .ref-select-bar .ref-select-count{ font-weight:600; color:var(--ink); }
+  #ki-export-btn{
+    background:var(--pin);
+    color:#fff;
+    border:none;
+    border-radius:var(--radius-md);
+    padding:.45rem .9rem;
+    font-size:.82rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+  #ki-export-btn:hover{ background:var(--pin-dark); }
+  #ki-export-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  #ki-export-btn:disabled:hover{ background:var(--pin); }
+  .ref-pin-checkbox{
+    position:absolute;
+    top:.5rem;
+    left:.5rem;
+    width:1.1rem;
+    height:1.1rem;
+    cursor:pointer;
+    z-index:2;
+  }
+  .pin-card.ref-selectable{ position:relative; }
+  .pin-card.ref-selected{ outline:2px solid var(--pin); outline-offset:1px; }
+
+  /* KI-Merge-Vorschau-Modal */
+  .ki-merge-summary{
+    font-size:.88rem;
+    color:var(--ink);
+    margin:0 0 1rem;
+    line-height:1.5;
+  }
+  .ki-merge-pin-block{
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    margin-bottom:.75rem;
+    overflow:hidden;
+  }
+  .ki-merge-pin-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.5rem;
+    padding:.6rem .8rem;
+    background:var(--paper);
+    cursor:pointer;
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--ink);
+    user-select:none;
+  }
+  .ki-merge-pin-header:hover{ background:var(--sand); }
+  .ki-merge-pin-body{ padding:.5rem .8rem .8rem; }
+  .ki-merge-field-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr auto;
+    gap:.4rem;
+    align-items:start;
+    padding:.35rem 0;
+    border-bottom:1px solid var(--paper);
+    font-size:.78rem;
+    line-height:1.4;
+  }
+  .ki-merge-field-row:last-child{ border-bottom:none; }
+  .ki-merge-field-name{ color:var(--muted); font-weight:600; }
+  .ki-merge-old{ color:var(--ink); }
+  .ki-merge-new{ color:var(--sage); font-weight:600; }
+  .ki-merge-new.conflict{ color:var(--amber); }
+  .ki-merge-checkbox{ justify-self:center; margin-top:.15rem; }
+  .ki-merge-skip-row{ opacity:.5; }
+  .ki-merge-warning{
+    font-size:.76rem;
+    color:var(--amber);
+    padding:.3rem .5rem;
+    background:var(--amber-tint);
+    border-radius:var(--radius-md);
+    margin-top:.3rem;
+  }
+  .ki-merge-unrecognized{
+    font-size:.82rem;
+    color:var(--danger);
+    padding:.6rem .8rem;
+    background:var(--danger-tint);
+    border-radius:var(--radius-md);
+    margin-bottom:.75rem;
+  }
 
   /* Kompakte Status-Badges mit Icon (nur Pin-Karten in der Pin-Datenbank) */
   .badge-compact{
@@ -1018,7 +1123,9 @@
         <button type="button" id="import-btn">⬆️ Pins importieren</button>
         <button type="button" id="paste-import-btn">📋 JSON-Text einfügen</button>
         <button type="button" id="connect-ref-file-btn">📂 Mit reference-pins.json verbinden</button>
+        <button type="button" id="ki-import-btn">🤖 KI-Auswertung importieren</button>
         <input type="file" id="import-file-input" accept="application/json,.json" class="hidden">
+        <input type="file" id="ki-import-file-input" accept="application/json,.json" class="hidden">
       </div>
       <div class="file-sync-row disconnected" id="ref-file-sync-status" aria-live="polite">
         <span id="ref-file-sync-icon">⚪</span>
@@ -1027,7 +1134,8 @@
       <p class="backup-hint">
         <strong>Vollständig exportieren</strong> – alle Pins inkl. Bilder (große Datei, für Gerätewechsel).<br>
         <strong>Nur Metadaten exportieren</strong> – alle Pins ohne Bilder aus Referenz-Pins (kleine Datei, für regelmäßige Backups).<br>
-        <strong>Mit reference-pins.json verbinden</strong> – Datei direkt öffnen und bei jeder Änderung automatisch speichern (Chrome/Edge).
+        <strong>Mit reference-pins.json verbinden</strong> – Datei direkt öffnen und bei jeder Änderung automatisch speichern (Chrome/Edge).<br>
+        <strong>KI-Auswertung importieren</strong> – Rückgabedatei von ChatGPT laden und KI-Bewertungen in Referenz-Pins übernehmen.
       </p>
     </div>
   </section>
@@ -1099,6 +1207,11 @@
       </div>
 
       <p class="result-count" id="ref-result-count"></p>
+
+      <div class="ref-select-bar" id="ref-select-bar">
+        <span class="ref-select-count" id="ref-select-count">Kein Pin ausgewählt</span>
+        <button type="button" id="ki-export-btn" disabled>🤖 Für KI exportieren</button>
+      </div>
 
       <div class="pin-grid" id="reference-pin-grid"></div>
       <p class="empty-state hidden" id="reference-empty-state"></p>
@@ -1257,6 +1370,17 @@
 
       <div class="score-preview" id="reference-score-preview"></div>
 
+      <h3 class="form-section-title">KI-Bewertung</h3>
+
+      <label for="reference-target-audience">Zielgruppe (KI-Vorschlag)</label>
+      <input type="text" id="reference-target-audience" maxlength="200" placeholder="z. B. Frauen 25–40, Interesse an Selfcare">
+
+      <label for="reference-quality-score">Qualitätsscore (0–100, KI-Vorschlag)</label>
+      <input type="number" id="reference-quality-score" min="0" max="100" step="1" placeholder="z. B. 78">
+
+      <label for="reference-reasoning">KI-Begründung</label>
+      <textarea id="reference-reasoning" rows="4" maxlength="1500"></textarea>
+
       <div class="form-actions">
         <button type="button" class="btn-secondary" id="reference-cancel-btn">Abbrechen</button>
         <button type="submit" class="btn-primary">Referenz-Pin speichern</button>
@@ -1316,6 +1440,16 @@
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="ki-merge-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ki-merge-title">
+    <div class="modal-header">
+      <h2 id="ki-merge-title">KI-Auswertung – Merge-Vorschau</h2>
+      <button type="button" id="ki-merge-close" aria-label="Schließen">✕</button>
+    </div>
+    <div id="ki-merge-content"></div>
+  </div>
+</div>
+
 <script>
 /* Pinterest Content Simulator – Version 1.4
  * Läuft vollständig clientseitig, keine externen Abhängigkeiten.
@@ -1327,8 +1461,9 @@ document.addEventListener('DOMContentLoaded', function(){
   /* ---------- Konstanten ---------- */
 
   var STORAGE_KEY = 'pinSimulatorPinsV1';
-  var APP_VERSION = '1.4';
+  var APP_VERSION = '1.5';
   var EXPORT_FORMAT_VERSION = 1;
+  var KI_EXPORT_VERSION = '1.0';
   var REPLACE_BACKUP_KEY = 'pinSimulatorLastReplaceBackupV1';
   var REFERENCE_STORAGE_KEY = 'pinSimulatorReferencePinsV1';
 
@@ -1398,6 +1533,10 @@ document.addEventListener('DOMContentLoaded', function(){
   var currentReferenceImageData = null;
   var referenceImageProcessing = false;
   var pendingImportReferencePins = null;
+
+  /* KI-Workflow (Version 1.5) */
+  var selectedReferenceIds = {};    /* { id: true } – ausgewählte Referenz-Pins */
+  var pendingKiMergeData = null;    /* validierte KI-Rückgabe, wartet auf Bestätigung */
 
   /* File System Access API – Hybrid-Dateiverbindung (Variante B) */
   var refFileHandle = null; /* FileSystemFileHandle | null – nicht serialisierbar, lebt nur in dieser Session */
@@ -1497,6 +1636,16 @@ document.addEventListener('DOMContentLoaded', function(){
   var pasteImportConfirmBtn = document.getElementById('paste-import-confirm-btn');
   var storageIssueShown = false;
 
+  /* KI-Workflow (Version 1.5) */
+  var kiImportBtn = document.getElementById('ki-import-btn');
+  var kiImportFileInput = document.getElementById('ki-import-file-input');
+  var kiExportBtn = document.getElementById('ki-export-btn');
+  var refSelectBar = document.getElementById('ref-select-bar');
+  var refSelectCount = document.getElementById('ref-select-count');
+  var kiMergeOverlay = document.getElementById('ki-merge-overlay');
+  var kiMergeCloseBtn = document.getElementById('ki-merge-close');
+  var kiMergeContent = document.getElementById('ki-merge-content');
+
   var referenceModalOverlay = document.getElementById('reference-modal-overlay');
   var referenceModalTitleEl = document.getElementById('reference-modal-title');
   var referenceModalCloseBtn = document.getElementById('reference-modal-close');
@@ -1515,6 +1664,9 @@ document.addEventListener('DOMContentLoaded', function(){
   var referenceWouldRebuildCheckbox = document.getElementById('reference-would-rebuild');
   var referenceCategoryDatalist = document.getElementById('reference-category-suggestions');
   var referenceScorePreview = document.getElementById('reference-score-preview');
+  var referenceTargetAudienceInput = document.getElementById('reference-target-audience');
+  var referenceQualityScoreInput = document.getElementById('reference-quality-score');
+  var referenceReasoningInput = document.getElementById('reference-reasoning');
 
   var successFactorsGrid = document.getElementById('success-factors-grid');
   var imageStyleGrid = document.getElementById('image-style-grid');
@@ -2700,7 +2852,10 @@ document.addEventListener('DOMContentLoaded', function(){
       image: currentReferenceImageData ? currentReferenceImageData.dataUrl : null,
       imageName: currentReferenceImageData ? currentReferenceImageData.name : '',
       imageType: currentReferenceImageData ? currentReferenceImageData.type : '',
-      imageSizeKb: currentReferenceImageData ? currentReferenceImageData.sizeKb : 0
+      imageSizeKb: currentReferenceImageData ? currentReferenceImageData.sizeKb : 0,
+      targetAudience: referenceTargetAudienceInput.value.trim() || null,
+      qualityScore: referenceQualityScoreInput.value !== '' ? parseInt(referenceQualityScoreInput.value, 10) : null,
+      reasoning: referenceReasoningInput.value.trim() || null
     };
   }
 
@@ -2721,7 +2876,10 @@ document.addEventListener('DOMContentLoaded', function(){
       image: formData.image || null,
       imageName: formData.imageName || '',
       imageType: formData.imageType || '',
-      imageSizeKb: formData.imageSizeKb || 0
+      imageSizeKb: formData.imageSizeKb || 0,
+      targetAudience: formData.targetAudience || null,
+      qualityScore: (typeof formData.qualityScore === 'number' && !isNaN(formData.qualityScore)) ? formData.qualityScore : null,
+      reasoning: formData.reasoning || null
     };
 
     var scored = { total: calculateReferenceScore(base.successFactors) };
@@ -2751,6 +2909,12 @@ document.addEventListener('DOMContentLoaded', function(){
           imageName: base.imageName,
           imageType: base.imageType,
           imageSizeKb: base.imageSizeKb,
+          targetAudience: base.targetAudience,
+          qualityScore: base.qualityScore,
+          reasoning: base.reasoning,
+          status: existing.status || null,
+          aiAnalyzedAt: existing.aiAnalyzedAt || null,
+          batchId: existing.batchId || null,
           score: scored,
           createdAt: existing.createdAt,
           updatedAt: Date.now()
@@ -2775,6 +2939,12 @@ document.addEventListener('DOMContentLoaded', function(){
         imageName: base.imageName,
         imageType: base.imageType,
         imageSizeKb: base.imageSizeKb,
+        targetAudience: base.targetAudience,
+        qualityScore: base.qualityScore,
+        reasoning: base.reasoning,
+        status: null,
+        aiAnalyzedAt: null,
+        batchId: null,
         score: scored,
         createdAt: Date.now(),
         updatedAt: Date.now()
@@ -2792,6 +2962,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function duplicateReferencePinById(id){
     var original = findReferencePinById(id);
     if(!original) return;
+    /* Standard-Duplikat: alle Felder kopieren */
     var copy = {
       id: genId(),
       title: original.title + ' (Kopie)',
@@ -2810,12 +2981,58 @@ document.addEventListener('DOMContentLoaded', function(){
       imageName: original.imageName || '',
       imageType: original.imageType || '',
       imageSizeKb: original.imageSizeKb || 0,
+      targetAudience: original.targetAudience || null,
+      qualityScore: original.qualityScore || null,
+      reasoning: original.reasoning || null,
+      status: original.status || null,
+      aiAnalyzedAt: original.aiAnalyzedAt || null,
+      batchId: original.batchId || null,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
     copy.score = { total: calculateReferenceScore(copy.successFactors) };
     referencePins.unshift(copy);
     saveReferencePins();
+  }
+
+  /* Pilot-Duplikat: [TEST]-Prefix, Status unbearbeitet, KI-Felder leer.
+     Wird für den KI-Pilot-Test verwendet (Spez. 1.2, Abschnitt 9). */
+  function duplicateReferencePinForKiTest(id){
+    var original = findReferencePinById(id);
+    if(!original) return null;
+    var defaultFactors = {};
+    SUCCESS_FACTOR_DEFS.forEach(function(def){ defaultFactors[def.key] = false; });
+    var copy = {
+      id: genId(),
+      title: '[TEST] ' + original.title,
+      description: original.description,
+      sourceUrl: original.sourceUrl,
+      category: original.category,
+      keywords: [],                          /* bewusst leer – KI soll unabhängig vorschlagen */
+      format: original.format,
+      notes: original.notes,
+      whyILikeIt: original.whyILikeIt,
+      wouldRebuild: original.wouldRebuild,
+      successFactors: defaultFactors,        /* bewusst alle false – KI soll unabhängig bewerten */
+      imageStyle: [],                        /* bewusst leer */
+      colorScheme: [],                       /* bewusst leer */
+      image: original.image || null,
+      imageName: original.imageName || '',
+      imageType: original.imageType || '',
+      imageSizeKb: original.imageSizeKb || 0,
+      targetAudience: null,
+      qualityScore: null,
+      reasoning: null,
+      status: 'unbearbeitet',
+      aiAnalyzedAt: null,
+      batchId: null,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    copy.score = { total: 0 };
+    referencePins.unshift(copy);
+    saveReferencePins();
+    return copy.id;
   }
 
   /* ---------- Demo-Daten ---------- */
@@ -3129,10 +3346,24 @@ document.addEventListener('DOMContentLoaded', function(){
     var rebuildHtml = pin.wouldRebuild ? '<span class="meta-item evergreen-tag">🔁 Würde ich nachbauen</span>' : '';
     var imageHtml = pin.image ? '<div class="pin-card-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
 
-    return '<article class="pin-card" data-id="' + pin.id + '">' +
+    /* Status-Badge (KI-Workflow) */
+    var statusBadge;
+    if(pin.status === 'unbearbeitet'){
+      statusBadge = '<span class="badge badge-compact status-unbearbeitet">⏳ Unbearbeitet</span>';
+    } else if(pin.status === 'ki-bewertet'){
+      statusBadge = '<span class="badge badge-compact status-ki-bewertet">🤖 KI-bewertet</span>';
+    } else {
+      statusBadge = '<span class="badge badge-compact status-optimiert">📌 Referenz</span>';
+    }
+
+    var isSelected = !!selectedReferenceIds[pin.id];
+    var selectedClass = isSelected ? ' ref-selected' : '';
+
+    return '<article class="pin-card ref-selectable' + selectedClass + '" data-id="' + pin.id + '">' +
+      '<input type="checkbox" class="ref-pin-checkbox" data-ref-id="' + pin.id + '" ' + (isSelected ? 'checked' : '') + ' aria-label="Pin auswählen">' +
       imageHtml +
       '<div class="pin-card-top">' +
-        '<span class="badge badge-compact status-optimiert">📌 Referenz</span>' +
+        statusBadge +
         '<span class="score-chip tier-' + tier + '">' + pin.score.total + '</span>' +
       '</div>' +
       '<h3 class="pin-title">' + escapeHtml(pin.title) + '</h3>' +
@@ -3146,6 +3377,7 @@ document.addEventListener('DOMContentLoaded', function(){
       '<div class="pin-actions">' +
         '<button type="button" class="icon-btn" data-ref-action="edit" data-id="' + pin.id + '">✏️ Bearbeiten</button>' +
         '<button type="button" class="icon-btn" data-ref-action="duplicate" data-id="' + pin.id + '">📋 Duplizieren</button>' +
+        '<button type="button" class="icon-btn" data-ref-action="duplicate-test" data-id="' + pin.id + '" title="Pilot-Kopie für KI-Test erstellen">🧪 Test-Kopie</button>' +
         '<button type="button" class="icon-btn danger" data-ref-action="delete" data-id="' + pin.id + '">🗑️ Löschen</button>' +
       '</div>' +
     '</article>';
@@ -3341,6 +3573,9 @@ document.addEventListener('DOMContentLoaded', function(){
     referenceNotesInput.value = pin ? pin.notes : '';
     referenceWhyInput.value = pin ? pin.whyILikeIt : '';
     referenceWouldRebuildCheckbox.checked = pin ? !!pin.wouldRebuild : false;
+    referenceTargetAudienceInput.value = (pin && pin.targetAudience) ? pin.targetAudience : '';
+    referenceQualityScoreInput.value = (pin && pin.qualityScore !== null && pin.qualityScore !== undefined) ? pin.qualityScore : '';
+    referenceReasoningInput.value = (pin && pin.reasoning) ? pin.reasoning : '';
 
     renderSuccessFactorsGrid(pin ? pin.successFactors : null);
     renderImageStyleGrid(pin ? pin.imageStyle : null);
@@ -3476,6 +3711,23 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function handleReferenceGridAction(e){
+    /* Checkbox-Klick: Selektion toggen */
+    var checkbox = e.target.closest('.ref-pin-checkbox');
+    if(checkbox){
+      e.stopPropagation();
+      var cbId = checkbox.getAttribute('data-ref-id');
+      if(cbId){
+        if(selectedReferenceIds[cbId]){
+          delete selectedReferenceIds[cbId];
+        } else {
+          selectedReferenceIds[cbId] = true;
+        }
+        updateReferenceSelectionBar();
+        renderReferencePinGrid();
+      }
+      return;
+    }
+
     var btn = e.target.closest('[data-ref-action]');
 
     if(!btn){
@@ -3496,11 +3748,18 @@ document.addEventListener('DOMContentLoaded', function(){
     } else if(action === 'duplicate'){
       duplicateReferencePinById(id);
       renderReferenceAll();
+    } else if(action === 'duplicate-test'){
+      var newId = duplicateReferencePinForKiTest(id);
+      if(newId) selectedReferenceIds[newId] = true;
+      updateReferenceSelectionBar();
+      renderReferenceAll();
     } else if(action === 'delete'){
       if(pendingReferenceDeleteId === id){
         if(pendingReferenceDeleteTimeout){ clearTimeout(pendingReferenceDeleteTimeout); pendingReferenceDeleteTimeout = null; }
         pendingReferenceDeleteId = null;
+        if(selectedReferenceIds[id]) delete selectedReferenceIds[id];
         deleteReferencePinById(id);
+        updateReferenceSelectionBar();
         renderReferenceAll();
       } else {
         if(pendingReferenceDeleteTimeout){ clearTimeout(pendingReferenceDeleteTimeout); pendingReferenceDeleteTimeout = null; }
@@ -3513,6 +3772,361 @@ document.addEventListener('DOMContentLoaded', function(){
         }, 3000);
       }
     }
+  }
+
+  /* ---------- KI-Workflow (Version 1.5) ---------- */
+
+  function generateBatchId(){
+    var d = new Date();
+    var ds = d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+    return 'batch_' + ds + '_' + Math.random().toString(36).slice(2,5).toUpperCase();
+  }
+
+  function updateReferenceSelectionBar(){
+    var count = Object.keys(selectedReferenceIds).length;
+    if(count === 0){
+      refSelectCount.textContent = 'Kein Pin ausgewählt';
+      kiExportBtn.disabled = true;
+    } else {
+      refSelectCount.textContent = count + ' Pin(s) ausgewählt';
+      kiExportBtn.disabled = false;
+    }
+  }
+
+  function exportForKi(){
+    var ids = Object.keys(selectedReferenceIds);
+    if(ids.length === 0){
+      showStorageBanner('Bitte mindestens einen Referenz-Pin auswählen.');
+      return;
+    }
+    if(ids.length > 15){
+      showStorageBanner('Bitte maximal 15 Pins pro Batch auswählen (empfohlen: 3–10).');
+      return;
+    }
+
+    var batchId = generateBatchId();
+
+    var selectedPins = ids.map(function(id){ return findReferencePinById(id); }).filter(Boolean);
+
+    var envelope = {
+      exportType: 'ai-analysis',
+      exportVersion: KI_EXPORT_VERSION,
+      batchId: batchId,
+      exportedAt: new Date().toISOString(),
+      pinCount: selectedPins.length,
+      analysisInstructions: {
+        language: 'de',
+        requestedFields: ['imageStyle','colorScheme','successFactors','keywords','targetAudience','qualityScore','reasoning'],
+        allowedImageStyle: IMAGE_STYLE_OPTIONS,
+        allowedColorScheme: COLOR_SCHEME_OPTIONS,
+        successFactorKeys: SUCCESS_FACTOR_DEFS.map(function(d){ return d.key; }),
+        qualityScoreRubric: {
+          scale: '0-100',
+          dimensions: [
+            { name:'visualImpact', label:'Visueller Impact', maxPoints:25, description:'Wie stark ist der visuelle Hook? Wie klar und differenziert ist die Bildsprache? Ist die Zielgruppe sofort erkennbar?' },
+            { name:'titleQuality', label:'Titel-Qualität', maxPoints:25, description:'Enthält der Titel einen klaren Nutzen, eine Zahl oder ein Listenformat? Wie stark ist der Hook im Titel?' },
+            { name:'contentRelevance', label:'Content-Relevanz', maxPoints:25, description:'Wie klar ist die Zielgruppe definiert? Wie präzise trifft der Content einen erkennbaren Bedarf?' },
+            { name:'evergreenPotential', label:'Evergreen-Potenzial', maxPoints:25, description:'Wie zeitlos ist der Content? Ist er dauerhaft relevant oder stark saisonal?' }
+          ],
+          scaleInterpretation: {
+            '0-24':'Schwach – Pin erfüllt kaum Pinterest-Best-Practices',
+            '25-49':'Ausbaufähig – Grundlage vorhanden, wesentliche Schwächen erkennbar',
+            '50-69':'Solide – guter Pin mit einzelnen Optimierungspotentialen',
+            '70-84':'Stark – Pin erfüllt die meisten Erfolgskriterien',
+            '85-100':'Sehr stark – Pin erfüllt alle wesentlichen Erfolgskriterien vollständig'
+          }
+        },
+        notes: 'Bitte ausschließlich die unter requestedFields genannten Felder befüllen. Grunddaten (title, description, sourceUrl) niemals verändern oder zurückgeben. Nur Werte aus allowedImageStyle und allowedColorScheme verwenden. qualityScore als Integer 0–100 nach qualityScoreRubric berechnen. Keinen status-Wert zurückgeben – dieser wird vom System gesetzt. successFactors alle 12 Felder als true/false bewerten. keywords als deutschsprachige Vorschläge. Ausgabe ausschließlich als valides JSON ohne Markdown-Backticks oder Erläuterungstext.'
+      },
+      pins: selectedPins.map(function(pin){
+        /* [TEST]-Präfix aus Titel entfernen bevor Export an KI */
+        var cleanTitle = pin.title.replace(/^\[TEST\]\s*/,'');
+        return {
+          id: pin.id,
+          title: cleanTitle,
+          description: pin.description,
+          sourceUrl: pin.sourceUrl,
+          category: pin.category,
+          image: pin.image || null
+        };
+      })
+    };
+
+    var json = JSON.stringify(envelope, null, 2);
+    var filename = 'ki-export-' + getDateStringForFilename() + '.json';
+    triggerBlobDownload(json, filename);
+
+    tryShareExportFile(json, filename).then(function(handled){
+      if(!handled) showExportTextFallback(json);
+      showStorageBanner(selectedPins.length + ' Referenz-Pin(s) für KI-Analyse exportiert. Batch-ID: ' + batchId, 'success');
+    });
+  }
+
+  var ALLOWED_KI_RETURN_FIELDS = ['imageStyle','colorScheme','successFactors','keywords','targetAudience','qualityScore','reasoning','warnings'];
+  var VALID_SF_KEYS = null;
+  function getValidSfKeys(){
+    if(!VALID_SF_KEYS) VALID_SF_KEYS = SUCCESS_FACTOR_DEFS.map(function(d){ return d.key; });
+    return VALID_SF_KEYS;
+  }
+
+  function validateKiReturn(parsed){
+    if(!parsed || typeof parsed !== 'object' || Array.isArray(parsed)){
+      return { valid:false, error:'Die Datei enthält kein gültiges JSON-Objekt.' };
+    }
+    if(parsed.returnType !== 'ai-evaluation'){
+      return { valid:false, error:'Falsche Datei – kein \"returnType\": \"ai-evaluation\" gefunden. Bitte die KI-Rückgabedatei auswählen, nicht eine Backup-Datei.' };
+    }
+    if(!Array.isArray(parsed.updates)){
+      return { valid:false, error:'Die Rückgabedatei enthält kein updates-Array.' };
+    }
+    return { valid:true };
+  }
+
+  function buildKiMergeRows(pin, update){
+    /* Gibt Array von Merge-Zeilen zurück, jede mit: field, label, oldVal, newVal, isConflict, checkedDefault, display-Strings */
+    var rows = [];
+    var sfKeys = getValidSfKeys();
+
+    /* imageStyle – additiv */
+    if(Array.isArray(update.imageStyle) && update.imageStyle.length > 0){
+      var currentStyle = pin.imageStyle || [];
+      var newStyles = update.imageStyle.filter(function(s){ return IMAGE_STYLE_OPTIONS.indexOf(s) !== -1 && currentStyle.indexOf(s) === -1; });
+      if(newStyles.length > 0){
+        rows.push({ field:'imageStyle', label:'Bildstil', oldVal: currentStyle.join(', ') || '(leer)', newVal: '+' + newStyles.join(', '), mergeValue: newStyles, isConflict: false, checkedDefault: true });
+      }
+    }
+
+    /* colorScheme – additiv */
+    if(Array.isArray(update.colorScheme) && update.colorScheme.length > 0){
+      var currentColor = pin.colorScheme || [];
+      var newColors = update.colorScheme.filter(function(s){ return COLOR_SCHEME_OPTIONS.indexOf(s) !== -1 && currentColor.indexOf(s) === -1; });
+      if(newColors.length > 0){
+        rows.push({ field:'colorScheme', label:'Farbwelt', oldVal: currentColor.join(', ') || '(leer)', newVal: '+' + newColors.join(', '), mergeValue: newColors, isConflict: false, checkedDefault: true });
+      }
+    }
+
+    /* keywords – additiv */
+    if(Array.isArray(update.keywords) && update.keywords.length > 0){
+      var currentKw = pin.keywords || [];
+      var newKw = update.keywords.filter(function(k){ return typeof k === 'string' && k.trim() && currentKw.indexOf(k.trim()) === -1; }).map(function(k){ return k.trim(); });
+      if(newKw.length > 0){
+        rows.push({ field:'keywords', label:'Keywords', oldVal: currentKw.length ? currentKw.join(', ') : '(leer)', newVal: '+' + newKw.join(', '), mergeValue: newKw, isConflict: false, checkedDefault: true });
+      }
+    }
+
+    /* successFactors – delta, beide Richtungen, Konflikte nicht angehakt */
+    if(update.successFactors && typeof update.successFactors === 'object'){
+      sfKeys.forEach(function(key){
+        if(typeof update.successFactors[key] !== 'boolean') return;
+        var currentVal = !!(pin.successFactors && pin.successFactors[key]);
+        var newVal = update.successFactors[key];
+        if(currentVal !== newVal){
+          var label = (SUCCESS_FACTOR_DEFS.find(function(d){ return d.key === key; }) || { label: key }).label;
+          rows.push({ field:'successFactors.' + key, label:'✓ ' + label, oldVal: currentVal ? 'true' : 'false', newVal: newVal ? 'true' : 'false', mergeValue: newVal, isConflict: true, checkedDefault: false });
+        }
+      });
+    }
+
+    /* targetAudience */
+    if(update.targetAudience && typeof update.targetAudience === 'string'){
+      var isConflict = !!pin.targetAudience;
+      rows.push({ field:'targetAudience', label:'Zielgruppe', oldVal: pin.targetAudience || '(leer)', newVal: update.targetAudience, mergeValue: update.targetAudience, isConflict: isConflict, checkedDefault: !isConflict });
+    }
+
+    /* qualityScore */
+    if(typeof update.qualityScore === 'number' && Number.isInteger(update.qualityScore) && update.qualityScore >= 0 && update.qualityScore <= 100){
+      var isQsConflict = pin.qualityScore !== null && pin.qualityScore !== undefined;
+      rows.push({ field:'qualityScore', label:'Qualitätsscore', oldVal: (pin.qualityScore !== null && pin.qualityScore !== undefined) ? String(pin.qualityScore) : '(leer)', newVal: String(update.qualityScore), mergeValue: update.qualityScore, isConflict: isQsConflict, checkedDefault: !isQsConflict });
+    }
+
+    /* reasoning – immer angehakt */
+    if(update.reasoning && typeof update.reasoning === 'string'){
+      rows.push({ field:'reasoning', label:'KI-Begründung', oldVal: pin.reasoning ? truncate(pin.reasoning, 40) : '(leer)', newVal: truncate(update.reasoning, 60), mergeValue: update.reasoning, isConflict: false, checkedDefault: true });
+    }
+
+    return rows;
+  }
+
+  function openKiMergeModal(kiData){
+    pendingKiMergeData = kiData;
+    renderKiMergeContent();
+    kiMergeOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeKiMergeModal(){
+    kiMergeOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    pendingKiMergeData = null;
+  }
+
+  function renderKiMergeContent(){
+    if(!pendingKiMergeData) return;
+    var kiData = pendingKiMergeData;
+    var updates = kiData.updates || [];
+    var batchId = kiData.batchId || '–';
+    var evalAt = kiData.evaluatedAt ? formatImportDate(kiData.evaluatedAt) : '–';
+    var recognized = 0, unrecognized = [];
+
+    var pinBlocks = '';
+    updates.forEach(function(update){
+      var pin = findReferencePinById(update.id);
+      if(!pin){ unrecognized.push(update.id); return; }
+      recognized++;
+      var rows = buildKiMergeRows(pin, update);
+      var rowsHtml = rows.map(function(row, ri){
+        var cbId = 'ki-merge-cb-' + update.id.replace(/[^a-z0-9]/gi,'') + '-' + ri;
+        var newClass = row.isConflict ? 'ki-merge-new conflict' : 'ki-merge-new';
+        return '<div class="ki-merge-field-row">' +
+          '<span class="ki-merge-field-name">' + escapeHtml(row.label) + '</span>' +
+          '<span class="ki-merge-old">' + escapeHtml(row.oldVal) + '</span>' +
+          '<span class="' + newClass + '">' + escapeHtml(row.newVal) + '</span>' +
+          '<input type="checkbox" class="ki-merge-checkbox" id="' + cbId + '" data-pin-id="' + escapeHtml(update.id) + '" data-field="' + escapeHtml(row.field) + '" ' + (row.checkedDefault ? 'checked' : '') + '>' +
+        '</div>';
+      }).join('');
+
+      var warnings = (Array.isArray(update.warnings) && update.warnings.length > 0)
+        ? update.warnings.map(function(w){ return '<div class="ki-merge-warning">⚠️ ' + escapeHtml(w.field || '') + ': ' + escapeHtml(w.message || '') + ' (' + escapeHtml(w.confidence || '') + ')</div>'; }).join('')
+        : '';
+
+      var headerLabel = rows.length > 0
+        ? '✅ ' + rows.length + ' Änderung(en)'
+        : '— keine Änderungen';
+      if(rows.some(function(r){ return r.isConflict; })) headerLabel += ' ⚠️ ' + rows.filter(function(r){ return r.isConflict; }).length + ' Konflikt(e)';
+
+      pinBlocks += '<div class="ki-merge-pin-block">' +
+        '<div class="ki-merge-pin-header" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden">' +
+          '<span>' + escapeHtml(pin.title) + '</span>' +
+          '<span style="font-size:.76rem;color:var(--muted)">' + headerLabel + '</span>' +
+        '</div>' +
+        '<div class="ki-merge-pin-body">' +
+          (rows.length === 0 ? '<p style="font-size:.8rem;color:var(--muted)">Keine Änderungen für diesen Pin.</p>' : '') +
+          '<div class="ki-merge-field-row" style="font-weight:700;border-bottom:2px solid var(--sand);padding-bottom:.3rem">' +
+            '<span>Feld</span><span>Bisheriger Wert</span><span>KI-Vorschlag</span><span>✓</span>' +
+          '</div>' +
+          rowsHtml +
+          warnings +
+        '</div>' +
+      '</div>';
+    });
+
+    var unrecHtml = unrecognized.length > 0
+      ? '<div class="ki-merge-unrecognized">⚠️ ' + unrecognized.length + ' ID(s) nicht erkannt – diese Einträge werden übersprungen: ' + unrecognized.map(escapeHtml).join(', ') + '</div>'
+      : '';
+
+    kiMergeContent.innerHTML =
+      '<p class="ki-merge-summary">Batch: <strong>' + escapeHtml(batchId) + '</strong> | Ausgewertet: ' + escapeHtml(evalAt) + '<br>Erkannte Pins: <strong>' + recognized + '</strong> von ' + updates.length + '</p>' +
+      unrecHtml +
+      '<p style="font-size:.76rem;color:var(--muted);margin:0 0 .75rem">Angehakte Felder werden übernommen. Konflikte (⚠️) sind standardmäßig nicht angehakt.</p>' +
+      pinBlocks +
+      '<div class="form-actions" style="margin-top:1rem">' +
+        '<button type="button" class="btn-secondary" id="ki-merge-cancel-inner">Abbrechen</button>' +
+        '<button type="button" class="btn-primary" id="ki-merge-confirm">Bestätigte Änderungen übernehmen</button>' +
+      '</div>';
+
+    document.getElementById('ki-merge-cancel-inner').addEventListener('click', closeKiMergeModal);
+    document.getElementById('ki-merge-confirm').addEventListener('click', performKiMerge);
+  }
+
+  function performKiMerge(){
+    if(!pendingKiMergeData) return;
+    var kiData = pendingKiMergeData;
+    var batchId = kiData.batchId || '';
+    var now = Date.now();
+    var sfKeys = getValidSfKeys();
+    var mergedCount = 0;
+
+    kiData.updates.forEach(function(update){
+      var idx = -1;
+      for(var i = 0; i < referencePins.length; i++){
+        if(referencePins[i].id === update.id){ idx = i; break; }
+      }
+      if(idx === -1) return;
+
+      var pin = referencePins[idx];
+      var pinChanged = false;
+      var pinIdSlug = update.id.replace(/[^a-z0-9]/gi,'');
+
+      /* Alle Checkboxen für diesen Pin auslesen */
+      var allCbs = kiMergeContent.querySelectorAll('input.ki-merge-checkbox[data-pin-id="' + update.id + '"]');
+      allCbs.forEach(function(cb){
+        if(!cb.checked) return;
+        var field = cb.getAttribute('data-field');
+
+        if(field === 'imageStyle'){
+          if(Array.isArray(update.imageStyle)){
+            var currentStyle = pin.imageStyle || [];
+            var toAdd = update.imageStyle.filter(function(s){ return IMAGE_STYLE_OPTIONS.indexOf(s) !== -1 && currentStyle.indexOf(s) === -1; });
+            pin.imageStyle = currentStyle.concat(toAdd);
+            pinChanged = true;
+          }
+        } else if(field === 'colorScheme'){
+          if(Array.isArray(update.colorScheme)){
+            var currentColor = pin.colorScheme || [];
+            var toAddC = update.colorScheme.filter(function(s){ return COLOR_SCHEME_OPTIONS.indexOf(s) !== -1 && currentColor.indexOf(s) === -1; });
+            pin.colorScheme = currentColor.concat(toAddC);
+            pinChanged = true;
+          }
+        } else if(field === 'keywords'){
+          if(Array.isArray(update.keywords)){
+            var currentKw = pin.keywords || [];
+            var toAddKw = update.keywords.filter(function(k){ return typeof k === 'string' && k.trim() && currentKw.indexOf(k.trim()) === -1; });
+            pin.keywords = currentKw.concat(toAddKw.map(function(k){ return k.trim(); }));
+            pinChanged = true;
+          }
+        } else if(field.indexOf('successFactors.') === 0){
+          var sfKey = field.replace('successFactors.', '');
+          if(sfKeys.indexOf(sfKey) !== -1 && typeof update.successFactors[sfKey] === 'boolean'){
+            pin.successFactors = pin.successFactors || {};
+            pin.successFactors[sfKey] = update.successFactors[sfKey];
+            pinChanged = true;
+          }
+        } else if(field === 'targetAudience'){
+          if(update.targetAudience) { pin.targetAudience = update.targetAudience; pinChanged = true; }
+        } else if(field === 'qualityScore'){
+          if(typeof update.qualityScore === 'number') { pin.qualityScore = update.qualityScore; pinChanged = true; }
+        } else if(field === 'reasoning'){
+          if(update.reasoning) { pin.reasoning = update.reasoning; pinChanged = true; }
+        }
+      });
+
+      if(pinChanged){
+        pin.status = 'ki-bewertet';
+        pin.aiAnalyzedAt = now;
+        pin.batchId = batchId;
+        pin.updatedAt = now;
+        pin.score = { total: calculateReferenceScore(pin.successFactors) };
+        referencePins[idx] = pin;
+        mergedCount++;
+      }
+    });
+
+    saveReferencePins();
+    closeKiMergeModal();
+    renderReferenceAll();
+    showStorageBanner(mergedCount + ' Referenz-Pin(s) mit KI-Bewertungen aktualisiert.', 'success');
+  }
+
+  function handleKiReturnFile(file){
+    var reader = new FileReader();
+    reader.onerror = function(){ showStorageBanner('KI-Rückgabedatei konnte nicht gelesen werden.'); kiImportFileInput.value = ''; };
+    reader.onload = function(){
+      var parsed;
+      try{ parsed = JSON.parse(reader.result); } catch(e){
+        showStorageBanner('Die KI-Rückgabedatei enthält kein gültiges JSON.');
+        kiImportFileInput.value = '';
+        return;
+      }
+      var validation = validateKiReturn(parsed);
+      if(!validation.valid){
+        showStorageBanner(validation.error);
+        kiImportFileInput.value = '';
+        return;
+      }
+      kiImportFileInput.value = '';
+      openKiMergeModal(parsed);
+    };
+    reader.readAsText(file);
   }
 
   /* ---------- Event-Listener ---------- */
@@ -3605,6 +4219,18 @@ document.addEventListener('DOMContentLoaded', function(){
     if(e.target === detailOverlay) closeDetailModal();
   });
 
+  kiExportBtn.addEventListener('click', function(){ exportForKi(); });
+
+  kiImportBtn.addEventListener('click', function(){ kiImportFileInput.click(); });
+  kiImportFileInput.addEventListener('change', function(){
+    var file = kiImportFileInput.files && kiImportFileInput.files[0];
+    if(!file) return;
+    handleKiReturnFile(file);
+  });
+
+  kiMergeCloseBtn.addEventListener('click', closeKiMergeModal);
+  kiMergeOverlay.addEventListener('click', function(e){ if(e.target === kiMergeOverlay) closeKiMergeModal(); });
+
   exportBtn.addEventListener('click', function(){
     exportPins();
   });
@@ -3678,6 +4304,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if(!importOverlay.classList.contains('hidden')) closeImportModal();
       if(!exportTextOverlay.classList.contains('hidden')) closeExportTextModal();
       if(!pasteImportOverlay.classList.contains('hidden')) closePasteImportModal();
+      if(!kiMergeOverlay.classList.contains('hidden')) closeKiMergeModal();
       if(!referenceModalOverlay.classList.contains('hidden')) closeReferenceModal();
     }
   });
@@ -3810,6 +4437,7 @@ document.addEventListener('DOMContentLoaded', function(){
     showStorageBanner('Lokaler Speicher ist in dieser Ansicht nicht verfügbar (z. B. privater/Inkognito-Modus). Daten werden nicht dauerhaft gespeichert. Bitte im normalen Browser-Tab öffnen.');
   }
   updateFileSyncStatus(); /* Hybrid-Datei-Status beim Start setzen */
+  updateReferenceSelectionBar(); /* KI-Auswahl-Bar initialisieren */
   renderAll();
   renderReferenceAll();
 
