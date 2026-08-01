@@ -2450,6 +2450,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var sfMeta = (raw.successFactorsMeta &&
                   (raw.successFactorsMeta.source === 'default' ||
                    raw.successFactorsMeta.source === 'manual'  ||
+                   raw.successFactorsMeta.source === 'auto'    ||
                    raw.successFactorsMeta.source === 'ai'))
       ? raw.successFactorsMeta
       : { source: 'manual', evaluatedAt: null };
@@ -2894,10 +2895,11 @@ document.addEventListener('DOMContentLoaded', function(){
         sfMetaForSave = { source: 'manual', evaluatedAt: new Date().toISOString() };
       }
     } else {
-      /* Neuer Pin: Baseline ist der leere Zustand (alle Faktoren false),
-         wie er beim Öffnen des Formulars für neue Pins angezeigt wird. */
-      if(successFactorsEqual({}, formData.successFactors)){
-        sfMetaForSave = { source: 'default', evaluatedAt: null };
+      /* Neuer Pin: Baseline ist die automatische Erkennung aus Titel/Beschreibung
+         (dieselbe Logik, die im Formular live vorschlägt). */
+      var autoBaseline = detectSuccessFactors(formData.title, formData.description);
+      if(successFactorsEqual(autoBaseline, formData.successFactors)){
+        sfMetaForSave = { source: 'auto', evaluatedAt: null };
       } else {
         sfMetaForSave = { source: 'manual', evaluatedAt: new Date().toISOString() };
       }
@@ -3021,6 +3023,7 @@ document.addEventListener('DOMContentLoaded', function(){
       whyILikeIt: original.whyILikeIt,
       wouldRebuild: original.wouldRebuild,
       successFactors: Object.assign({}, original.successFactors),
+      successFactorsMeta: getSuccessFactorsMeta(original),
       imageStyle: original.imageStyle.slice(),
       colorScheme: original.colorScheme.slice(),
       image: original.image || null,
@@ -4089,6 +4092,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(pin.successFactorsMeta &&
        (pin.successFactorsMeta.source === 'default' ||
         pin.successFactorsMeta.source === 'manual'  ||
+        pin.successFactorsMeta.source === 'auto'    ||
         pin.successFactorsMeta.source === 'ai')){
       return pin.successFactorsMeta;
     }
@@ -4128,11 +4132,11 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     /* successFactors – delta, beide Richtungen.
-       Ist source === "default": erste KI-Bewertung → kein Konflikt, angehakt.
+       Ist source === "default" oder "auto": erste KI-Bewertung → kein Konflikt, angehakt.
        Ist source === "manual" oder "ai": echter Konflikt → nicht angehakt. */
     if(update.successFactors && typeof update.successFactors === 'object'){
       var sfMeta = getSuccessFactorsMeta(pin);
-      var sfIsDefault = sfMeta.source === 'default';
+      var sfIsDefault = (sfMeta.source === 'default' || sfMeta.source === 'auto');
       sfKeys.forEach(function(key){
         if(typeof update.successFactors[key] !== 'boolean') return;
         var currentVal = !!(pin.successFactors && pin.successFactors[key]);
