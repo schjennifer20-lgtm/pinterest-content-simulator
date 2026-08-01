@@ -1196,8 +1196,8 @@
             <option value="yes">Nur „würde ich nachbauen"</option>
             <option value="no">Nur „würde ich nicht nachbauen"</option>
           </select>
-          <select id="ref-filter-score" aria-label="Nach Score filtern">
-            <option value="">Score: Alle</option>
+          <select id="ref-filter-score" aria-label="Nach Muster-Score filtern">
+            <option value="">Muster-Score: Alle</option>
             <option value="high">Hoch (70–100)</option>
             <option value="mid">Mittel (40–69)</option>
             <option value="low">Niedrig (0–39)</option>
@@ -1375,7 +1375,7 @@
       <label for="reference-target-audience">Zielgruppe (KI-Vorschlag)</label>
       <input type="text" id="reference-target-audience" maxlength="200" placeholder="z. B. Frauen 25–40, Interesse an Selfcare">
 
-      <label for="reference-quality-score">Qualitätsscore (0–100, KI-Vorschlag)</label>
+      <label for="reference-quality-score">KI-Qualitätsscore (0–100)</label>
       <input type="number" id="reference-quality-score" min="0" max="100" step="1" placeholder="z. B. 78">
 
       <label for="reference-reasoning">KI-Begründung</label>
@@ -3411,7 +3411,7 @@ document.addEventListener('DOMContentLoaded', function(){
       imageHtml +
       '<div class="pin-card-top">' +
         statusBadge +
-        '<span class="score-chip tier-' + tier + '">' + pin.score.total + '</span>' +
+        '<span class="score-chip tier-' + tier + '" title="Muster-Score: Anteil erfüllter Erfolgsfaktoren">' + pin.score.total + '</span>' +
       '</div>' +
       '<h3 class="pin-title">' + escapeHtml(pin.title) + '</h3>' +
       descHtml +
@@ -3593,8 +3593,8 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     var score = calculateReferenceScore(factors);
     referenceScorePreview.innerHTML =
-      '<div class="score-preview-title">Referenz-Score</div>' +
-      '<div class="score-preview-row"><span class="score-chip tier-' + scoreTier(score) + '">' + score + '</span><span>Muster-Übereinstimmung</span></div>';
+      '<div class="score-preview-title">Muster-Score</div>' +
+      '<div class="score-preview-row"><span class="score-chip tier-' + scoreTier(score) + '" title="Muster-Score: Anteil erfüllter Erfolgsfaktoren">' + score + '</span><span>Muster-Übereinstimmung</span></div>';
   }
 
   function updateAutoDetectedFactors(){
