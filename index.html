@@ -1210,7 +1210,7 @@
 
       <div class="ref-select-bar" id="ref-select-bar">
         <span class="ref-select-count" id="ref-select-count">Kein Pin ausgewählt</span>
-        <button type="button" id="ki-export-btn" disabled>🤖 Für KI exportieren</button>
+        <button type="button" id="ki-export-btn" disabled>🤖 KI-Paket herunterladen</button>
       </div>
 
       <div class="pin-grid" id="reference-pin-grid"></div>
@@ -1788,6 +1788,18 @@ document.addEventListener('DOMContentLoaded', function(){
     var keys = SUCCESS_FACTOR_DEFS.map(function(d){ return d.key; });
     var checkedCount = keys.filter(function(k){ return !!(successFactors && successFactors[k]); }).length;
     return Math.round((checkedCount / keys.length) * 100);
+  }
+
+  /* Vergleicht zwei successFactors-Objekte Key für Key (fehlende Keys = false).
+     Liefert true nur wenn ALLE Keys identisch sind – erkennt so auch den Fall,
+     dass bewusst alle Faktoren auf false gesetzt wurden, als "unverändert". */
+  function successFactorsEqual(a, b){
+    var keys = SUCCESS_FACTOR_DEFS.map(function(d){ return d.key; });
+    for(var i = 0; i < keys.length; i++){
+      var key = keys[i];
+      if(!!(a && a[key]) !== !!(b && b[key])) return false;
+    }
+    return true;
   }
 
   /* ---------- Bild-Upload & Komprimierung (Version 1.2) ----------
@@ -2434,6 +2446,14 @@ document.addEventListener('DOMContentLoaded', function(){
       successFactors[def.key] = !!(raw.successFactors && raw.successFactors[def.key]);
     });
 
+    /* successFactorsMeta durchleiten – fehlt das Feld (alte Backups), Fallback "manual" */
+    var sfMeta = (raw.successFactorsMeta &&
+                  (raw.successFactorsMeta.source === 'default' ||
+                   raw.successFactorsMeta.source === 'manual'  ||
+                   raw.successFactorsMeta.source === 'ai'))
+      ? raw.successFactorsMeta
+      : { source: 'manual', evaluatedAt: null };
+
     var pin = {
       id: genId(),
       title: raw.title.trim(),
@@ -2446,6 +2466,7 @@ document.addEventListener('DOMContentLoaded', function(){
       whyILikeIt: typeof raw.whyILikeIt === 'string' ? raw.whyILikeIt.trim() : '',
       wouldRebuild: !!raw.wouldRebuild,
       successFactors: successFactors,
+      successFactorsMeta: sfMeta,
       imageStyle: imageStyle,
       colorScheme: colorScheme,
       image: isValidImageDataUrl(raw.image) ? raw.image : null,
@@ -2860,6 +2881,28 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function addOrUpdateReferencePin(formData, currentEditingId){
+    /* successFactorsMeta.source nur bei tatsächlicher Änderung der successFactors
+       auf "manual" setzen. Andere Felder (Titel, Notizen, etc.) dürfen die
+       bestehende source nicht antasten. */
+    var existingPinForMeta = currentEditingId ? findReferencePinById(currentEditingId) : null;
+    var sfMetaForSave;
+    if(existingPinForMeta){
+      /* Update eines vorhandenen Pins: Vergleich gegen zuletzt gespeicherten Stand */
+      if(successFactorsEqual(existingPinForMeta.successFactors, formData.successFactors)){
+        sfMetaForSave = getSuccessFactorsMeta(existingPinForMeta); /* unverändert -> bestehende Meta beibehalten (inkl. konservativem Fallback für alte Pins) */
+      } else {
+        sfMetaForSave = { source: 'manual', evaluatedAt: new Date().toISOString() };
+      }
+    } else {
+      /* Neuer Pin: Baseline ist der leere Zustand (alle Faktoren false),
+         wie er beim Öffnen des Formulars für neue Pins angezeigt wird. */
+      if(successFactorsEqual({}, formData.successFactors)){
+        sfMetaForSave = { source: 'default', evaluatedAt: null };
+      } else {
+        sfMetaForSave = { source: 'manual', evaluatedAt: new Date().toISOString() };
+      }
+    }
+
     var base = {
       title: formData.title.trim(),
       description: formData.description.trim(),
@@ -2871,6 +2914,7 @@ document.addEventListener('DOMContentLoaded', function(){
       whyILikeIt: formData.whyILikeIt.trim(),
       wouldRebuild: !!formData.wouldRebuild,
       successFactors: formData.successFactors,
+      successFactorsMeta: sfMetaForSave,
       imageStyle: formData.imageStyle.slice(),
       colorScheme: formData.colorScheme.slice(),
       image: formData.image || null,
@@ -2903,6 +2947,7 @@ document.addEventListener('DOMContentLoaded', function(){
           whyILikeIt: base.whyILikeIt,
           wouldRebuild: base.wouldRebuild,
           successFactors: base.successFactors,
+          successFactorsMeta: base.successFactorsMeta,
           imageStyle: base.imageStyle,
           colorScheme: base.colorScheme,
           image: base.image,
@@ -2933,6 +2978,7 @@ document.addEventListener('DOMContentLoaded', function(){
         whyILikeIt: base.whyILikeIt,
         wouldRebuild: base.wouldRebuild,
         successFactors: base.successFactors,
+        successFactorsMeta: base.successFactorsMeta,
         imageStyle: base.imageStyle,
         colorScheme: base.colorScheme,
         image: base.image,
@@ -3014,6 +3060,7 @@ document.addEventListener('DOMContentLoaded', function(){
       whyILikeIt: original.whyILikeIt,
       wouldRebuild: original.wouldRebuild,
       successFactors: defaultFactors,        /* bewusst alle false – KI soll unabhängig bewerten */
+      successFactorsMeta: { source: 'default', evaluatedAt: null }, /* noch nie bewertet */
       imageStyle: [],                        /* bewusst leer */
       colorScheme: [],                       /* bewusst leer */
       image: original.image || null,
@@ -3810,6 +3857,15 @@ document.addEventListener('DOMContentLoaded', function(){
     var exportFilename = 'ki-export-' + dateStr + '.json';
 
     return [
+      'Pinterest Content Simulator',
+      'KI-Analysepaket',
+      '',
+      'Batch-ID:                  ' + envelope.batchId,
+      'Anzahl Pins:               ' + envelope.pinCount,
+      'Exportdatum:               ' + dateStr,
+      'Exportdatei:               ki-export-' + dateStr + '.json',
+      'Erwartete Rückgabedatei:   ki-rueckgabe-' + dateStr + '.json',
+      '',
       '=============================================================',
       'ANALYSEAUFTRAG FÜR CHATGPT – Pinterest Content Simulator',
       '=============================================================',
@@ -4026,6 +4082,19 @@ document.addEventListener('DOMContentLoaded', function(){
     return { valid:true };
   }
 
+  /* Liefert successFactorsMeta eines Pins sicher zurück.
+     Alte Pins ohne dieses Feld erhalten konservativ source="manual",
+     damit bestehende Bewertungen niemals unbemerkt durch KI überschrieben werden. */
+  function getSuccessFactorsMeta(pin){
+    if(pin.successFactorsMeta &&
+       (pin.successFactorsMeta.source === 'default' ||
+        pin.successFactorsMeta.source === 'manual'  ||
+        pin.successFactorsMeta.source === 'ai')){
+      return pin.successFactorsMeta;
+    }
+    return { source: 'manual', evaluatedAt: null }; /* Fallback für alte Pins */
+  }
+
   function buildKiMergeRows(pin, update){
     /* Gibt Array von Merge-Zeilen zurück, jede mit: field, label, oldVal, newVal, isConflict, checkedDefault, display-Strings */
     var rows = [];
@@ -4058,15 +4127,20 @@ document.addEventListener('DOMContentLoaded', function(){
       }
     }
 
-    /* successFactors – delta, beide Richtungen, Konflikte nicht angehakt */
+    /* successFactors – delta, beide Richtungen.
+       Ist source === "default": erste KI-Bewertung → kein Konflikt, angehakt.
+       Ist source === "manual" oder "ai": echter Konflikt → nicht angehakt. */
     if(update.successFactors && typeof update.successFactors === 'object'){
+      var sfMeta = getSuccessFactorsMeta(pin);
+      var sfIsDefault = sfMeta.source === 'default';
       sfKeys.forEach(function(key){
         if(typeof update.successFactors[key] !== 'boolean') return;
         var currentVal = !!(pin.successFactors && pin.successFactors[key]);
         var newVal = update.successFactors[key];
         if(currentVal !== newVal){
           var label = (SUCCESS_FACTOR_DEFS.find(function(d){ return d.key === key; }) || { label: key }).label;
-          rows.push({ field:'successFactors.' + key, label:'✓ ' + label, oldVal: currentVal ? 'true' : 'false', newVal: newVal ? 'true' : 'false', mergeValue: newVal, isConflict: true, checkedDefault: false });
+          var isConflict = !sfIsDefault;
+          rows.push({ field:'successFactors.' + key, label:'✓ ' + label, oldVal: currentVal ? 'true' : 'false', newVal: newVal ? 'true' : 'false', mergeValue: newVal, isConflict: isConflict, checkedDefault: sfIsDefault });
         }
       });
     }
@@ -4223,6 +4297,7 @@ document.addEventListener('DOMContentLoaded', function(){
           if(sfKeys.indexOf(sfKey) !== -1 && typeof update.successFactors[sfKey] === 'boolean'){
             pin.successFactors = pin.successFactors || {};
             pin.successFactors[sfKey] = update.successFactors[sfKey];
+            pin._sfChanged = true; /* intern: mindestens ein SF-Wert wurde übernommen */
             pinChanged = true;
           }
         } else if(field === 'targetAudience'){
@@ -4240,8 +4315,18 @@ document.addEventListener('DOMContentLoaded', function(){
         pin.batchId = batchId;
         pin.updatedAt = now;
         pin.score = { total: calculateReferenceScore(pin.successFactors) };
+        /* successFactorsMeta auf "ai" setzen wenn SF-Werte übernommen wurden */
+        if(pin._sfChanged){
+          pin.successFactorsMeta = {
+            source: 'ai',
+            evaluatedAt: kiData.evaluatedAt || new Date(now).toISOString()
+          };
+          delete pin._sfChanged;
+        }
         referencePins[idx] = pin;
         mergedCount++;
+      } else {
+        delete pin._sfChanged;
       }
     });
 
