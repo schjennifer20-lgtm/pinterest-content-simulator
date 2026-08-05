@@ -2455,6 +2455,19 @@ document.addEventListener('DOMContentLoaded', function(){
       ? raw.successFactorsMeta
       : { source: 'manual', evaluatedAt: null };
 
+    /* KI-Workflow-Felder – analog zur sfMeta-Validierung oben.
+       Fehlen die Felder (alte Backups) oder sind sie ungültig: konservativer Fallback null. */
+    var status = (raw.status === 'unbearbeitet' || raw.status === 'ki-bewertet') ? raw.status : null;
+
+    var qualityScore = (typeof raw.qualityScore === 'number' && Number.isInteger(raw.qualityScore) &&
+                         raw.qualityScore >= 0 && raw.qualityScore <= 100) ? raw.qualityScore : null;
+
+    var aiAnalyzedAt = typeof raw.aiAnalyzedAt === 'number' ? raw.aiAnalyzedAt : null;
+
+    var batchId = (typeof raw.batchId === 'string' && raw.batchId.trim()) ? raw.batchId.trim() : null;
+
+    var reasoning = (typeof raw.reasoning === 'string' && raw.reasoning.trim()) ? raw.reasoning.trim() : null;
+
     var pin = {
       id: genId(),
       title: raw.title.trim(),
@@ -2470,6 +2483,11 @@ document.addEventListener('DOMContentLoaded', function(){
       successFactorsMeta: sfMeta,
       imageStyle: imageStyle,
       colorScheme: colorScheme,
+      status: status,
+      qualityScore: qualityScore,
+      aiAnalyzedAt: aiAnalyzedAt,
+      batchId: batchId,
+      reasoning: reasoning,
       image: isValidImageDataUrl(raw.image) ? raw.image : null,
       imageName: typeof raw.imageName === 'string' ? raw.imageName : '',
       imageType: typeof raw.imageType === 'string' ? raw.imageType : '',
