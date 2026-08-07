@@ -249,6 +249,43 @@
     font-size:.85rem;
   }
 
+  .learnings-list{
+    display:flex;
+    flex-direction:column;
+    gap:.6rem;
+    margin-top:.6rem;
+  }
+  .learning-item{
+    background:var(--card);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.7rem .9rem;
+  }
+  .learning-item-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.6rem;
+    flex-wrap:wrap;
+    margin-bottom:.4rem;
+  }
+  .learning-item-title{
+    font-weight:700;
+    color:var(--ink);
+    font-size:.92rem;
+  }
+  .learning-item-field{
+    font-size:.85rem;
+    color:var(--ink);
+    margin:.2rem 0;
+  }
+  .learning-item-field strong{ color:var(--muted); font-weight:700; }
+  .learning-item-actions{
+    display:flex;
+    gap:.5rem;
+    margin-top:.5rem;
+  }
+
   .backup-actions{
     display:flex;
     flex-wrap:wrap;
@@ -330,6 +367,10 @@
   .status-bereit{ background:#FCE4E8; color:var(--pin-dark); }
   .status-unbearbeitet{ background:#F0EBF7; color:#6B3FA0; }
   .status-ki-bewertet{ background:#E4EEF7; color:#1A5FA0; }
+  .status-offen{ background:var(--idee-tint); color:var(--idee); }
+  .status-bestaetigt{ background:var(--sage-tint); color:var(--sage); }
+  .status-widerlegt{ background:var(--danger-tint); color:var(--danger); }
+  .status-angepasst{ background:var(--amber-tint); color:var(--amber); }
 
   /* KI-Workflow (Version 1.5) – Auswahl, Export, Merge */
   .ref-select-bar{
@@ -719,7 +760,8 @@
   }
   #pin-form textarea{ resize:vertical; min-height:80px; }
 
-  #reference-form label{
+  #reference-form label,
+  #learning-form label{
     display:block;
     font-size:.78rem;
     font-weight:700;
@@ -728,7 +770,10 @@
   }
   #reference-form input[type="text"],
   #reference-form textarea,
-  #reference-form select{
+  #reference-form select,
+  #learning-form input[type="text"],
+  #learning-form textarea,
+  #learning-form select{
     width:100%;
     padding:.6rem .7rem;
     border:1px solid var(--sand);
@@ -738,6 +783,7 @@
     background:var(--paper);
   }
   #reference-form textarea{ resize:vertical; min-height:70px; }
+  #learning-form textarea{ resize:vertical; min-height:70px; }
   #reference-image{
     padding:.5rem;
     background:var(--paper);
@@ -1116,6 +1162,12 @@
     </div>
 
     <div class="dash-block">
+      <h2>📊 Content-Learnings</h2>
+      <button type="button" id="add-learning-btn">+ Neues Learning</button>
+      <div class="learnings-list" id="learnings-list"></div>
+    </div>
+
+    <div class="dash-block">
       <h2>Backup &amp; Daten</h2>
       <div class="backup-actions">
         <button type="button" id="export-btn">⬇️ Vollständig exportieren</button>
@@ -1389,6 +1441,41 @@
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="learning-modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="learning-modal-title">
+    <div class="modal-header">
+      <h2 id="learning-modal-title">Neues Content-Learning</h2>
+      <button type="button" id="learning-modal-close" aria-label="Schließen">✕</button>
+    </div>
+
+    <form id="learning-form" novalidate>
+      <input type="hidden" id="learning-id">
+
+      <label for="learning-title">Titel *</label>
+      <input type="text" id="learning-title" maxlength="150" required>
+
+      <label for="learning-observation">Beobachtung</label>
+      <textarea id="learning-observation" rows="3" maxlength="800"></textarea>
+
+      <label for="learning-hypothesis">Hypothese</label>
+      <textarea id="learning-hypothesis" rows="3" maxlength="800"></textarea>
+
+      <label for="learning-status">Status</label>
+      <select id="learning-status">
+        <option value="offen">Offen</option>
+        <option value="bestaetigt">Bestätigt</option>
+        <option value="widerlegt">Widerlegt</option>
+        <option value="angepasst">Angepasst</option>
+      </select>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" id="learning-cancel-btn">Abbrechen</button>
+        <button type="submit" class="btn-primary">Learning speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="detail-overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
     <div class="modal-header">
@@ -1466,6 +1553,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var KI_EXPORT_VERSION = '1.0';
   var REPLACE_BACKUP_KEY = 'pinSimulatorLastReplaceBackupV1';
   var REFERENCE_STORAGE_KEY = 'pinSimulatorReferencePinsV1';
+  var LEARNING_STORAGE_KEY = 'pinSimulatorContentLearningsV1';
 
   var STATUS_LABELS = { idee:'Idee', entwurf:'Entwurf', optimiert:'Optimiert', bereit:'Bereit zum Posten' };
   var STATUS_CARD_LABELS = { idee:'💡 Idee', entwurf:'📝 Entwurf', optimiert:'✅ Optimiert', bereit:'🚀 Bereit' };
@@ -1508,6 +1596,11 @@ document.addEventListener('DOMContentLoaded', function(){
   var IMAGE_STYLE_OPTIONS = ['Minimalistisch','Cozy','Clean','Modern','Natürlich','Hell','Dunkel'];
   var COLOR_SCHEME_OPTIONS = ['Beige','Weiß','Pastell','Grün','Rosa','Neutral','Bunt'];
 
+  /* ---------- Content-Learnings (Version 1.6) ---------- */
+
+  var LEARNING_STATUS_ORDER = ['offen','bestaetigt','widerlegt','angepasst'];
+  var LEARNING_STATUS_LABELS = { offen:'Offen', bestaetigt:'Bestätigt', widerlegt:'Widerlegt', angepasst:'Angepasst' };
+
   var HOWTO_WORDS = ['how-to','howto','anleitung','schritt für schritt','tutorial',"so geht's",'so geht','in schritten','wie du','wie man'];
   var LIST_NOUN_WORDS = ['tipps','ideen','wege','dinge','gründe','schritte','hacks','regeln','tricks'];
   var CHECKLIST_WORDS = ['checkliste','checklist','to-do','todo'];
@@ -1517,6 +1610,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   var pins = [];
   var referencePins = [];
+  var contentLearnings = [];
   var pinDbMode = 'own';
 
   var editingId = null;
@@ -1534,6 +1628,11 @@ document.addEventListener('DOMContentLoaded', function(){
   var referenceImageProcessing = false;
   var pendingImportReferencePins = null;
 
+  var editingLearningId = null;
+  var pendingLearningDeleteId = null;
+  var pendingLearningDeleteTimeout = null;
+  var pendingImportContentLearnings = null; /* null = Feld fehlte in Importdatei, Array = Feld vorhanden */
+
   /* KI-Workflow (Version 1.5) */
   var selectedReferenceIds = {};    /* { id: true } – ausgewählte Referenz-Pins */
   var pendingKiMergeData = null;    /* validierte KI-Rückgabe, wartet auf Bestätigung */
@@ -1550,6 +1649,19 @@ document.addEventListener('DOMContentLoaded', function(){
   var dashStats = document.getElementById('dash-stats');
   var statusOverview = document.getElementById('status-overview');
   var lowScoreList = document.getElementById('low-score-list');
+
+  var learningsList = document.getElementById('learnings-list');
+  var addLearningBtn = document.getElementById('add-learning-btn');
+  var learningModalOverlay = document.getElementById('learning-modal-overlay');
+  var learningModalTitleEl = document.getElementById('learning-modal-title');
+  var learningModalCloseBtn = document.getElementById('learning-modal-close');
+  var learningCancelBtn = document.getElementById('learning-cancel-btn');
+  var learningForm = document.getElementById('learning-form');
+  var learningIdField = document.getElementById('learning-id');
+  var learningTitleInput = document.getElementById('learning-title');
+  var learningObservationInput = document.getElementById('learning-observation');
+  var learningHypothesisInput = document.getElementById('learning-hypothesis');
+  var learningStatusSelect = document.getElementById('learning-status');
 
   var searchInput = document.getElementById('search-input');
   var filterCategory = document.getElementById('filter-category');
@@ -2073,6 +2185,34 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  function loadContentLearnings(){
+    try{
+      var raw = localStorage.getItem(LEARNING_STORAGE_KEY);
+      var parsed = raw ? JSON.parse(raw) : [];
+      contentLearnings = Array.isArray(parsed) ? parsed : [];
+    }catch(e){
+      console.error('Fehler beim Laden der Content-Learnings aus localStorage:', e);
+      contentLearnings = [];
+      showStorageBanner('Gespeicherte Content-Learnings konnten nicht geladen werden. Der lokale Speicher ist in dieser Ansicht eingeschränkt (z. B. privater/Inkognito-Modus).');
+    }
+  }
+
+  function saveContentLearnings(){
+    try{
+      localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(contentLearnings));
+    }catch(e){
+      console.error('Fehler beim Speichern der Content-Learnings in localStorage:', e);
+      showStorageBanner('Speichern der Content-Learnings fehlgeschlagen. Der Speicher ist eventuell eingeschränkt oder voll.');
+    }
+    /* Hybrid-Modus: contentLearnings ist Teil derselben gemeinsamen reference-pins.json
+       wie die Referenz-Pins (siehe buildExportEnvelope/writeReferenceFile). */
+    if(refFileHandle){
+      writeReferenceFile().catch(function(err){
+        console.error('Datei-Sync fehlgeschlagen (localStorage ist aktuell):', err);
+      });
+    }
+  }
+
   /* ---------- Hybrid-Dateiverbindung – File System Access API (Variante B) ---------- */
 
   /* Prüft ob die File System Access API verfügbar ist (Chrome/Edge ≥ 86, Safari ≥ 15.2).
@@ -2177,8 +2317,14 @@ document.addEventListener('DOMContentLoaded', function(){
         /* Datei ist die Quelle der Wahrheit – Referenz-Pins aus Datei übernehmen */
         var incoming = pendingImportReferencePins || [];
         referencePins = incoming;
+        /* Content-Learnings: nur übernehmen, wenn die Datei das Feld tatsächlich enthält.
+           Fehlt es (ältere reference-pins.json ohne Learnings), bleibt der lokale Stand erhalten. */
+        if(pendingImportContentLearnings !== null){
+          contentLearnings = pendingImportContentLearnings;
+        }
         pendingImportPins = null;
         pendingImportReferencePins = null;
+        pendingImportContentLearnings = null;
         pendingImportMeta = null;
         /* Handle und Berechtigung sicherstellen */
         return handle.requestPermission({ mode: 'readwrite' }).then(function(){
@@ -2186,11 +2332,13 @@ document.addEventListener('DOMContentLoaded', function(){
           /* localStorage auf Stand der Datei bringen */
           try{
             localStorage.setItem(REFERENCE_STORAGE_KEY, JSON.stringify(referencePins));
+            localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(contentLearnings));
           }catch(e){
             console.error('localStorage-Sync nach Datei-Verbindung fehlgeschlagen:', e);
           }
           updateFileSyncStatus();
           renderReferenceAll();
+          renderLearningsList();
           showStorageBanner(
             'Verbunden mit ' + handle.name + ' – ' + referencePins.length + ' Referenz-Pin(s) geladen.',
             'success'
@@ -2231,7 +2379,8 @@ document.addEventListener('DOMContentLoaded', function(){
       pinCount: pins.length,
       referencePinCount: referencePins.length,
       pins: pins,
-      referencePins: referencePins
+      referencePins: referencePins,
+      contentLearnings: contentLearnings
     };
   }
 
@@ -2399,6 +2548,12 @@ document.addEventListener('DOMContentLoaded', function(){
       }
     }
 
+    /* contentLearnings ist optional (ältere Backups kennen das Feld nicht) –
+       ist es vorhanden, muss es aber ein Array sein. */
+    if(parsed.contentLearnings !== undefined && !Array.isArray(parsed.contentLearnings)){
+      return { valid: false, error: 'Die Datei enthält ein ungültiges Content-Learnings-Format.' };
+    }
+
     return { valid: true };
   }
 
@@ -2499,6 +2654,20 @@ document.addEventListener('DOMContentLoaded', function(){
     return pin;
   }
 
+  function normalizeImportedLearning(raw){
+    var status = LEARNING_STATUS_ORDER.indexOf(raw.status) !== -1 ? raw.status : 'offen';
+
+    return {
+      id: genId(),
+      title: typeof raw.title === 'string' ? raw.title.trim() : '',
+      observation: typeof raw.observation === 'string' ? raw.observation.trim() : '',
+      hypothesis: typeof raw.hypothesis === 'string' ? raw.hypothesis.trim() : '',
+      status: status,
+      createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : Date.now(),
+      updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : Date.now()
+    };
+  }
+
   function renderImportModalContent(){
     var count = pendingImportPins.length;
     var refCount = (pendingImportReferencePins || []).length;
@@ -2588,6 +2757,7 @@ document.addEventListener('DOMContentLoaded', function(){
     document.body.classList.remove('modal-open');
     pendingImportPins = null;
     pendingImportReferencePins = null;
+    pendingImportContentLearnings = null;
     pendingImportMeta = null;
     importFileInput.value = '';
   }
@@ -2596,25 +2766,36 @@ document.addEventListener('DOMContentLoaded', function(){
     var importedPins = pendingImportPins;
     if(!importedPins) return;
     var importedReferencePins = pendingImportReferencePins || [];
+    /* pendingImportContentLearnings ist null, wenn die Importdatei das Feld gar nicht enthielt
+       (altes Backup) – in diesem Fall bleibt der bestehende Learnings-Stand unangetastet. */
+    var importedContentLearnings = pendingImportContentLearnings;
 
     if(mode === 'replace'){
       try{
-        localStorage.setItem(REPLACE_BACKUP_KEY, JSON.stringify({ pins: pins, referencePins: referencePins }));
+        localStorage.setItem(REPLACE_BACKUP_KEY, JSON.stringify({ pins: pins, referencePins: referencePins, contentLearnings: contentLearnings }));
       }catch(e){
         console.error('Sicherheitskopie vor dem Ersetzen fehlgeschlagen:', e);
       }
       pins = importedPins;
       referencePins = importedReferencePins;
+      if(importedContentLearnings !== null){
+        contentLearnings = importedContentLearnings;
+      }
     } else {
       pins = importedPins.concat(pins);
       referencePins = importedReferencePins.concat(referencePins);
+      if(importedContentLearnings !== null){
+        contentLearnings = importedContentLearnings.concat(contentLearnings);
+      }
     }
 
     savePins();
     saveReferencePins();
+    saveContentLearnings();
     closeImportModal();
     renderAll();
     renderReferenceAll();
+    renderLearningsList();
     showStorageBanner(importedPins.length + ' Pin(s) und ' + importedReferencePins.length + ' Referenz-Pin(s) erfolgreich importiert.', 'success');
   }
 
@@ -2647,6 +2828,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
     pendingImportPins = parsed.pins.map(normalizeImportedPin);
     pendingImportReferencePins = rawReferencePins.map(normalizeImportedReferencePin);
+    /* null = Feld fehlte in der Importdatei (altes Backup) -> bestehender Learning-Stand
+       bleibt unangetastet. Array (auch leer) = Feld war vorhanden -> wird übernommen/gemergt. */
+    pendingImportContentLearnings = Array.isArray(parsed.contentLearnings)
+      ? parsed.contentLearnings.map(normalizeImportedLearning)
+      : null;
     pendingImportMeta = {
       pinCount: parsed.pins.length,
       referencePinCount: rawReferencePins.length,
@@ -3103,6 +3289,69 @@ document.addEventListener('DOMContentLoaded', function(){
     return copy.id;
   }
 
+  /* ---------- CRUD Content-Learnings (Version 1.6) ---------- */
+
+  function findLearningById(id){
+    for(var i = 0; i < contentLearnings.length; i++){
+      if(contentLearnings[i].id === id) return contentLearnings[i];
+    }
+    return null;
+  }
+
+  function getLearningFormData(){
+    return {
+      title: learningTitleInput.value,
+      observation: learningObservationInput.value,
+      hypothesis: learningHypothesisInput.value,
+      status: learningStatusSelect.value
+    };
+  }
+
+  function addOrUpdateLearning(formData, currentEditingId){
+    var base = {
+      title: formData.title.trim(),
+      observation: formData.observation.trim(),
+      hypothesis: formData.hypothesis.trim(),
+      status: LEARNING_STATUS_ORDER.indexOf(formData.status) !== -1 ? formData.status : 'offen'
+    };
+
+    if(currentEditingId){
+      var idx = -1;
+      for(var i = 0; i < contentLearnings.length; i++){
+        if(contentLearnings[i].id === currentEditingId){ idx = i; break; }
+      }
+      if(idx > -1){
+        var existing = contentLearnings[idx];
+        contentLearnings[idx] = {
+          id: existing.id,
+          title: base.title,
+          observation: base.observation,
+          hypothesis: base.hypothesis,
+          status: base.status,
+          createdAt: existing.createdAt,
+          updatedAt: Date.now()
+        };
+      }
+    } else {
+      contentLearnings.unshift({
+        id: genId(),
+        title: base.title,
+        observation: base.observation,
+        hypothesis: base.hypothesis,
+        status: base.status,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+    }
+
+    saveContentLearnings();
+  }
+
+  function deleteLearningById(id){
+    contentLearnings = contentLearnings.filter(function(l){ return l.id !== id; });
+    saveContentLearnings();
+  }
+
   /* ---------- Demo-Daten ---------- */
 
   function getDemoPinDefinitions(){
@@ -3274,6 +3523,30 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  function renderLearningsList(){
+    if(contentLearnings.length === 0){
+      learningsList.innerHTML = '<p class="empty-hint">Noch keine Content-Learnings vorhanden. Lege dein erstes Learning mit „+ Neues Learning" an.</p>';
+      return;
+    }
+
+    var sorted = contentLearnings.slice().sort(function(a, b){ return b.updatedAt - a.updatedAt; });
+
+    learningsList.innerHTML = sorted.map(function(l){
+      return '<div class="learning-item" data-id="' + l.id + '">' +
+        '<div class="learning-item-header">' +
+          '<span class="learning-item-title">' + escapeHtml(l.title) + '</span>' +
+          '<span class="badge status-' + l.status + '">' + LEARNING_STATUS_LABELS[l.status] + '</span>' +
+        '</div>' +
+        '<p class="learning-item-field"><strong>Beobachtung:</strong> ' + escapeHtml(l.observation) + '</p>' +
+        '<p class="learning-item-field"><strong>Hypothese:</strong> ' + escapeHtml(l.hypothesis) + '</p>' +
+        '<div class="learning-item-actions">' +
+          '<button type="button" class="icon-btn" data-learning-action="edit" data-id="' + l.id + '">✏️ Bearbeiten</button>' +
+          '<button type="button" class="icon-btn danger" data-learning-action="delete" data-id="' + l.id + '">🗑️ Löschen</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
   /* ---------- Rendering: Pin-Grid ---------- */
 
   function renderPinCard(pin){
@@ -3370,6 +3643,7 @@ document.addEventListener('DOMContentLoaded', function(){
     updateFilterCategoryOptions();
     renderDashboard();
     renderPinGrid();
+    renderLearningsList();
   }
 
   /* ---------- Referenz-Pins: Filter & Rendering (Version 1.4) ---------- */
@@ -3683,6 +3957,28 @@ document.addEventListener('DOMContentLoaded', function(){
     updateReferenceImagePreview();
   }
 
+  function openLearningModal(learning){
+    editingLearningId = learning ? learning.id : null;
+    learningModalTitleEl.textContent = learning ? 'Content-Learning bearbeiten' : 'Neues Content-Learning';
+
+    learningIdField.value = learning ? learning.id : '';
+    learningTitleInput.value = learning ? learning.title : '';
+    learningObservationInput.value = learning ? learning.observation : '';
+    learningHypothesisInput.value = learning ? learning.hypothesis : '';
+    learningStatusSelect.value = learning ? learning.status : 'offen';
+
+    learningModalOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    learningTitleInput.focus();
+  }
+
+  function closeLearningModal(){
+    learningModalOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    editingLearningId = null;
+    learningForm.reset();
+  }
+
   function openDetailModal(pin){
     var kwScore = getKeywordScore(pin);
     var ctaScore = getCtaScore(pin);
@@ -3836,6 +4132,35 @@ document.addEventListener('DOMContentLoaded', function(){
         pendingReferenceDeleteTimeout = setTimeout(function(){
           pendingReferenceDeleteId = null;
           pendingReferenceDeleteTimeout = null;
+          btn.textContent = '🗑️ Löschen';
+        }, 3000);
+      }
+    }
+  }
+
+  function handleLearningGridAction(e){
+    var btn = e.target.closest('[data-learning-action]');
+    if(!btn) return;
+
+    var id = btn.getAttribute('data-id');
+    var action = btn.getAttribute('data-learning-action');
+
+    if(action === 'edit'){
+      var learning = findLearningById(id);
+      if(learning) openLearningModal(learning);
+    } else if(action === 'delete'){
+      if(pendingLearningDeleteId === id){
+        if(pendingLearningDeleteTimeout){ clearTimeout(pendingLearningDeleteTimeout); pendingLearningDeleteTimeout = null; }
+        pendingLearningDeleteId = null;
+        deleteLearningById(id);
+        renderLearningsList();
+      } else {
+        if(pendingLearningDeleteTimeout){ clearTimeout(pendingLearningDeleteTimeout); pendingLearningDeleteTimeout = null; }
+        pendingLearningDeleteId = id;
+        btn.textContent = '❗ Wirklich löschen?';
+        pendingLearningDeleteTimeout = setTimeout(function(){
+          pendingLearningDeleteId = null;
+          pendingLearningDeleteTimeout = null;
           btn.textContent = '🗑️ Löschen';
         }, 3000);
       }
@@ -4449,6 +4774,30 @@ document.addEventListener('DOMContentLoaded', function(){
 
   referencePinGrid.addEventListener('click', handleReferenceGridAction);
 
+  learningsList.addEventListener('click', handleLearningGridAction);
+
+  addLearningBtn.addEventListener('click', function(){
+    openLearningModal(null);
+  });
+
+  learningModalCloseBtn.addEventListener('click', closeLearningModal);
+  learningCancelBtn.addEventListener('click', closeLearningModal);
+
+  learningModalOverlay.addEventListener('click', function(e){
+    if(e.target === learningModalOverlay) closeLearningModal();
+  });
+
+  learningForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!learningTitleInput.value.trim()){
+      learningTitleInput.focus();
+      return;
+    }
+    addOrUpdateLearning(getLearningFormData(), editingLearningId);
+    closeLearningModal();
+    renderLearningsList();
+  });
+
   fab.addEventListener('click', function(){
     if(pinDbMode === 'reference'){
       openReferenceModal(null);
@@ -4684,6 +5033,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   loadPins();
   loadReferencePins();
+  loadContentLearnings();
   if(!storageIssueShown && !isLocalStorageAvailable()){
     showStorageBanner('Lokaler Speicher ist in dieser Ansicht nicht verfügbar (z. B. privater/Inkognito-Modus). Daten werden nicht dauerhaft gespeichert. Bitte im normalen Browser-Tab öffnen.');
   }
