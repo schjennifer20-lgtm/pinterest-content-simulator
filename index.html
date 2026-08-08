@@ -2148,12 +2148,19 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
-  function savePins(){
+  function savePins(skipFileSync){
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
     }catch(e){
       console.error('Fehler beim Speichern der Pins in localStorage:', e);
       showStorageBanner('Speichern fehlgeschlagen. Mögliche Ursachen: privater/Inkognito-Modus, oder der Browser-Speicher ist voll. Bitte den Inkognito-Modus deaktivieren.');
+    }
+    /* Hybrid-Modus: falls Datei verbunden, auch direkt in Datei schreiben (nachgelagert,
+       localStorage ist bereits gesichert und bleibt die primäre Quelle) */
+    if(!skipFileSync && refFileHandle){
+      writeReferenceFile().catch(function(err){
+        console.error('Datei-Sync fehlgeschlagen (localStorage ist aktuell):', err);
+      });
     }
   }
 
@@ -2169,7 +2176,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
-  function saveReferencePins(){
+  function saveReferencePins(skipFileSync){
     try{
       localStorage.setItem(REFERENCE_STORAGE_KEY, JSON.stringify(referencePins));
     }catch(e){
@@ -2178,7 +2185,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     /* Hybrid-Modus: falls Datei verbunden, auch direkt in Datei schreiben (nachgelagert,
        localStorage ist bereits gesichert und bleibt die primäre Quelle) */
-    if(refFileHandle){
+    if(!skipFileSync && refFileHandle){
       writeReferenceFile().catch(function(err){
         console.error('Datei-Sync fehlgeschlagen (localStorage ist aktuell):', err);
       });
@@ -2197,7 +2204,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
-  function saveContentLearnings(){
+  function saveContentLearnings(skipFileSync){
     try{
       localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(contentLearnings));
     }catch(e){
@@ -2206,7 +2213,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     /* Hybrid-Modus: contentLearnings ist Teil derselben gemeinsamen reference-pins.json
        wie die Referenz-Pins (siehe buildExportEnvelope/writeReferenceFile). */
-    if(refFileHandle){
+    if(!skipFileSync && refFileHandle){
       writeReferenceFile().catch(function(err){
         console.error('Datei-Sync fehlgeschlagen (localStorage ist aktuell):', err);
       });
@@ -2789,9 +2796,17 @@ document.addEventListener('DOMContentLoaded', function(){
       }
     }
 
-    savePins();
-    saveReferencePins();
-    saveContentLearnings();
+    savePins(true);
+    saveReferencePins(true);
+    saveContentLearnings(true);
+    /* Gebündelter Datei-Sync: ein einziger writeReferenceFile()-Aufruf statt drei
+       parallelen (savePins/saveReferencePins/saveContentLearnings schreiben ohnehin
+       denselben gemeinsamen Envelope). */
+    if(refFileHandle){
+      writeReferenceFile().catch(function(err){
+        console.error('Datei-Sync fehlgeschlagen (localStorage ist aktuell):', err);
+      });
+    }
     closeImportModal();
     renderAll();
     renderReferenceAll();
