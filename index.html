@@ -4044,6 +4044,17 @@ document.addEventListener('DOMContentLoaded', function(){
     learningForm.reset();
   }
 
+  /* Wandelt einen gespeicherten publishedAt-Wert (z. B. "2026-08-17T19:00") ausschließlich
+     für die Anzeige in das deutsche Format "17.08.2026 · 19:00 Uhr" um. Der gespeicherte
+     Wert selbst bleibt unverändert. Gibt bei ungültigem/fehlendem Wert null zurück. */
+  function formatPublishedAtDisplay(publishedAt){
+    if(typeof publishedAt !== 'string') return null;
+    var match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(publishedAt);
+    if(!match) return null;
+    var year = match[1], month = match[2], day = match[3], hour = match[4], minute = match[5];
+    return day + '.' + month + '.' + year + ' · ' + hour + ':' + minute + ' Uhr';
+  }
+
   function openDetailModal(pin){
     var kwScore = getKeywordScore(pin);
     var ctaScore = getCtaScore(pin);
@@ -4072,11 +4083,15 @@ document.addEventListener('DOMContentLoaded', function(){
     metaParts.push(STATUS_LABELS[pin.status]);
     if(pin.category) metaParts.push(escapeHtml(pin.category));
 
+    var publishedDisplay = pin.status === 'veroeffentlicht' ? formatPublishedAtDisplay(pin.publishedAt) : null;
+    var publishedHtml = publishedDisplay ? '<p class="detail-pin-meta">📅 Veröffentlicht am ' + publishedDisplay + '</p>' : '';
+
     var detailImageHtml = pin.image ? '<div class="detail-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
 
     detailContent.innerHTML =
       '<h3 class="detail-pin-title">' + escapeHtml(pin.title) + '</h3>' +
       '<p class="detail-pin-meta">' + metaParts.join(' · ') + '</p>' +
+      publishedHtml +
       detailImageHtml +
       '<div class="detail-score-grid">' + scoreHtml + '</div>' +
       '<div class="detail-section">' +
