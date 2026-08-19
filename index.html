@@ -1352,6 +1352,17 @@
         </div>
       </div>
 
+      <div class="form-row hidden" id="pin-scheduled-row">
+        <div class="form-col">
+          <label for="pin-scheduled-date">Geplant für – Datum</label>
+          <input type="date" id="pin-scheduled-date">
+        </div>
+        <div class="form-col">
+          <label for="pin-scheduled-time">Uhrzeit</label>
+          <input type="time" id="pin-scheduled-time">
+        </div>
+      </div>
+
       <label class="checkbox-row" for="pin-evergreen">
         <input type="checkbox" id="pin-evergreen">
         <span>Evergreen-Content (zeitlos, nicht saisongebunden)</span>
@@ -1723,6 +1734,9 @@ document.addEventListener('DOMContentLoaded', function(){
   var publishedRow = document.getElementById('pin-published-row');
   var publishedDateInput = document.getElementById('pin-published-date');
   var publishedTimeInput = document.getElementById('pin-published-time');
+  var scheduledRow = document.getElementById('pin-scheduled-row');
+  var scheduledDateInput = document.getElementById('pin-scheduled-date');
+  var scheduledTimeInput = document.getElementById('pin-scheduled-time');
   var evergreenCheckbox = document.getElementById('pin-evergreen');
   var scorePreview = document.getElementById('score-preview');
   var boardDatalist = document.getElementById('board-suggestions');
@@ -2599,6 +2613,7 @@ document.addEventListener('DOMContentLoaded', function(){
       format: (raw.format === 'idea' || raw.format === 'video') ? raw.format : 'standard',
       status: STATUS_ORDER.indexOf(raw.status) !== -1 ? raw.status : 'idee',
       publishedAt: (typeof raw.publishedAt === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw.publishedAt)) ? raw.publishedAt : null,
+      scheduledAt: (typeof raw.scheduledAt === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw.scheduledAt)) ? raw.scheduledAt : null,
       evergreen: !!raw.evergreen,
       image: isValidImageDataUrl(raw.image) ? raw.image : null,
       imageName: typeof raw.imageName === 'string' ? raw.imageName : '',
@@ -2957,6 +2972,8 @@ document.addEventListener('DOMContentLoaded', function(){
       status: statusSelect.value,
       publishedDate: publishedDateInput.value,
       publishedTime: publishedTimeInput.value,
+      scheduledDate: scheduledDateInput.value,
+      scheduledTime: scheduledTimeInput.value,
       evergreen: evergreenCheckbox.checked,
       image: currentImageData ? currentImageData.dataUrl : null,
       imageName: currentImageData ? currentImageData.name : '',
@@ -2976,6 +2993,13 @@ document.addEventListener('DOMContentLoaded', function(){
     return null;
   }
 
+  function computeScheduledAt(formData){
+    if(formData.scheduledDate && formData.scheduledTime){
+      return formData.scheduledDate + 'T' + formData.scheduledTime;
+    }
+    return null;
+  }
+
   function addOrUpdatePin(formData, currentEditingId){
     var base = {
       title: formData.title.trim(),
@@ -2986,6 +3010,7 @@ document.addEventListener('DOMContentLoaded', function(){
       format: formData.format,
       status: formData.status,
       publishedAt: computePublishedAt(formData),
+      scheduledAt: computeScheduledAt(formData),
       evergreen: !!formData.evergreen,
       image: formData.image || null,
       imageName: formData.imageName || '',
@@ -3012,6 +3037,7 @@ document.addEventListener('DOMContentLoaded', function(){
           format: base.format,
           status: base.status,
           publishedAt: base.publishedAt,
+          scheduledAt: base.scheduledAt,
           evergreen: base.evergreen,
           image: base.image,
           imageName: base.imageName,
@@ -3033,6 +3059,7 @@ document.addEventListener('DOMContentLoaded', function(){
         format: base.format,
         status: base.status,
         publishedAt: base.publishedAt,
+        scheduledAt: base.scheduledAt,
         evergreen: base.evergreen,
         image: base.image,
         imageName: base.imageName,
@@ -3834,6 +3861,14 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  function updateScheduledRowVisibility(){
+    if(statusSelect.value === 'geplant'){
+      scheduledRow.classList.remove('hidden');
+    } else {
+      scheduledRow.classList.add('hidden');
+    }
+  }
+
   function updateScorePreview(){
     var data = getFormData();
     var temp = {
@@ -3877,6 +3912,15 @@ document.addEventListener('DOMContentLoaded', function(){
       publishedTimeInput.value = '';
     }
     updatePublishedRowVisibility();
+    if(pin && pin.scheduledAt){
+      var scheduledParts = pin.scheduledAt.split('T');
+      scheduledDateInput.value = scheduledParts[0] || '';
+      scheduledTimeInput.value = scheduledParts[1] || '';
+    } else {
+      scheduledDateInput.value = '';
+      scheduledTimeInput.value = '';
+    }
+    updateScheduledRowVisibility();
     evergreenCheckbox.checked = pin ? !!pin.evergreen : false;
 
     pinImageInput.value = '';
@@ -4086,12 +4130,16 @@ document.addEventListener('DOMContentLoaded', function(){
     var publishedDisplay = pin.status === 'veroeffentlicht' ? formatPublishedAtDisplay(pin.publishedAt) : null;
     var publishedHtml = publishedDisplay ? '<p class="detail-pin-meta">📅 Veröffentlicht am ' + publishedDisplay + '</p>' : '';
 
+    var scheduledDisplay = pin.status === 'geplant' ? formatPublishedAtDisplay(pin.scheduledAt) : null;
+    var scheduledHtml = scheduledDisplay ? '<p class="detail-pin-meta">📅 Geplant für ' + scheduledDisplay + '</p>' : '';
+
     var detailImageHtml = pin.image ? '<div class="detail-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
 
     detailContent.innerHTML =
       '<h3 class="detail-pin-title">' + escapeHtml(pin.title) + '</h3>' +
       '<p class="detail-pin-meta">' + metaParts.join(' · ') + '</p>' +
       publishedHtml +
+      scheduledHtml +
       detailImageHtml +
       '<div class="detail-score-grid">' + scoreHtml + '</div>' +
       '<div class="detail-section">' +
@@ -4992,6 +5040,7 @@ document.addEventListener('DOMContentLoaded', function(){
   pinForm.addEventListener('input', updateScorePreview);
   pinForm.addEventListener('change', updateScorePreview);
   statusSelect.addEventListener('change', updatePublishedRowVisibility);
+  statusSelect.addEventListener('change', updateScheduledRowVisibility);
 
   pinImageInput.addEventListener('change', function(){
     var file = pinImageInput.files && pinImageInput.files[0];
