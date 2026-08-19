@@ -947,6 +947,9 @@
   .schedule-day-row{ align-items:center; }
   .schedule-day-row .checkbox-row{ margin-top:0; flex:1 1 140px; }
   .schedule-day-row .form-col{ flex:0 1 140px; }
+  .schedule-profile-row{ margin-bottom:.6rem; align-items:flex-end; }
+  .schedule-profile-actions{ display:flex; flex-direction:column; }
+  .schedule-profile-actions div{ display:flex; gap:.5rem; flex-wrap:wrap; }
 
   .score-preview{
     margin-top:1.1rem;
@@ -1263,6 +1266,20 @@
         Wochentage und Uhrzeiten, aus denen der Planungsassistent „Neue Pins können geplant werden“ künftige
         Terminvorschläge berechnet. Bereits geplante Pins (<code>scheduledAt</code>) werden dadurch nicht verändert.
       </p>
+      <div class="form-row schedule-profile-row" id="publishing-profile-row">
+        <div class="form-col">
+          <label for="publishing-profile-select">Profil</label>
+          <select id="publishing-profile-select"></select>
+        </div>
+        <div class="form-col schedule-profile-actions">
+          <label>&nbsp;</label>
+          <div>
+            <button type="button" class="btn-secondary" id="publishing-profile-add-btn">+ Neues Profil</button>
+            <button type="button" class="btn-secondary" id="publishing-profile-rename-btn">✏️ Umbenennen</button>
+            <button type="button" class="btn-secondary" id="publishing-profile-delete-btn">🗑️ Löschen</button>
+          </div>
+        </div>
+      </div>
       <div class="schedule-days" id="publishing-schedule-form">
         <div class="form-row schedule-day-row">
           <label class="checkbox-row" for="schedule-day-1"><input type="checkbox" id="schedule-day-1" data-day="1"><span>Montag</span></label>
@@ -1415,6 +1432,15 @@
           <label for="pin-category">Kategorie</label>
           <input type="text" id="pin-category" list="category-suggestions" maxlength="60">
           <datalist id="category-suggestions"></datalist>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-col">
+          <label for="pin-profile">Profil (Account)</label>
+          <select id="pin-profile">
+            <option value="">— kein Profil —</option>
+          </select>
         </div>
       </div>
 
@@ -1861,6 +1887,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var descInput = document.getElementById('pin-description');
   var boardInput = document.getElementById('pin-board');
   var categoryInput = document.getElementById('pin-category');
+  var pinProfileSelect = document.getElementById('pin-profile');
   var keywordsInput = document.getElementById('pin-keywords');
   var formatSelect = document.getElementById('pin-format');
   var statusSelect = document.getElementById('pin-status');
@@ -1907,6 +1934,10 @@ document.addEventListener('DOMContentLoaded', function(){
   var connectRefFileBtn = document.getElementById('connect-ref-file-btn');
   var reconnectRefFileBtn = document.getElementById('reconnect-ref-file-btn');
   var publishingScheduleForm = document.getElementById('publishing-schedule-form');
+  var publishingProfileSelect = document.getElementById('publishing-profile-select');
+  var publishingProfileAddBtn = document.getElementById('publishing-profile-add-btn');
+  var publishingProfileRenameBtn = document.getElementById('publishing-profile-rename-btn');
+  var publishingProfileDeleteBtn = document.getElementById('publishing-profile-delete-btn');
   var refFileSyncStatus = document.getElementById('ref-file-sync-status');
   var refFileSyncIcon = document.getElementById('ref-file-sync-icon');
   var refFileSyncText = document.getElementById('ref-file-sync-text');
@@ -2917,6 +2948,7 @@ document.addEventListener('DOMContentLoaded', function(){
       description: typeof raw.description === 'string' ? raw.description.trim() : '',
       board: typeof raw.board === 'string' ? raw.board.trim() : '',
       category: typeof raw.category === 'string' ? raw.category.trim() : '',
+      profileId: (typeof raw.profileId === 'string' && raw.profileId.trim()) ? raw.profileId.trim() : null,
       keywords: keywords,
       format: (raw.format === 'idea' || raw.format === 'video') ? raw.format : 'standard',
       status: STATUS_ORDER.indexOf(raw.status) !== -1 ? raw.status : 'idee',
@@ -3275,6 +3307,7 @@ document.addEventListener('DOMContentLoaded', function(){
       description: descInput.value,
       board: boardInput.value,
       category: categoryInput.value,
+      profileId: pinProfileSelect.value,
       keywords: keywordsInput.value,
       format: formatSelect.value,
       status: statusSelect.value,
@@ -3314,6 +3347,7 @@ document.addEventListener('DOMContentLoaded', function(){
       description: formData.description.trim(),
       board: formData.board.trim(),
       category: formData.category.trim(),
+      profileId: formData.profileId ? formData.profileId : null,
       keywords: parseKeywords(formData.keywords),
       format: formData.format,
       status: formData.status,
@@ -3341,6 +3375,7 @@ document.addEventListener('DOMContentLoaded', function(){
           description: base.description,
           board: base.board,
           category: base.category,
+          profileId: base.profileId,
           keywords: base.keywords,
           format: base.format,
           status: base.status,
@@ -3363,6 +3398,7 @@ document.addEventListener('DOMContentLoaded', function(){
         description: base.description,
         board: base.board,
         category: base.category,
+        profileId: base.profileId,
         keywords: base.keywords,
         format: base.format,
         status: base.status,
@@ -3403,6 +3439,7 @@ document.addEventListener('DOMContentLoaded', function(){
       description: original.description,
       board: original.board,
       category: original.category,
+      profileId: original.profileId || null,
       keywords: original.keywords.slice(),
       format: original.format,
       status: 'idee',
@@ -4208,6 +4245,8 @@ document.addEventListener('DOMContentLoaded', function(){
     descInput.value = pin ? pin.description : '';
     boardInput.value = pin ? pin.board : '';
     categoryInput.value = pin ? pin.category : '';
+    renderPinProfileOptions();
+    pinProfileSelect.value = pin ? (pin.profileId || '') : (activePublishingProfileId || '');
     keywordsInput.value = pin ? pin.keywords.join(', ') : '';
     formatSelect.value = pin ? pin.format : 'standard';
     statusSelect.value = pin ? pin.status : 'idee';
@@ -4565,12 +4604,15 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
-  /* ---------- Veröffentlichungsplan (konfigurierbarer Rhythmus) ----------
-     Ersetzt die vormals fest codierten Mo/Mi/Sa-19:00-Werte. Struktur:
-     { 0: "HH:MM"|null, 1: "HH:MM"|null, ..., 6: "HH:MM"|null } – Schlüssel = Date.getDay().
-     null bedeutet: dieser Wochentag ist nicht ausgewählt. */
-  var PUBLISHING_SCHEDULE_STORAGE_KEY = 'pinterestSimPublishingSchedule';
+  /* ---------- Veröffentlichungsplan als Profile (konfigurierbarer Rhythmus) ----------
+     Jedes Profil besitzt einen eigenen Plan: { 0: "HH:MM"|null, ..., 6: "HH:MM"|null } –
+     Schlüssel = Date.getDay(), null bedeutet: dieser Wochentag ist nicht ausgewählt.
+     Nur das aktuell ausgewählte Profil bestimmt die Terminvorschläge des Planungsassistenten. */
+  var LEGACY_PUBLISHING_SCHEDULE_STORAGE_KEY = 'pinterestSimPublishingSchedule'; /* nur noch für Migration gelesen */
+  var PUBLISHING_PROFILES_STORAGE_KEY = 'pinterestSimPublishingProfiles';
+  var PUBLISHING_ACTIVE_PROFILE_STORAGE_KEY = 'pinterestSimActivePublishingProfileId';
   var DEFAULT_PUBLISHING_SCHEDULE = { 0: null, 1: '19:00', 2: null, 3: '19:00', 4: null, 5: null, 6: '19:00' };
+  var PUBLISHING_SCHEDULE_DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; /* Mo…So, entspricht der Anzeige-Reihenfolge im Formular */
 
   function cloneDefaultPublishingSchedule(){
     var clone = {};
@@ -4580,49 +4622,124 @@ document.addEventListener('DOMContentLoaded', function(){
     return clone;
   }
 
-  function loadPublishingSchedule(){
+  /* Validiert/normalisiert einen rohen Plan (z. B. aus localStorage) auf das erwartete Format. */
+  function sanitizePublishingSchedule(raw){
+    var schedule = {};
+    for(var day = 0; day <= 6; day++){
+      var value = raw ? raw[day] : undefined;
+      schedule[day] = (typeof value === 'string' && /^\d{2}:\d{2}$/.test(value)) ? value : null;
+    }
+    return schedule;
+  }
+
+  function createPublishingProfile(name, schedule){
+    return { id: genId(), name: name, schedule: schedule || cloneDefaultPublishingSchedule() };
+  }
+
+  /* Lädt die gespeicherten Profile. Existieren noch keine, wird – falls vorhanden – der
+     alte globale Veröffentlichungsplan automatisch als erstes Profil "Standard" übernommen,
+     damit beim Update keine Einstellungen verloren gehen. Existiert auch das nicht, wird
+     ein Standard-Profil mit den bisherigen Default-Werten (Mo/Mi/Sa 19:00) angelegt. */
+  function loadPublishingProfiles(){
     try{
-      var raw = localStorage.getItem(PUBLISHING_SCHEDULE_STORAGE_KEY);
-      if(!raw) return cloneDefaultPublishingSchedule(); /* Standardwert für bestehende/neue Nutzer */
-      var parsed = JSON.parse(raw);
-      var schedule = {};
-      for(var day = 0; day <= 6; day++){
-        var value = parsed ? parsed[day] : undefined;
-        schedule[day] = (typeof value === 'string' && /^\d{2}:\d{2}$/.test(value)) ? value : null;
+      var raw = localStorage.getItem(PUBLISHING_PROFILES_STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length > 0){
+          return parsed.map(function(p){
+            return {
+              id: (p && typeof p.id === 'string' && p.id) ? p.id : genId(),
+              name: (p && typeof p.name === 'string' && p.name.trim()) ? p.name.trim() : 'Profil',
+              schedule: sanitizePublishingSchedule(p && p.schedule)
+            };
+          });
+        }
       }
-      return schedule;
     }catch(e){
-      console.error('Veröffentlichungsplan konnte nicht geladen werden, verwende Standardwerte:', e);
-      return cloneDefaultPublishingSchedule();
+      console.error('Veröffentlichungsprofile konnten nicht geladen werden:', e);
     }
-  }
 
-  function savePublishingSchedule(schedule){
+    /* Migration: bestehenden (globalen) Plan aus der Vorversion als erstes Profil übernehmen */
     try{
-      localStorage.setItem(PUBLISHING_SCHEDULE_STORAGE_KEY, JSON.stringify(schedule));
+      var legacyRaw = localStorage.getItem(LEGACY_PUBLISHING_SCHEDULE_STORAGE_KEY);
+      if(legacyRaw){
+        var legacyParsed = JSON.parse(legacyRaw);
+        return [ createPublishingProfile('Standard', sanitizePublishingSchedule(legacyParsed)) ];
+      }
     }catch(e){
-      console.error('Veröffentlichungsplan konnte nicht gespeichert werden:', e);
+      console.error('Bestehender Veröffentlichungsplan konnte nicht migriert werden:', e);
+    }
+
+    return [ createPublishingProfile('Standard', cloneDefaultPublishingSchedule()) ];
+  }
+
+  function savePublishingProfiles(){
+    try{
+      localStorage.setItem(PUBLISHING_PROFILES_STORAGE_KEY, JSON.stringify(publishingProfiles));
+    }catch(e){
+      console.error('Veröffentlichungsprofile konnten nicht gespeichert werden:', e);
     }
   }
 
-  var publishingSchedule = loadPublishingSchedule();
-  var PUBLISHING_SCHEDULE_DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; /* Mo…So, entspricht der Anzeige-Reihenfolge im Formular */
+  function loadActivePublishingProfileId(){
+    try{
+      var raw = localStorage.getItem(PUBLISHING_ACTIVE_PROFILE_STORAGE_KEY);
+      if(raw && publishingProfiles.some(function(p){ return p.id === raw; })) return raw;
+    }catch(e){
+      console.error('Aktives Veröffentlichungsprofil konnte nicht geladen werden:', e);
+    }
+    return publishingProfiles[0].id;
+  }
 
-  /* Formular aus dem aktuellen publishingSchedule befüllen (z. B. beim Start). */
+  function saveActivePublishingProfileId(){
+    try{
+      localStorage.setItem(PUBLISHING_ACTIVE_PROFILE_STORAGE_KEY, activePublishingProfileId);
+    }catch(e){
+      console.error('Aktives Veröffentlichungsprofil konnte nicht gespeichert werden:', e);
+    }
+  }
+
+  function getActivePublishingProfile(){
+    return publishingProfiles.filter(function(p){ return p.id === activePublishingProfileId; })[0] || publishingProfiles[0];
+  }
+
+  var publishingProfiles = loadPublishingProfiles();
+  savePublishingProfiles(); /* stellt sicher, dass eine evtl. Migration sofort persistiert wird */
+  var activePublishingProfileId = loadActivePublishingProfileId();
+  saveActivePublishingProfileId();
+
+  /* Profil-Dropdown aus publishingProfiles befüllen. */
+  function renderPublishingProfileSelect(){
+    publishingProfileSelect.innerHTML = publishingProfiles.map(function(p){
+      return '<option value="' + escapeHtml(p.id) + '"' + (p.id === activePublishingProfileId ? ' selected' : '') + '>' + escapeHtml(p.name) + '</option>';
+    }).join('');
+  }
+
+  /* Befüllt das Profil-Dropdown im Pin-Formular (Account-Kontext eines eigenen Pins).
+     Getrennt von renderPublishingProfileSelect(), da es ein anderes <select>-Element betrifft. */
+  function renderPinProfileOptions(){
+    pinProfileSelect.innerHTML = '<option value="">— kein Profil —</option>' + publishingProfiles.map(function(p){
+      return '<option value="' + escapeHtml(p.id) + '">' + escapeHtml(p.name) + '</option>';
+    }).join('');
+  }
+
+  /* Formular aus dem Plan des aktuell aktiven Profils befüllen (z. B. beim Start oder Profilwechsel). */
   function renderPublishingScheduleForm(){
+    var profile = getActivePublishingProfile();
     PUBLISHING_SCHEDULE_DAY_ORDER.forEach(function(day){
       var checkbox = document.getElementById('schedule-day-' + day);
       var timeInput = document.getElementById('schedule-time-' + day);
-      var time = publishingSchedule[day];
+      var time = profile.schedule[day];
       checkbox.checked = !!time;
       timeInput.value = time || '19:00';
       timeInput.disabled = !time;
     });
   }
 
-  /* Liest das Formular aus, aktualisiert publishingSchedule und speichert lokal.
+  /* Liest das Formular aus und speichert die Änderung im Plan des aktuell aktiven Profils.
      Ändert nie bestehende scheduledAt-Werte oder Pins – reine Einstellungsspeicherung. */
   function handlePublishingScheduleChange(){
+    var profile = getActivePublishingProfile();
     var schedule = {};
     PUBLISHING_SCHEDULE_DAY_ORDER.forEach(function(day){
       var checkbox = document.getElementById('schedule-day-' + day);
@@ -4630,8 +4747,62 @@ document.addEventListener('DOMContentLoaded', function(){
       timeInput.disabled = !checkbox.checked;
       schedule[day] = checkbox.checked ? (timeInput.value || '19:00') : null;
     });
-    publishingSchedule = schedule;
-    savePublishingSchedule(schedule);
+    profile.schedule = schedule;
+    savePublishingProfiles();
+  }
+
+  function switchActivePublishingProfile(profileId){
+    if(!publishingProfiles.some(function(p){ return p.id === profileId; })) return;
+    activePublishingProfileId = profileId;
+    saveActivePublishingProfileId();
+    renderPublishingScheduleForm();
+  }
+
+  function addPublishingProfile(){
+    var name = window.prompt('Name für das neue Profil (z. B. "Soft Reset"):', '');
+    if(name === null) return; /* Nutzer hat abgebrochen */
+    name = name.trim();
+    if(!name){
+      showStorageBanner('Bitte einen Profilnamen eingeben.');
+      return;
+    }
+    var profile = createPublishingProfile(name, cloneDefaultPublishingSchedule());
+    publishingProfiles.push(profile);
+    activePublishingProfileId = profile.id;
+    savePublishingProfiles();
+    saveActivePublishingProfileId();
+    renderPublishingProfileSelect();
+    renderPublishingScheduleForm();
+  }
+
+  function renamePublishingProfile(){
+    var profile = getActivePublishingProfile();
+    var name = window.prompt('Neuer Name für "' + profile.name + '":', profile.name);
+    if(name === null) return;
+    name = name.trim();
+    if(!name){
+      showStorageBanner('Bitte einen Profilnamen eingeben.');
+      return;
+    }
+    profile.name = name;
+    savePublishingProfiles();
+    renderPublishingProfileSelect();
+  }
+
+  function deletePublishingProfile(){
+    if(publishingProfiles.length <= 1){
+      showStorageBanner('Mindestens ein Veröffentlichungsprofil muss vorhanden sein.');
+      return;
+    }
+    var profile = getActivePublishingProfile();
+    var confirmed = window.confirm('Profil "' + profile.name + '" wirklich löschen? Der zugehörige Veröffentlichungsplan geht verloren.');
+    if(!confirmed) return;
+    publishingProfiles = publishingProfiles.filter(function(p){ return p.id !== profile.id; });
+    activePublishingProfileId = publishingProfiles[0].id;
+    savePublishingProfiles();
+    saveActivePublishingProfileId();
+    renderPublishingProfileSelect();
+    renderPublishingScheduleForm();
   }
 
   /* ---------- Erinnerung "Nächste Pins einplanen" ---------- */
@@ -4678,15 +4849,16 @@ document.addEventListener('DOMContentLoaded', function(){
     return latest;
   }
 
-  /* Liefert bis zu maxCount künftige Slots gemäß dem konfigurierbaren Veröffentlichungsplan
-     (publishingSchedule), die echt nach afterDate liegen und nicht über untilDate
+  /* Liefert bis zu maxCount künftige Slots gemäß dem Plan des aktuell aktiven
+     Veröffentlichungsprofils, die echt nach afterDate liegen und nicht über untilDate
      hinausgehen (4-Wochen-Fenster). Sind keine Wochentage aktiviert, ist das Ergebnis leer. */
   function getNextRhythmSlots(afterDate, untilDate, maxCount){
     var slots = [];
+    var schedule = getActivePublishingProfile().schedule;
     var cursor = new Date(afterDate.getFullYear(), afterDate.getMonth(), afterDate.getDate());
     cursor.setDate(cursor.getDate() + 1); /* Suche beginnt am Folgetag der Basis */
     while(cursor.getTime() <= untilDate.getTime() && slots.length < maxCount){
-      var time = publishingSchedule[cursor.getDay()];
+      var time = schedule[cursor.getDay()];
       if(time){
         var timeParts = time.split(':');
         var hour = parseInt(timeParts[0], 10);
@@ -4723,8 +4895,45 @@ document.addEventListener('DOMContentLoaded', function(){
   /* Zeigt das Modal nur, wenn innerhalb des 4-Wochen-Fensters freie Rhythmus-Slots
      verfügbar sind UND mindestens ein "bereit"-Pin existiert. Setzt nie automatisch
      einen Status oder scheduledAt – reine Information/Vorschlag. */
+  /* Baut eine Zuordnung Kategorie -> Menge der distinct profileId's, die unter eigenen
+     Pins mit dieser Kategorie UND gesetzter profileId vorkommen. Dient ausschließlich
+     als Lese-Heuristik für getEffectivePinProfileId() – schreibt nie auf Pins zurück. */
+  function getCategoryProfileMap(){
+    var map = {};
+    pins.forEach(function(p){
+      if(!p.category || !p.profileId) return;
+      if(!map[p.category]) map[p.category] = [];
+      if(map[p.category].indexOf(p.profileId) === -1){
+        map[p.category].push(p.profileId);
+      }
+    });
+    return map;
+  }
+
+  /* Ermittelt, zu welchem Profil ein Pin (nur zum Zwecke der Vorschlagsfilterung) gehört:
+     1. Explizit gesetzte pin.profileId hat Vorrang.
+     2. Gibt es insgesamt nur ein Profil, gehört jeder Pin trivial zu diesem einen Profil
+        (keine Mehrdeutigkeit möglich) – erhält bestehendes Verhalten für Nutzer, die
+        noch keine mehreren Profile angelegt haben.
+     3. Sonst: Kategorie-Fallback nur, wenn die Kategorie eindeutig (genau ein distinct
+        profileId) unter anderen eigenen Pins vorkommt.
+     4. Andernfalls: keine Zuordnung (null) – der Pin wird dann für kein Profil vorgeschlagen.
+     Ändert niemals pin.profileId oder andere Pin-Felder. */
+  function getEffectivePinProfileId(pin, categoryProfileMap){
+    if(pin.profileId) return pin.profileId;
+    if(publishingProfiles.length === 1) return publishingProfiles[0].id;
+    if(!pin.category) return null;
+    var candidates = categoryProfileMap[pin.category];
+    if(candidates && candidates.length === 1) return candidates[0];
+    return null;
+  }
+
   function openNextSlotsModal(){
-    var readyPins = pins.filter(function(p){ return p.status === 'bereit'; });
+    var categoryProfileMap = getCategoryProfileMap();
+    var readyPins = pins.filter(function(p){
+      if(p.status !== 'bereit') return false;
+      return getEffectivePinProfileId(p, categoryProfileMap) === activePublishingProfileId;
+    });
     if(readyPins.length === 0) return;
 
     var now = new Date();
@@ -5631,6 +5840,22 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   });
 
+  publishingProfileSelect.addEventListener('change', function(){
+    switchActivePublishingProfile(publishingProfileSelect.value);
+  });
+
+  publishingProfileAddBtn.addEventListener('click', function(){
+    addPublishingProfile();
+  });
+
+  publishingProfileRenameBtn.addEventListener('click', function(){
+    renamePublishingProfile();
+  });
+
+  publishingProfileDeleteBtn.addEventListener('click', function(){
+    deletePublishingProfile();
+  });
+
   importBtn.addEventListener('click', function(){
     importFileInput.click();
   });
@@ -5829,6 +6054,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   updateFileSyncStatus(); /* Hybrid-Datei-Status beim Start setzen */
   attemptRestoreReferenceFileHandle(); /* Versucht gespeicherten Datei-Handle aus IndexedDB wiederherzustellen (F5-Fix) */
+  renderPublishingProfileSelect(); /* Profil-Dropdown befüllen */
   renderPublishingScheduleForm(); /* Veröffentlichungsplan-Formular aus gespeicherten/Standard-Werten befüllen */
   updateReferenceSelectionBar(); /* KI-Auswahl-Bar initialisieren */
   renderAll();
