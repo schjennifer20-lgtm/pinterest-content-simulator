@@ -1581,6 +1581,21 @@
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="next-slots-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="next-slots-title">
+    <div class="modal-header">
+      <h2 id="next-slots-title">📅 Neue Pins können geplant werden</h2>
+      <button type="button" id="next-slots-close" aria-label="Schließen">✕</button>
+    </div>
+    <p class="due-reminder-hint" id="next-slots-hint"></p>
+    <p class="due-reminder-hint">Diese Pins können als Nächstes bei Pinterest eingeplant werden:</p>
+    <div class="due-reminder-list" id="next-slots-list"></div>
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" id="next-slots-later-btn">Später planen</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="import-overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
     <div class="modal-header">
@@ -1825,6 +1840,12 @@ document.addEventListener('DOMContentLoaded', function(){
   var dueReminderHint = document.getElementById('due-reminder-hint');
   var dueReminderList = document.getElementById('due-reminder-list');
   var dueReminderLaterBtn = document.getElementById('due-reminder-later-btn');
+
+  var nextSlotsOverlay = document.getElementById('next-slots-overlay');
+  var nextSlotsCloseBtn = document.getElementById('next-slots-close');
+  var nextSlotsHint = document.getElementById('next-slots-hint');
+  var nextSlotsList = document.getElementById('next-slots-list');
+  var nextSlotsLaterBtn = document.getElementById('next-slots-later-btn');
 
   var exportBtn = document.getElementById('export-btn');
   var exportMetaBtn = document.getElementById('export-meta-btn');
@@ -4330,6 +4351,121 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  /* ---------- Erinnerung "Nächste Pins einplanen" ---------- */
+
+  var PLANNING_RHYTHM_WEEKDAYS = [1, 3, 6]; /* Date.getDay(): Mo=1, Mi=3, Sa=6 */
+  var PLANNING_WINDOW_DAYS = 28; /* ca. 4 Wochen Pinterest-Planungshorizont */
+  var PLANNING_SLOT_HOUR = 19;
+
+  /* Reine Anzeige-Formatierung "TT.MM.JJJJ" aus einem lokalen Date-Objekt (kein ISO/UTC). */
+  function formatDateOnlyDisplay(date){
+    var day = String(date.getDate()).padStart(2, '0');
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var year = date.getFullYear();
+    return day + '.' + month + '.' + year;
+  }
+
+  /* Wandelt ein lokales Date-Objekt in einen "YYYY-MM-DDTHH:MM"-String, damit die
+     bestehende formatPublishedAtDisplay()-Funktion für die Anzeige wiederverwendet werden kann. */
+  function dateToLocalMinuteString(date){
+    var y = date.getFullYear();
+    var m = String(date.getMonth() + 1).padStart(2, '0');
+    var d = String(date.getDate()).padStart(2, '0');
+    var hh = String(date.getHours()).padStart(2, '0');
+    var mm = String(date.getMinutes()).padStart(2, '0');
+    return y + '-' + m + '-' + d + 'T' + hh + ':' + mm;
+  }
+
+  /* Spätestes scheduledAt aller Pins mit Status "geplant" (lokal geparst, siehe
+     parseScheduledAtLocal). Liefert null, wenn kein Pin mit gültigem scheduledAt geplant ist. */
+  function getLatestScheduledDate(){
+    var latest = null;
+    pins.forEach(function(p){
+      if(p.status !== 'geplant') return;
+      var d = parseScheduledAtLocal(p.scheduledAt);
+      if(d && (!latest || d.getTime() > latest.getTime())) latest = d;
+    });
+    return latest;
+  }
+
+  /* Basiszeitpunkt für neue Vorschläge: das späteste bereits geplante scheduledAt –
+     liegt dieses in der Vergangenheit (oder existiert keins), wird ab "jetzt" weitergeplant. */
+  function getPlanningBaseline(){
+    var latest = getLatestScheduledDate();
+    var now = new Date();
+    if(!latest || latest.getTime() < now.getTime()) return now;
+    return latest;
+  }
+
+  /* Liefert bis zu maxCount künftige Mo./Mi./Sa.-19:00-Uhr-Slots, die echt nach
+     afterDate liegen und nicht über untilDate hinausgehen (4-Wochen-Fenster). */
+  function getNextRhythmSlots(afterDate, untilDate, maxCount){
+    var slots = [];
+    var cursor = new Date(afterDate.getFullYear(), afterDate.getMonth(), afterDate.getDate());
+    cursor.setDate(cursor.getDate() + 1); /* Suche beginnt am Folgetag der Basis */
+    while(cursor.getTime() <= untilDate.getTime() && slots.length < maxCount){
+      if(PLANNING_RHYTHM_WEEKDAYS.indexOf(cursor.getDay()) !== -1){
+        var slot = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), PLANNING_SLOT_HOUR, 0, 0, 0);
+        if(slot.getTime() > afterDate.getTime() && slot.getTime() <= untilDate.getTime()){
+          slots.push(slot);
+        }
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return slots;
+  }
+
+  function renderNextSlotsList(pairs){
+    nextSlotsList.innerHTML = pairs.map(function(pair){
+      var suggestedDisplay = formatPublishedAtDisplay(dateToLocalMinuteString(pair.slot)) || '';
+      var thumbHtml = pair.pin.image
+        ? '<img class="due-reminder-thumb" src="' + pair.pin.image + '" alt="' + escapeHtml(pair.pin.title) + '">'
+        : '<div class="due-reminder-thumb"></div>';
+      return '<div class="due-reminder-item">' +
+        thumbHtml +
+        '<div class="due-reminder-body">' +
+          '<p class="due-reminder-title">' + escapeHtml(pair.pin.title) + '</p>' +
+          '<p class="due-reminder-scheduled">📅 Vorschlag: ' + suggestedDisplay + '</p>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* Zeigt das Modal nur, wenn innerhalb des 4-Wochen-Fensters freie Rhythmus-Slots
+     verfügbar sind UND mindestens ein "bereit"-Pin existiert. Setzt nie automatisch
+     einen Status oder scheduledAt – reine Information/Vorschlag. */
+  function openNextSlotsModal(){
+    var readyPins = pins.filter(function(p){ return p.status === 'bereit'; });
+    if(readyPins.length === 0) return;
+
+    var now = new Date();
+    var windowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + PLANNING_WINDOW_DAYS, 23, 59, 59, 999);
+    var baseline = getPlanningBaseline();
+    var slots = getNextRhythmSlots(baseline, windowEnd, 8);
+    if(slots.length === 0) return;
+
+    var pairCount = Math.min(readyPins.length, slots.length, 8);
+    var pairs = [];
+    for(var i = 0; i < pairCount; i++){
+      pairs.push({ pin: readyPins[i], slot: slots[i] });
+    }
+
+    var latestScheduled = getLatestScheduledDate();
+    nextSlotsHint.textContent = latestScheduled
+      ? 'Deine aktuelle Planung reicht bis ' + formatDateOnlyDisplay(latestScheduled) + '.'
+      : 'Du hast noch keine Pins eingeplant.';
+
+    renderNextSlotsList(pairs);
+
+    nextSlotsOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeNextSlotsModal(){
+    nextSlotsOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+
   /* ---------- Aktionen (Bearbeiten/Duplizieren/Löschen) ---------- */
 
   function handleGridAction(e){
@@ -5135,6 +5271,14 @@ document.addEventListener('DOMContentLoaded', function(){
     confirmDueReminderPin(btn.getAttribute('data-id'), dateVal, timeVal);
   });
 
+  nextSlotsCloseBtn.addEventListener('click', closeNextSlotsModal);
+
+  nextSlotsOverlay.addEventListener('click', function(e){
+    if(e.target === nextSlotsOverlay) closeNextSlotsModal();
+  });
+
+  nextSlotsLaterBtn.addEventListener('click', closeNextSlotsModal);
+
   kiExportBtn.addEventListener('click', function(){ exportForKi(); });
 
   kiImportBtn.addEventListener('click', function(){ kiImportFileInput.click(); });
@@ -5360,6 +5504,9 @@ document.addEventListener('DOMContentLoaded', function(){
   renderAll();
   renderReferenceAll();
   openDueReminderModal(); /* Erinnerung an fällige geplante Pins, falls vorhanden */
+  if(getDuePlannedPins().length === 0){
+    openNextSlotsModal(); /* Erinnerung "Nächste Pins einplanen", falls Slots & bereit-Pins vorhanden */
+  }
 
 }); // Ende DOMContentLoaded
 </script>
