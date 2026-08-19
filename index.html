@@ -286,6 +286,59 @@
     margin-top:.5rem;
   }
 
+  .due-reminder-hint{
+    color:var(--muted);
+    font-size:.9rem;
+    margin:0 0 .6rem;
+  }
+  .due-reminder-list{
+    display:flex;
+    flex-direction:column;
+    gap:.7rem;
+    max-height:55vh;
+    overflow-y:auto;
+    margin-bottom:.8rem;
+  }
+  .due-reminder-item{
+    display:flex;
+    gap:.7rem;
+    background:var(--card);
+    border:1px solid var(--sand);
+    border-radius:var(--radius-md);
+    padding:.7rem .9rem;
+  }
+  .due-reminder-thumb{
+    width:56px;
+    height:56px;
+    object-fit:cover;
+    border-radius:8px;
+    flex-shrink:0;
+    background:var(--idee-tint);
+  }
+  .due-reminder-body{ flex:1; min-width:0; }
+  .due-reminder-title{
+    font-weight:700;
+    color:var(--ink);
+    font-size:.92rem;
+    margin:0 0 .2rem;
+  }
+  .due-reminder-scheduled{
+    font-size:.82rem;
+    color:var(--muted);
+    margin:0 0 .5rem;
+  }
+  .due-reminder-fields{
+    display:flex;
+    gap:.5rem;
+    margin-bottom:.5rem;
+  }
+  .due-reminder-fields input{ flex:1; }
+  .due-reminder-actions{
+    display:flex;
+    gap:.5rem;
+    flex-wrap:wrap;
+  }
+
   .backup-actions{
     display:flex;
     flex-wrap:wrap;
@@ -1514,6 +1567,20 @@
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="due-reminder-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="due-reminder-title">
+    <div class="modal-header">
+      <h2 id="due-reminder-title">📌 Veröffentlichungen prüfen</h2>
+      <button type="button" id="due-reminder-close" aria-label="Schließen">✕</button>
+    </div>
+    <p class="due-reminder-hint" id="due-reminder-hint"></p>
+    <div id="due-reminder-list"></div>
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" id="due-reminder-later-btn">Später prüfen</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="import-overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
     <div class="modal-header">
@@ -1752,6 +1819,12 @@ document.addEventListener('DOMContentLoaded', function(){
   var detailCloseBtn = document.getElementById('detail-close');
   var detailContent = document.getElementById('detail-content');
   var storageBanner = document.getElementById('storage-banner');
+
+  var dueReminderOverlay = document.getElementById('due-reminder-overlay');
+  var dueReminderCloseBtn = document.getElementById('due-reminder-close');
+  var dueReminderHint = document.getElementById('due-reminder-hint');
+  var dueReminderList = document.getElementById('due-reminder-list');
+  var dueReminderLaterBtn = document.getElementById('due-reminder-later-btn');
 
   var exportBtn = document.getElementById('export-btn');
   var exportMetaBtn = document.getElementById('export-meta-btn');
@@ -4160,6 +4233,103 @@ document.addEventListener('DOMContentLoaded', function(){
     document.body.classList.remove('modal-open');
   }
 
+  /* ---------- Erinnerung an fällige geplante Pins ---------- */
+
+  /* Prüft ob ein scheduledAt-Wert gültig ist (Muster wie bei publishedAt) und liefert
+     bei Gültigkeit ein lokales Date-Objekt zurück, sonst null. Manuelle Komponenten-
+     Konstruktion statt new Date(string), damit eindeutig als lokale Zeit interpretiert wird. */
+  function parseScheduledAtLocal(scheduledAt){
+    if(typeof scheduledAt !== 'string') return null;
+    var match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(scheduledAt);
+    if(!match) return null;
+    var d = new Date(
+      parseInt(match[1], 10),
+      parseInt(match[2], 10) - 1,
+      parseInt(match[3], 10),
+      parseInt(match[4], 10),
+      parseInt(match[5], 10)
+    );
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  /* Liefert alle eigenen Pins mit Status "geplant", gültigem scheduledAt und
+     scheduledAt <= aktueller lokaler Zeitpunkt. Zukünftige, veröffentlichte Pins
+     und Pins ohne gültiges scheduledAt werden ignoriert. */
+  function getDuePlannedPins(){
+    var now = new Date();
+    return pins.filter(function(p){
+      if(p.status !== 'geplant') return false;
+      var scheduled = parseScheduledAtLocal(p.scheduledAt);
+      if(!scheduled) return false;
+      return scheduled.getTime() <= now.getTime();
+    });
+  }
+
+  function renderDueReminderList(duePins){
+    dueReminderList.innerHTML = duePins.map(function(pin){
+      var scheduledDisplay = formatPublishedAtDisplay(pin.scheduledAt) || '';
+      var thumbHtml = pin.image
+        ? '<img class="due-reminder-thumb" src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '">'
+        : '<div class="due-reminder-thumb"></div>';
+      var parts = pin.scheduledAt.split('T');
+      return '<div class="due-reminder-item" data-id="' + pin.id + '">' +
+        thumbHtml +
+        '<div class="due-reminder-body">' +
+          '<p class="due-reminder-title">' + escapeHtml(pin.title) + '</p>' +
+          '<p class="due-reminder-scheduled">📅 Geplant für ' + scheduledDisplay + '</p>' +
+          '<div class="due-reminder-fields">' +
+            '<input type="date" class="due-reminder-date" value="' + (parts[0] || '') + '">' +
+            '<input type="time" class="due-reminder-time" value="' + (parts[1] || '') + '">' +
+          '</div>' +
+          '<div class="due-reminder-actions">' +
+            '<button type="button" class="btn-primary due-reminder-confirm-btn" data-id="' + pin.id + '">Als veröffentlicht markieren</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function openDueReminderModal(){
+    var duePins = getDuePlannedPins();
+    if(duePins.length === 0) return;
+    dueReminderHint.textContent = duePins.length + ' geplante Pin(s) könnten inzwischen veröffentlicht worden sein.';
+    renderDueReminderList(duePins);
+    dueReminderOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeDueReminderModal(){
+    dueReminderOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+
+  /* Markiert einen einzelnen fälligen Pin anhand der (editierbaren) Datums-/Zeitfelder
+     im Erinnerungs-Modal als veröffentlicht. scheduledAt bleibt dabei unangetastet.
+     Speicherung läuft über den bestehenden savePins()-Mechanismus (inkl. Hybrid-Datei-Sync). */
+  function confirmDueReminderPin(pinId, dateVal, timeVal){
+    if(!dateVal || !timeVal) return;
+    var idx = -1;
+    for(var i = 0; i < pins.length; i++){
+      if(pins[i].id === pinId){ idx = i; break; }
+    }
+    if(idx === -1) return;
+
+    pins[idx].status = 'veroeffentlicht';
+    pins[idx].publishedAt = dateVal + 'T' + timeVal;
+    pins[idx].updatedAt = Date.now();
+
+    savePins();
+    renderAll();
+
+    var remaining = getDuePlannedPins();
+    if(remaining.length === 0){
+      closeDueReminderModal();
+    } else {
+      dueReminderHint.textContent = remaining.length + ' geplante Pin(s) könnten inzwischen veröffentlicht worden sein.';
+      renderDueReminderList(remaining);
+    }
+  }
+
   /* ---------- Aktionen (Bearbeiten/Duplizieren/Löschen) ---------- */
 
   function handleGridAction(e){
@@ -4947,6 +5117,24 @@ document.addEventListener('DOMContentLoaded', function(){
     if(e.target === detailOverlay) closeDetailModal();
   });
 
+  dueReminderCloseBtn.addEventListener('click', closeDueReminderModal);
+
+  dueReminderOverlay.addEventListener('click', function(e){
+    if(e.target === dueReminderOverlay) closeDueReminderModal();
+  });
+
+  dueReminderLaterBtn.addEventListener('click', closeDueReminderModal);
+
+  dueReminderList.addEventListener('click', function(e){
+    var btn = e.target.closest('.due-reminder-confirm-btn');
+    if(!btn) return;
+    var item = btn.closest('.due-reminder-item');
+    if(!item) return;
+    var dateVal = item.querySelector('.due-reminder-date').value;
+    var timeVal = item.querySelector('.due-reminder-time').value;
+    confirmDueReminderPin(btn.getAttribute('data-id'), dateVal, timeVal);
+  });
+
   kiExportBtn.addEventListener('click', function(){ exportForKi(); });
 
   kiImportBtn.addEventListener('click', function(){ kiImportFileInput.click(); });
@@ -5171,6 +5359,7 @@ document.addEventListener('DOMContentLoaded', function(){
   updateReferenceSelectionBar(); /* KI-Auswahl-Bar initialisieren */
   renderAll();
   renderReferenceAll();
+  openDueReminderModal(); /* Erinnerung an fällige geplante Pins, falls vorhanden */
 
 }); // Ende DOMContentLoaded
 </script>
