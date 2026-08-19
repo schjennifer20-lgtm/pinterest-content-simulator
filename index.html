@@ -1726,6 +1726,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var editingId = null;
   var pendingDeleteId = null;
   var pendingDeleteTimeout = null;
+  var nextSlotsPairs = []; /* aktuell im "Nächste Pins einplanen"-Modal angezeigte Pin/Termin-Paare */
   var currentImageData = null;
   var imageProcessing = false;
   var pendingImportPins = null;
@@ -4426,6 +4427,9 @@ document.addEventListener('DOMContentLoaded', function(){
         '<div class="due-reminder-body">' +
           '<p class="due-reminder-title">' + escapeHtml(pair.pin.title) + '</p>' +
           '<p class="due-reminder-scheduled">📅 Vorschlag: ' + suggestedDisplay + '</p>' +
+          '<div class="due-reminder-actions">' +
+            '<button type="button" class="btn-secondary next-slot-plan-btn" data-id="' + pair.pin.id + '">Pin planen</button>' +
+          '</div>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -4449,6 +4453,7 @@ document.addEventListener('DOMContentLoaded', function(){
     for(var i = 0; i < pairCount; i++){
       pairs.push({ pin: readyPins[i], slot: slots[i] });
     }
+    nextSlotsPairs = pairs;
 
     var latestScheduled = getLatestScheduledDate();
     nextSlotsHint.textContent = latestScheduled
@@ -4464,6 +4469,28 @@ document.addEventListener('DOMContentLoaded', function(){
   function closeNextSlotsModal(){
     nextSlotsOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
+  }
+
+  /* Übernimmt einen Termin-Vorschlag aus dem "Nächste Pins einplanen"-Modal ins bestehende
+     Bearbeiten-Formular: schließt das Vorschlags-Modal, öffnet den Pin regulär über
+     openModal() (unverändert, keine Mutation des Pins), setzt danach nur im Formular
+     Status "geplant" sowie Datum/Uhrzeit vor – bleibt bis zum Klick auf "Pin speichern"
+     unverbindlich und weiterhin manuell änderbar. */
+  function planNextSlotPin(pinId){
+    var pair = nextSlotsPairs.filter(function(p){ return p.pin.id === pinId; })[0];
+    if(!pair) return;
+    var pin = findPinById(pinId);
+    if(!pin) return;
+
+    closeNextSlotsModal();
+    openModal(pin);
+
+    statusSelect.value = 'geplant';
+    var slotParts = dateToLocalMinuteString(pair.slot).split('T');
+    scheduledDateInput.value = slotParts[0] || '';
+    scheduledTimeInput.value = slotParts[1] || '';
+    updatePublishedRowVisibility();
+    updateScheduledRowVisibility();
   }
 
   /* ---------- Aktionen (Bearbeiten/Duplizieren/Löschen) ---------- */
@@ -5278,6 +5305,12 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 
   nextSlotsLaterBtn.addEventListener('click', closeNextSlotsModal);
+
+  nextSlotsList.addEventListener('click', function(e){
+    var btn = e.target.closest('.next-slot-plan-btn');
+    if(!btn) return;
+    planNextSlotPin(btn.getAttribute('data-id'));
+  });
 
   kiExportBtn.addEventListener('click', function(){ exportForKi(); });
 
