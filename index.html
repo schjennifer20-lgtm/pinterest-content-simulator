@@ -365,6 +365,8 @@
   .status-entwurf{ background:var(--amber-tint); color:var(--amber); }
   .status-optimiert{ background:var(--sage-tint); color:var(--sage); }
   .status-bereit{ background:#FCE4E8; color:var(--pin-dark); }
+  .status-geplant{ background:#E4EEF7; color:#1A5FA0; }
+  .status-veroeffentlicht{ background:var(--sage-tint); color:var(--sage); }
   .status-unbearbeitet{ background:#F0EBF7; color:#6B3FA0; }
   .status-ki-bewertet{ background:#E4EEF7; color:#1A5FA0; }
   .status-offen{ background:var(--idee-tint); color:var(--idee); }
@@ -1211,6 +1213,8 @@
             <option value="entwurf">Entwurf</option>
             <option value="optimiert">Optimiert</option>
             <option value="bereit">Bereit zum Posten</option>
+            <option value="geplant">Geplant</option>
+            <option value="veroeffentlicht">Veröffentlicht</option>
           </select>
           <select id="filter-evergreen" aria-label="Nach Evergreen filtern">
             <option value="">Evergreen: Alle</option>
@@ -1331,6 +1335,8 @@
             <option value="entwurf">Entwurf</option>
             <option value="optimiert">Optimiert</option>
             <option value="bereit">Bereit zum Posten</option>
+            <option value="geplant">Geplant</option>
+            <option value="veroeffentlicht">Veröffentlicht</option>
           </select>
         </div>
       </div>
@@ -1555,9 +1561,9 @@ document.addEventListener('DOMContentLoaded', function(){
   var REFERENCE_STORAGE_KEY = 'pinSimulatorReferencePinsV1';
   var LEARNING_STORAGE_KEY = 'pinSimulatorContentLearningsV1';
 
-  var STATUS_LABELS = { idee:'Idee', entwurf:'Entwurf', optimiert:'Optimiert', bereit:'Bereit zum Posten' };
-  var STATUS_CARD_LABELS = { idee:'💡 Idee', entwurf:'📝 Entwurf', optimiert:'✅ Optimiert', bereit:'🚀 Bereit' };
-  var STATUS_ORDER = ['idee','entwurf','optimiert','bereit'];
+  var STATUS_LABELS = { idee:'Idee', entwurf:'Entwurf', optimiert:'Optimiert', bereit:'Bereit zum Posten', geplant:'Geplant', veroeffentlicht:'Veröffentlicht' };
+  var STATUS_CARD_LABELS = { idee:'💡 Idee', entwurf:'📝 Entwurf', optimiert:'✅ Optimiert', bereit:'🚀 Bereit', geplant:'📅 Geplant', veroeffentlicht:'🌐 Veröffentlicht' };
+  var STATUS_ORDER = ['idee','entwurf','optimiert','bereit','geplant','veroeffentlicht'];
   var FORMAT_LABELS = { standard:'Standard Pin', idea:'Idea Pin', video:'Video Pin' };
   var FORMAT_ICONS = { standard:'📌', idea:'💡', video:'🎬' };
 
@@ -3512,7 +3518,7 @@ document.addEventListener('DOMContentLoaded', function(){
       '<div class="stat-card"><span class="stat-number">' + avg + '</span><span class="stat-label">Ø Score</span></div>' +
       '<div class="stat-card"><span class="stat-number">' + evergreenPct + '%</span><span class="stat-label">Evergreen-Anteil</span></div>';
 
-    var statusCounts = { idee:0, entwurf:0, optimiert:0, bereit:0 };
+    var statusCounts = { idee:0, entwurf:0, optimiert:0, bereit:0, geplant:0, veroeffentlicht:0 };
     pins.forEach(function(p){
       if(statusCounts.hasOwnProperty(p.status)) statusCounts[p.status]++;
     });
