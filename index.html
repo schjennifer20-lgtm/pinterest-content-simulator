@@ -1341,6 +1341,17 @@
         </div>
       </div>
 
+      <div class="form-row hidden" id="pin-published-row">
+        <div class="form-col">
+          <label for="pin-published-date">Veröffentlicht am</label>
+          <input type="date" id="pin-published-date">
+        </div>
+        <div class="form-col">
+          <label for="pin-published-time">Uhrzeit</label>
+          <input type="time" id="pin-published-time">
+        </div>
+      </div>
+
       <label class="checkbox-row" for="pin-evergreen">
         <input type="checkbox" id="pin-evergreen">
         <span>Evergreen-Content (zeitlos, nicht saisongebunden)</span>
@@ -1709,6 +1720,9 @@ document.addEventListener('DOMContentLoaded', function(){
   var keywordsInput = document.getElementById('pin-keywords');
   var formatSelect = document.getElementById('pin-format');
   var statusSelect = document.getElementById('pin-status');
+  var publishedRow = document.getElementById('pin-published-row');
+  var publishedDateInput = document.getElementById('pin-published-date');
+  var publishedTimeInput = document.getElementById('pin-published-time');
   var evergreenCheckbox = document.getElementById('pin-evergreen');
   var scorePreview = document.getElementById('score-preview');
   var boardDatalist = document.getElementById('board-suggestions');
@@ -2584,6 +2598,7 @@ document.addEventListener('DOMContentLoaded', function(){
       keywords: keywords,
       format: (raw.format === 'idea' || raw.format === 'video') ? raw.format : 'standard',
       status: STATUS_ORDER.indexOf(raw.status) !== -1 ? raw.status : 'idee',
+      publishedAt: (typeof raw.publishedAt === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw.publishedAt)) ? raw.publishedAt : null,
       evergreen: !!raw.evergreen,
       image: isValidImageDataUrl(raw.image) ? raw.image : null,
       imageName: typeof raw.imageName === 'string' ? raw.imageName : '',
@@ -2940,6 +2955,8 @@ document.addEventListener('DOMContentLoaded', function(){
       keywords: keywordsInput.value,
       format: formatSelect.value,
       status: statusSelect.value,
+      publishedDate: publishedDateInput.value,
+      publishedTime: publishedTimeInput.value,
       evergreen: evergreenCheckbox.checked,
       image: currentImageData ? currentImageData.dataUrl : null,
       imageName: currentImageData ? currentImageData.name : '',
@@ -2952,6 +2969,13 @@ document.addEventListener('DOMContentLoaded', function(){
     return (str || '').split(',').map(function(k){ return k.trim(); }).filter(function(k){ return k.length > 0; });
   }
 
+  function computePublishedAt(formData){
+    if(formData.publishedDate && formData.publishedTime){
+      return formData.publishedDate + 'T' + formData.publishedTime;
+    }
+    return null;
+  }
+
   function addOrUpdatePin(formData, currentEditingId){
     var base = {
       title: formData.title.trim(),
@@ -2961,6 +2985,7 @@ document.addEventListener('DOMContentLoaded', function(){
       keywords: parseKeywords(formData.keywords),
       format: formData.format,
       status: formData.status,
+      publishedAt: computePublishedAt(formData),
       evergreen: !!formData.evergreen,
       image: formData.image || null,
       imageName: formData.imageName || '',
@@ -2986,6 +3011,7 @@ document.addEventListener('DOMContentLoaded', function(){
           keywords: base.keywords,
           format: base.format,
           status: base.status,
+          publishedAt: base.publishedAt,
           evergreen: base.evergreen,
           image: base.image,
           imageName: base.imageName,
@@ -3006,6 +3032,7 @@ document.addEventListener('DOMContentLoaded', function(){
         keywords: base.keywords,
         format: base.format,
         status: base.status,
+        publishedAt: base.publishedAt,
         evergreen: base.evergreen,
         image: base.image,
         imageName: base.imageName,
@@ -3799,6 +3826,14 @@ document.addEventListener('DOMContentLoaded', function(){
 
   /* ---------- Modal ---------- */
 
+  function updatePublishedRowVisibility(){
+    if(statusSelect.value === 'veroeffentlicht'){
+      publishedRow.classList.remove('hidden');
+    } else {
+      publishedRow.classList.add('hidden');
+    }
+  }
+
   function updateScorePreview(){
     var data = getFormData();
     var temp = {
@@ -3833,6 +3868,15 @@ document.addEventListener('DOMContentLoaded', function(){
     keywordsInput.value = pin ? pin.keywords.join(', ') : '';
     formatSelect.value = pin ? pin.format : 'standard';
     statusSelect.value = pin ? pin.status : 'idee';
+    if(pin && pin.publishedAt){
+      var publishedParts = pin.publishedAt.split('T');
+      publishedDateInput.value = publishedParts[0] || '';
+      publishedTimeInput.value = publishedParts[1] || '';
+    } else {
+      publishedDateInput.value = '';
+      publishedTimeInput.value = '';
+    }
+    updatePublishedRowVisibility();
     evergreenCheckbox.checked = pin ? !!pin.evergreen : false;
 
     pinImageInput.value = '';
@@ -4932,6 +4976,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   pinForm.addEventListener('input', updateScorePreview);
   pinForm.addEventListener('change', updateScorePreview);
+  statusSelect.addEventListener('change', updatePublishedRowVisibility);
 
   pinImageInput.addEventListener('change', function(){
     var file = pinImageInput.files && pinImageInput.files[0];
