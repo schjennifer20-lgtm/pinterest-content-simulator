@@ -345,7 +345,7 @@
     gap:.6rem;
     margin-bottom:.6rem;
   }
-  #export-btn, #export-meta-btn, #import-btn, #paste-import-btn, #connect-ref-file-btn{
+  #export-btn, #export-meta-btn, #import-btn, #paste-import-btn, #connect-ref-file-btn, #reconnect-ref-file-btn{
     background:transparent;
     border:1px solid var(--sand);
     border-radius:var(--radius-md);
@@ -356,7 +356,7 @@
     cursor:pointer;
     flex:1 1 160px;
   }
-  #export-btn:hover, #export-meta-btn:hover, #import-btn:hover, #paste-import-btn:hover, #connect-ref-file-btn:hover{ background:var(--card); }
+  #export-btn:hover, #export-meta-btn:hover, #import-btn:hover, #paste-import-btn:hover, #connect-ref-file-btn:hover, #reconnect-ref-file-btn:hover{ background:var(--card); }
   #connect-ref-file-btn:disabled{
     opacity:.45;
     cursor:not-allowed;
@@ -1230,6 +1230,7 @@
         <button type="button" id="import-btn">⬆️ Pins importieren</button>
         <button type="button" id="paste-import-btn">📋 JSON-Text einfügen</button>
         <button type="button" id="connect-ref-file-btn">📂 Mit reference-pins.json verbinden</button>
+        <button type="button" id="reconnect-ref-file-btn" class="hidden">🔄 Verbindung wiederherstellen</button>
         <button type="button" id="ki-import-btn">🤖 KI-Auswertung importieren</button>
         <input type="file" id="import-file-input" accept="application/json,.json" class="hidden">
         <input type="file" id="ki-import-file-input" accept="application/json,.json" class="hidden">
@@ -1749,7 +1750,8 @@ document.addEventListener('DOMContentLoaded', function(){
   var pendingKiMergeData = null;    /* validierte KI-Rückgabe, wartet auf Bestätigung */
 
   /* File System Access API – Hybrid-Dateiverbindung (Variante B) */
-  var refFileHandle = null; /* FileSystemFileHandle | null – nicht serialisierbar, lebt nur in dieser Session */
+  var refFileHandle = null; /* FileSystemFileHandle | null – lebt nur im Speicher dieser Seite, wird aber zusätzlich in IndexedDB persistiert */
+  var pendingReconnectHandle = null; /* FileSystemFileHandle | null – aus IndexedDB geladen, wartet auf erneute Nutzerfreigabe */
 
   /* ---------- DOM-Referenzen ---------- */
 
@@ -1855,6 +1857,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   /* Hybrid-Dateiverbindung */
   var connectRefFileBtn = document.getElementById('connect-ref-file-btn');
+  var reconnectRefFileBtn = document.getElementById('reconnect-ref-file-btn');
   var refFileSyncStatus = document.getElementById('ref-file-sync-status');
   var refFileSyncIcon = document.getElementById('ref-file-sync-icon');
   var refFileSyncText = document.getElementById('ref-file-sync-text');
@@ -2360,6 +2363,150 @@ document.addEventListener('DOMContentLoaded', function(){
     );
   }
 
+  /* ---------- Persistente Ablage des FileSystemFileHandle in IndexedDB ----------
+     Es wird ausschließlich der Handle gespeichert (strukturiert klonbar), niemals
+     der Dateiinhalt selbst. Alle Zugriffe sind promise-basiert und fangen Fehler
+     (fehlende IndexedDB-Unterstützung, privater Modus, etc.) sauber ab, damit der
+     Simulator in jedem Fall normal startet. */
+  var HANDLE_DB_NAME = 'pinterest-sim-file-handles';
+  var HANDLE_DB_VERSION = 1;
+  var HANDLE_STORE_NAME = 'handles';
+  var HANDLE_KEY = 'referencePinsFile';
+
+  function openHandleDb(){
+    return new Promise(function(resolve, reject){
+      if(!('indexedDB' in window)){
+        reject(new Error('IndexedDB wird von diesem Browser/dieser Umgebung nicht unterstützt.'));
+        return;
+      }
+      var req = indexedDB.open(HANDLE_DB_NAME, HANDLE_DB_VERSION);
+      req.onupgradeneeded = function(){
+        req.result.createObjectStore(HANDLE_STORE_NAME);
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error || new Error('IndexedDB konnte nicht geöffnet werden.')); };
+    });
+  }
+
+  function saveFileHandleToDb(handle){
+    return openHandleDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(HANDLE_STORE_NAME, 'readwrite');
+        tx.objectStore(HANDLE_STORE_NAME).put(handle, HANDLE_KEY);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ reject(tx.error || new Error('Handle konnte nicht gespeichert werden.')); };
+      });
+    });
+  }
+
+  function loadFileHandleFromDb(){
+    return openHandleDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(HANDLE_STORE_NAME, 'readonly');
+        var req = tx.objectStore(HANDLE_STORE_NAME).get(HANDLE_KEY);
+        req.onsuccess = function(){ resolve(req.result || null); };
+        req.onerror = function(){ reject(req.error || new Error('Handle konnte nicht geladen werden.')); };
+      });
+    });
+  }
+
+  function clearFileHandleFromDb(){
+    return openHandleDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(HANDLE_STORE_NAME, 'readwrite');
+        tx.objectStore(HANDLE_STORE_NAME).delete(HANDLE_KEY);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ reject(tx.error || new Error('Handle konnte nicht entfernt werden.')); };
+      });
+    }).catch(function(err){
+      console.error('Gespeicherter Datei-Handle konnte nicht entfernt werden:', err);
+    });
+  }
+
+  /* Übernimmt den Dateiinhalt einer (wieder-)verbundenen Referenzdatei – analog zum
+     entsprechenden Abschnitt in connectReferenceFile(), aber als eigenständige Funktion,
+     damit connectReferenceFile() selbst unverändert bleibt. */
+  function applyRestoredReferenceFileContent(handle, text){
+    var result = prepareImportFromJsonText(text, 'Die gespeicherte Datei enthält kein gültiges JSON-Format.');
+    if(!result.ok){
+      showStorageBanner('Gespeicherte Datei-Verbindung konnte nicht geladen werden: ' + result.error);
+      return false;
+    }
+    var incoming = pendingImportReferencePins || [];
+    referencePins = incoming;
+    if(pendingImportContentLearnings !== null){
+      contentLearnings = pendingImportContentLearnings;
+    }
+    pendingImportPins = null;
+    pendingImportReferencePins = null;
+    pendingImportContentLearnings = null;
+    pendingImportMeta = null;
+
+    refFileHandle = handle;
+    try{
+      localStorage.setItem(REFERENCE_STORAGE_KEY, JSON.stringify(referencePins));
+      localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(contentLearnings));
+    }catch(e){
+      console.error('localStorage-Sync nach Wiederherstellung der Datei-Verbindung fehlgeschlagen:', e);
+    }
+    updateFileSyncStatus();
+    renderReferenceAll();
+    renderLearningsList();
+    return true;
+  }
+
+  /* Beim Start: versucht einen zuvor gespeicherten Handle aus IndexedDB zu laden.
+     - Berechtigung noch vorhanden ("granted") → automatisch neu verbinden.
+     - Berechtigung muss erneut bestätigt werden ("prompt"/"denied") → Button
+       "Verbindung wiederherstellen" anzeigen statt die Datei erneut auswählen zu müssen.
+     - Kein gespeicherter Handle oder Fehler (Datei verschoben/gelöscht, IndexedDB
+       nicht verfügbar etc.) → normale manuelle Dateiauswahl bleibt unverändert nutzbar. */
+  function attemptRestoreReferenceFileHandle(){
+    if(!isFileSystemAccessSupported()) return;
+    loadFileHandleFromDb().then(function(handle){
+      if(!handle) return;
+      return handle.queryPermission({ mode: 'readwrite' }).then(function(state){
+        if(state === 'granted'){
+          return readFileHandleText(handle).then(function(text){
+            var ok = applyRestoredReferenceFileContent(handle, text);
+            if(ok){
+              showStorageBanner('Verbindung zu ' + handle.name + ' automatisch wiederhergestellt – ' + referencePins.length + ' Referenz-Pin(s) geladen.', 'success');
+            }
+          });
+        }
+        /* 'prompt' oder 'denied' – Nutzergeste nötig, daher nicht automatisch anfragen */
+        pendingReconnectHandle = handle;
+        updateFileSyncStatus();
+      });
+    }).catch(function(err){
+      console.error('Gespeicherte Datei-Verbindung konnte nicht automatisch wiederhergestellt werden:', err);
+      clearFileHandleFromDb();
+    });
+  }
+
+  /* Wird über den "Verbindung wiederherstellen"-Button ausgelöst (Nutzergeste,
+     daher darf hier requestPermission() aufgerufen werden). */
+  function reconnectReferenceFile(){
+    if(!pendingReconnectHandle) return;
+    var handle = pendingReconnectHandle;
+    handle.requestPermission({ mode: 'readwrite' }).then(function(state){
+      if(state !== 'granted'){
+        showStorageBanner('Zugriff auf die gespeicherte Datei wurde nicht erteilt. Bitte die Datei bei Bedarf erneut manuell verbinden.');
+        return;
+      }
+      return readFileHandleText(handle).then(function(text){
+        var ok = applyRestoredReferenceFileContent(handle, text);
+        if(ok){
+          pendingReconnectHandle = null;
+          showStorageBanner('Verbindung zu ' + handle.name + ' wiederhergestellt – ' + referencePins.length + ' Referenz-Pin(s) geladen.', 'success');
+        }
+      });
+    }).catch(function(err){
+      console.error('Wiederherstellen der Datei-Verbindung fehlgeschlagen:', err);
+      showStorageBanner('Datei konnte nicht wieder verbunden werden. Bitte erneut versuchen oder manuell verbinden.');
+    });
+  }
+
   /* Status-Anzeige im Dashboard aktualisieren. */
   function updateFileSyncStatus(){
     if(!isFileSystemAccessSupported()){
@@ -2368,18 +2515,28 @@ document.addEventListener('DOMContentLoaded', function(){
       refFileSyncText.textContent = 'Datei-Verbindung nicht verfügbar (nur Chrome/Edge über GitHub Pages).';
       connectRefFileBtn.disabled = true;
       connectRefFileBtn.title = 'Wird von diesem Browser oder dieser Umgebung nicht unterstützt.';
+      reconnectRefFileBtn.classList.add('hidden');
       return;
     }
     if(refFileHandle){
+      pendingReconnectHandle = null;
       refFileSyncStatus.className = 'file-sync-row connected';
       refFileSyncIcon.textContent = '✅';
       refFileSyncText.innerHTML = 'Verbunden: <span class="file-sync-filename">' + escapeHtml(refFileHandle.name) + '</span> – Änderungen werden automatisch gespeichert.';
       connectRefFileBtn.textContent = '📂 Andere Datei verbinden';
+      reconnectRefFileBtn.classList.add('hidden');
+    } else if(pendingReconnectHandle){
+      refFileSyncStatus.className = 'file-sync-row disconnected';
+      refFileSyncIcon.textContent = '🔄';
+      refFileSyncText.innerHTML = 'Frühere Verbindung zu <span class="file-sync-filename">' + escapeHtml(pendingReconnectHandle.name) + '</span> gefunden – Berechtigung erneut bestätigen.';
+      connectRefFileBtn.textContent = '📂 Mit reference-pins.json verbinden';
+      reconnectRefFileBtn.classList.remove('hidden');
     } else {
       refFileSyncStatus.className = 'file-sync-row disconnected';
       refFileSyncIcon.textContent = '⚪';
       refFileSyncText.textContent = 'Nicht verbunden – Referenz-Pins werden aus lokalem Speicher geladen.';
       connectRefFileBtn.textContent = '📂 Mit reference-pins.json verbinden';
+      reconnectRefFileBtn.classList.add('hidden');
     }
   }
 
@@ -2479,6 +2636,13 @@ document.addEventListener('DOMContentLoaded', function(){
             'Verbunden mit ' + handle.name + ' – ' + referencePins.length + ' Referenz-Pin(s) geladen.',
             'success'
           );
+          /* Handle zusätzlich persistent speichern, damit die Verbindung nach F5/Neuladen
+             wiederhergestellt werden kann. Reine Zusatzfunktion, blockiert die eigentliche
+             Verbindung nicht und schlägt bei Fehlern (z. B. privater Modus) nur still fehl. */
+          pendingReconnectHandle = null;
+          saveFileHandleToDb(handle).catch(function(err){
+            console.error('Datei-Handle konnte nicht dauerhaft (IndexedDB) gespeichert werden:', err);
+          });
         });
       });
     }).catch(function(err){
@@ -5336,6 +5500,10 @@ document.addEventListener('DOMContentLoaded', function(){
     connectReferenceFile();
   });
 
+  reconnectRefFileBtn.addEventListener('click', function(){
+    reconnectReferenceFile();
+  });
+
   importBtn.addEventListener('click', function(){
     importFileInput.click();
   });
@@ -5533,6 +5701,7 @@ document.addEventListener('DOMContentLoaded', function(){
     showStorageBanner('Lokaler Speicher ist in dieser Ansicht nicht verfügbar (z. B. privater/Inkognito-Modus). Daten werden nicht dauerhaft gespeichert. Bitte im normalen Browser-Tab öffnen.');
   }
   updateFileSyncStatus(); /* Hybrid-Datei-Status beim Start setzen */
+  attemptRestoreReferenceFileHandle(); /* Versucht gespeicherten Datei-Handle aus IndexedDB wiederherzustellen (F5-Fix) */
   updateReferenceSelectionBar(); /* KI-Auswahl-Bar initialisieren */
   renderAll();
   renderReferenceAll();
