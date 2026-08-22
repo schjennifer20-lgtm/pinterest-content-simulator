@@ -1447,6 +1447,9 @@
       <label for="pin-keywords">Keywords (durch Komma getrennt)</label>
       <input type="text" id="pin-keywords" placeholder="z. B. rezept, vegan, schnell">
 
+      <label for="pin-pinterest-tags">Pinterest-Tags / Markierte Themen (durch Komma getrennt)</label>
+      <input type="text" id="pin-pinterest-tags" placeholder="z. B. Selfcare Routine, Entspannung, zur Ruhe kommen">
+
       <div class="form-row">
         <div class="form-col">
           <label for="pin-format">Format</label>
@@ -1889,6 +1892,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var categoryInput = document.getElementById('pin-category');
   var pinProfileSelect = document.getElementById('pin-profile');
   var keywordsInput = document.getElementById('pin-keywords');
+  var pinterestTagsInput = document.getElementById('pin-pinterest-tags');
   var formatSelect = document.getElementById('pin-format');
   var statusSelect = document.getElementById('pin-status');
   var publishedRow = document.getElementById('pin-published-row');
@@ -2942,6 +2946,10 @@ document.addEventListener('DOMContentLoaded', function(){
       ? raw.keywords.filter(function(k){ return typeof k === 'string' && k.trim().length > 0; }).map(function(k){ return k.trim(); })
       : [];
 
+    var pinterestTags = Array.isArray(raw.pinterestTags)
+      ? raw.pinterestTags.filter(function(t){ return typeof t === 'string' && t.trim().length > 0; }).map(function(t){ return t.trim(); })
+      : [];
+
     var pin = {
       id: genId(),
       title: raw.title.trim(),
@@ -2950,6 +2958,7 @@ document.addEventListener('DOMContentLoaded', function(){
       category: typeof raw.category === 'string' ? raw.category.trim() : '',
       profileId: (typeof raw.profileId === 'string' && raw.profileId.trim()) ? raw.profileId.trim() : null,
       keywords: keywords,
+      pinterestTags: pinterestTags,
       format: (raw.format === 'idea' || raw.format === 'video') ? raw.format : 'standard',
       status: STATUS_ORDER.indexOf(raw.status) !== -1 ? raw.status : 'idee',
       publishedAt: (typeof raw.publishedAt === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw.publishedAt)) ? raw.publishedAt : null,
@@ -3309,6 +3318,7 @@ document.addEventListener('DOMContentLoaded', function(){
       category: categoryInput.value,
       profileId: pinProfileSelect.value,
       keywords: keywordsInput.value,
+      pinterestTags: pinterestTagsInput.value,
       format: formatSelect.value,
       status: statusSelect.value,
       publishedDate: publishedDateInput.value,
@@ -3349,6 +3359,7 @@ document.addEventListener('DOMContentLoaded', function(){
       category: formData.category.trim(),
       profileId: formData.profileId ? formData.profileId : null,
       keywords: parseKeywords(formData.keywords),
+      pinterestTags: parseKeywords(formData.pinterestTags),
       format: formData.format,
       status: formData.status,
       publishedAt: computePublishedAt(formData),
@@ -3377,6 +3388,7 @@ document.addEventListener('DOMContentLoaded', function(){
           category: base.category,
           profileId: base.profileId,
           keywords: base.keywords,
+          pinterestTags: base.pinterestTags,
           format: base.format,
           status: base.status,
           publishedAt: base.publishedAt,
@@ -3400,6 +3412,7 @@ document.addEventListener('DOMContentLoaded', function(){
         category: base.category,
         profileId: base.profileId,
         keywords: base.keywords,
+        pinterestTags: base.pinterestTags,
         format: base.format,
         status: base.status,
         publishedAt: base.publishedAt,
@@ -3441,6 +3454,7 @@ document.addEventListener('DOMContentLoaded', function(){
       category: original.category,
       profileId: original.profileId || null,
       keywords: original.keywords.slice(),
+      pinterestTags: (original.pinterestTags || []).slice(),
       format: original.format,
       status: 'idee',
       evergreen: original.evergreen,
@@ -4248,6 +4262,7 @@ document.addEventListener('DOMContentLoaded', function(){
     renderPinProfileOptions();
     pinProfileSelect.value = pin ? (pin.profileId || '') : (activePublishingProfileId || '');
     keywordsInput.value = pin ? pin.keywords.join(', ') : '';
+    pinterestTagsInput.value = pin && Array.isArray(pin.pinterestTags) ? pin.pinterestTags.join(', ') : '';
     formatSelect.value = pin ? pin.format : 'standard';
     statusSelect.value = pin ? pin.status : 'idee';
     if(pin && pin.publishedAt){
@@ -4480,6 +4495,11 @@ document.addEventListener('DOMContentLoaded', function(){
     var scheduledDisplay = pin.status === 'geplant' ? formatPublishedAtDisplay(pin.scheduledAt) : null;
     var scheduledHtml = scheduledDisplay ? '<p class="detail-pin-meta">📅 Geplant für ' + scheduledDisplay + '</p>' : '';
 
+    var pinterestTagsList = Array.isArray(pin.pinterestTags) ? pin.pinterestTags : [];
+    var pinterestTagsHtml = pinterestTagsList.length
+      ? '<p class="detail-pin-meta">🏷️ Pinterest-Tags: ' + pinterestTagsList.map(escapeHtml).join(', ') + '</p>'
+      : '';
+
     var detailImageHtml = pin.image ? '<div class="detail-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
 
     detailContent.innerHTML =
@@ -4487,6 +4507,10 @@ document.addEventListener('DOMContentLoaded', function(){
       '<p class="detail-pin-meta">' + metaParts.join(' · ') + '</p>' +
       publishedHtml +
       scheduledHtml +
+      pinterestTagsHtml +
+      '<div class="form-actions">' +
+        '<button type="button" class="btn-secondary" id="copy-for-pinterest-btn">📋 Für Pinterest kopieren</button>' +
+      '</div>' +
       detailImageHtml +
       '<div class="detail-score-grid">' + scoreHtml + '</div>' +
       '<div class="detail-section">' +
@@ -4498,6 +4522,13 @@ document.addEventListener('DOMContentLoaded', function(){
         '<ul class="detail-list improvements">' + improvementsHtml + '</ul>' +
       '</div>';
 
+    var copyForPinterestBtn = document.getElementById('copy-for-pinterest-btn');
+    if(copyForPinterestBtn){
+      copyForPinterestBtn.addEventListener('click', function(){
+        copyPinForPinterest(pin);
+      });
+    }
+
     detailOverlay.classList.remove('hidden');
     document.body.classList.add('modal-open');
   }
@@ -4505,6 +4536,37 @@ document.addEventListener('DOMContentLoaded', function(){
   function closeDetailModal(){
     detailOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
+  }
+
+  /* Baut aus den vorhandenen Keywords eines Pins den "#tag1#tag2#tag3"-Block für Pinterest.
+     Keine doppelten '#': ein führendes '#' in einem Keyword wird vor dem erneuten
+     Voranstellen entfernt. Leere Keywords werden ignoriert. Ändert weder Keywords noch
+     Beschreibung des Pins – reine Text-Formatierung für die Zwischenablage. */
+  function buildPinterestKeywordTags(keywords){
+    return (keywords || [])
+      .map(function(k){ return k.trim(); })
+      .filter(function(k){ return k.length > 0; })
+      .map(function(k){ return '#' + k.replace(/^#+/, ''); })
+      .join('');
+  }
+
+  /* Kopiert Beschreibung + Keywords (als #-Tags) für das manuelle Einfügen bei Pinterest
+     in die Zwischenablage. pinterestTags ("Markierte Themen") werden bewusst NICHT
+     mitkopiert, da sie bei Pinterest separat ausgewählt werden. Ändert nie die
+     gespeicherte Beschreibung oder die Keywords selbst. */
+  function copyPinForPinterest(pin){
+    var tagsBlock = buildPinterestKeywordTags(pin.keywords);
+    var text = pin.description + (tagsBlock ? '\n' + tagsBlock : '');
+
+    if(navigator.clipboard && typeof navigator.clipboard.writeText === 'function'){
+      navigator.clipboard.writeText(text).then(function(){
+        showStorageBanner('Beschreibung + Keywords für Pinterest kopiert.', 'success');
+      }).catch(function(){
+        showStorageBanner('Automatisches Kopieren nicht möglich. Bitte Beschreibung und Keywords manuell kopieren.');
+      });
+    } else {
+      showStorageBanner('Automatisches Kopieren wird von diesem Browser nicht unterstützt. Bitte manuell kopieren.');
+    }
   }
 
   /* ---------- Erinnerung an fällige geplante Pins ---------- */
