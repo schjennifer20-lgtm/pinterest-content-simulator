@@ -1494,6 +1494,17 @@
         </div>
       </div>
 
+      <div class="form-row">
+        <div class="form-col">
+          <label for="pin-pinterest-scheduling">Pinterest-Scheduling</label>
+          <select id="pin-pinterest-scheduling">
+            <option value="offen">Noch nicht bei Pinterest eingeplant</option>
+            <option value="eingeplant">Bei Pinterest eingeplant</option>
+            <option value="unbekannt">Nicht erfasst / Altbestand</option>
+          </select>
+        </div>
+      </div>
+
       <label class="checkbox-row" for="pin-evergreen">
         <input type="checkbox" id="pin-evergreen">
         <span>Evergreen-Content (zeitlos, nicht saisongebunden)</span>
@@ -1726,7 +1737,7 @@
 </div>
 
 <script>
-/* Pinterest Content Simulator – Version 1.4
+/* Pinterest Content Simulator – Version 1.6
  * Läuft vollständig clientseitig, keine externen Abhängigkeiten.
  * Speicherung über localStorage. Kompatibel mit allen modernen Browsern.
  */
@@ -1736,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', function(){
   /* ---------- Konstanten ---------- */
 
   var STORAGE_KEY = 'pinSimulatorPinsV1';
-  var APP_VERSION = '1.5';
+  var APP_VERSION = '1.6';
   var EXPORT_FORMAT_VERSION = 1;
   var KI_EXPORT_VERSION = '1.0';
   var REPLACE_BACKUP_KEY = 'pinSimulatorLastReplaceBackupV1';
@@ -1901,6 +1912,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var scheduledRow = document.getElementById('pin-scheduled-row');
   var scheduledDateInput = document.getElementById('pin-scheduled-date');
   var scheduledTimeInput = document.getElementById('pin-scheduled-time');
+  var pinterestSchedulingSelect = document.getElementById('pin-pinterest-scheduling');
   var evergreenCheckbox = document.getElementById('pin-evergreen');
   var scorePreview = document.getElementById('score-preview');
   var boardDatalist = document.getElementById('board-suggestions');
@@ -3325,6 +3337,7 @@ document.addEventListener('DOMContentLoaded', function(){
       publishedTime: publishedTimeInput.value,
       scheduledDate: scheduledDateInput.value,
       scheduledTime: scheduledTimeInput.value,
+      pinterestSchedulingStatus: pinterestSchedulingSelect.value,
       evergreen: evergreenCheckbox.checked,
       image: currentImageData ? currentImageData.dataUrl : null,
       imageName: currentImageData ? currentImageData.name : '',
@@ -3364,6 +3377,7 @@ document.addEventListener('DOMContentLoaded', function(){
       status: formData.status,
       publishedAt: computePublishedAt(formData),
       scheduledAt: computeScheduledAt(formData),
+      pinterestSchedulingStatus: formData.pinterestSchedulingStatus || 'offen',
       evergreen: !!formData.evergreen,
       image: formData.image || null,
       imageName: formData.imageName || '',
@@ -3393,6 +3407,7 @@ document.addEventListener('DOMContentLoaded', function(){
           status: base.status,
           publishedAt: base.publishedAt,
           scheduledAt: base.scheduledAt,
+          pinterestSchedulingStatus: base.pinterestSchedulingStatus,
           evergreen: base.evergreen,
           image: base.image,
           imageName: base.imageName,
@@ -3417,6 +3432,7 @@ document.addEventListener('DOMContentLoaded', function(){
         status: base.status,
         publishedAt: base.publishedAt,
         scheduledAt: base.scheduledAt,
+        pinterestSchedulingStatus: base.pinterestSchedulingStatus,
         evergreen: base.evergreen,
         image: base.image,
         imageName: base.imageName,
@@ -3457,6 +3473,7 @@ document.addEventListener('DOMContentLoaded', function(){
       pinterestTags: (original.pinterestTags || []).slice(),
       format: original.format,
       status: 'idee',
+      pinterestSchedulingStatus: 'offen',
       evergreen: original.evergreen,
       image: original.image || null,
       imageName: original.imageName || '',
@@ -4283,6 +4300,9 @@ document.addEventListener('DOMContentLoaded', function(){
       scheduledTimeInput.value = '';
     }
     updateScheduledRowVisibility();
+    pinterestSchedulingSelect.value = pin
+      ? (pin.pinterestSchedulingStatus || 'unbekannt')
+      : 'offen';
     evergreenCheckbox.checked = pin ? !!pin.evergreen : false;
 
     pinImageInput.value = '';
@@ -4500,6 +4520,14 @@ document.addEventListener('DOMContentLoaded', function(){
       ? '<p class="detail-pin-meta">🏷️ Pinterest-Tags: ' + pinterestTagsList.map(escapeHtml).join(', ') + '</p>'
       : '';
 
+    var schedulingLabels = {
+      offen: '⏳ Noch nicht bei Pinterest eingeplant',
+      eingeplant: '✅ Bei Pinterest eingeplant',
+      unbekannt: '❔ Pinterest-Scheduling nicht erfasst'
+    };
+    var schedulingStatus = pin.pinterestSchedulingStatus || 'unbekannt';
+    var schedulingHtml = '<p class="detail-pin-meta">' + (schedulingLabels[schedulingStatus] || schedulingLabels.unbekannt) + '</p>';
+
     var detailImageHtml = pin.image ? '<div class="detail-image"><img src="' + pin.image + '" alt="' + escapeHtml(pin.title) + '" loading="lazy"></div>' : '';
 
     detailContent.innerHTML =
@@ -4507,8 +4535,13 @@ document.addEventListener('DOMContentLoaded', function(){
       '<p class="detail-pin-meta">' + metaParts.join(' · ') + '</p>' +
       publishedHtml +
       scheduledHtml +
+      schedulingHtml +
       pinterestTagsHtml +
-      '<div class="form-actions">' +
+      '<div class="form-actions" style="align-items:center; flex-wrap:wrap;">' +
+        '<select id="copy-pinterest-mode" class="btn-secondary" aria-label="Kopiermodus">' +
+          '<option value="description">Beschreibung ohne Hashtags</option>' +
+          '<option value="hashtags">Beschreibung + Hashtags</option>' +
+        '</select>' +
         '<button type="button" class="btn-secondary" id="copy-for-pinterest-btn">📋 Für Pinterest kopieren</button>' +
       '</div>' +
       detailImageHtml +
@@ -4523,9 +4556,10 @@ document.addEventListener('DOMContentLoaded', function(){
       '</div>';
 
     var copyForPinterestBtn = document.getElementById('copy-for-pinterest-btn');
+    var copyPinterestMode = document.getElementById('copy-pinterest-mode');
     if(copyForPinterestBtn){
       copyForPinterestBtn.addEventListener('click', function(){
-        copyPinForPinterest(pin);
+        copyPinForPinterest(pin, copyPinterestMode ? copyPinterestMode.value : 'description');
       });
     }
 
@@ -4550,19 +4584,22 @@ document.addEventListener('DOMContentLoaded', function(){
       .join('');
   }
 
-  /* Kopiert Beschreibung + Keywords (als #-Tags) für das manuelle Einfügen bei Pinterest
-     in die Zwischenablage. pinterestTags ("Markierte Themen") werden bewusst NICHT
-     mitkopiert, da sie bei Pinterest separat ausgewählt werden. Ändert nie die
-     gespeicherte Beschreibung oder die Keywords selbst. */
-  function copyPinForPinterest(pin){
-    var tagsBlock = buildPinterestKeywordTags(pin.keywords);
+  /* Kopiert wahlweise nur die Beschreibung oder Beschreibung + Keywords als #-Hashtags.
+     pinterestTags ("Markierte Themen") werden bewusst NICHT mitkopiert, da sie bei
+     Pinterest separat ausgewählt werden. Die gespeicherten Pin-Daten bleiben unverändert. */
+  function copyPinForPinterest(pin, mode){
+    var includeHashtags = mode === 'hashtags';
+    var tagsBlock = includeHashtags ? buildPinterestKeywordTags(pin.keywords) : '';
     var text = pin.description + (tagsBlock ? '\n' + tagsBlock : '');
+    var successText = includeHashtags
+      ? 'Beschreibung + Hashtags für Pinterest kopiert.'
+      : 'Beschreibung ohne Hashtags für Pinterest kopiert.';
 
     if(navigator.clipboard && typeof navigator.clipboard.writeText === 'function'){
       navigator.clipboard.writeText(text).then(function(){
-        showStorageBanner('Beschreibung + Keywords für Pinterest kopiert.', 'success');
+        showStorageBanner(successText, 'success');
       }).catch(function(){
-        showStorageBanner('Automatisches Kopieren nicht möglich. Bitte Beschreibung und Keywords manuell kopieren.');
+        showStorageBanner('Automatisches Kopieren nicht möglich. Bitte den Pin-Text manuell kopieren.');
       });
     } else {
       showStorageBanner('Automatisches Kopieren wird von diesem Browser nicht unterstützt. Bitte manuell kopieren.');
